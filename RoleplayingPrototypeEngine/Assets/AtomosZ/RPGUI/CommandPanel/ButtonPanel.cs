@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace AtomosZ.RPG.UI.Panels
 {
+	/// <summary>
+	/// @TODO: Better scrolling to pre-selected item.
+	/// </summary>
 	public class ButtonPanel : MonoBehaviour
 	{
 		[Tooltip("On longer lists might want this disabled")]
@@ -14,10 +17,7 @@ namespace AtomosZ.RPG.UI.Panels
 		[SerializeField] private GameObject actionButtonPrefab = null;
 		[SerializeField] private GameObject pointer = null;
 		[SerializeField] private float pointerOffset = 50;
-		/// <summary>
-		/// Re-usable button supply.
-		/// </summary>
-		private List<PanelItemButton> buttonStore = new List<PanelItemButton>();
+
 		private List<List<PanelItemButton>> activeButtons = new List<List<PanelItemButton>>();
 		private GameObject[] contentContainers = null;
 		private int selectedPanel = 0;
@@ -25,20 +25,11 @@ namespace AtomosZ.RPG.UI.Panels
 		private bool selectionChanged;
 		private Vector2 buttonSize;
 		private Vector2 viewportSize;
-		private Vector3 offset;
+		private Vector2 offset;
 
 
 		public Vector2 InitializePanels(int columns, float columnWidth, Vector2 panelMargin)
 		{
-			if (contentContainers != null)
-			{
-				for (int i = 1; i < contentContainers.Length; ++i)
-				{
-					DestroyImmediate(contentContainers[i].gameObject);
-					contentContainers[i] = null;
-				}
-			}
-
 			RectTransform rectTrans = ((RectTransform)transform);
 			rectTrans.offsetMax = new Vector2(-panelMargin.x, rectTrans.offsetMax.y);
 			rectTrans.offsetMin = new Vector2(panelMargin.x, panelMargin.y);
@@ -63,8 +54,6 @@ namespace AtomosZ.RPG.UI.Panels
 			{
 				DestroyImmediate(data.gameObject);
 			}
-
-			buttonStore.Clear();
 		}
 
 		public void SetItems(ListItemContainer itemContainer)
@@ -76,21 +65,22 @@ namespace AtomosZ.RPG.UI.Panels
 			int panelIndex = 0;
 			for (int i = 0; i < itemContainer.items.Count; ++i)
 			{
-				if (i == buttonStore.Count)
-				{
-					buttonStore.Add(Instantiate(actionButtonPrefab, contentContainers[panelIndex].transform).GetComponent<PanelItemButton>());
-				}
-
-				PanelItemButton actButton = buttonStore[i];
+				PanelItemButton actButton = Instantiate(actionButtonPrefab, contentContainers[panelIndex].transform).GetComponent<PanelItemButton>();
 				actButton.GetComponent<PanelItemButton>().SetButton(itemContainer.items[i]);
 				actButton.gameObject.SetActive(true);
 				activeButtons[panelIndex].Add(actButton);
+
+				if (itemContainer != null && itemContainer == itemContainer.items[i])
+				{
+					selectedPanel = panelIndex;
+					selectedRow = activeButtons[panelIndex].Count - 1;
+				}
 
 				if (++panelIndex >= contentContainers.Length)
 					panelIndex = 0;
 			}
 
-			buttonSize = ((RectTransform)buttonStore[0].transform).rect.size;
+			buttonSize = ((RectTransform)activeButtons[0][0].transform).rect.size;
 			viewportSize = viewport.rect.size;
 
 			StartCoroutine(DelayedSelectionChange());
@@ -108,7 +98,18 @@ namespace AtomosZ.RPG.UI.Panels
 				buttonList.Clear();
 			}
 
+			if (contentContainers != null)
+			{
+				for (int i = 1; i < contentContainers.Length; ++i)
+				{
+					Destroy(contentContainers[i].gameObject);
+					contentContainers[i] = null;
+				}
+			}
+
+			contentContainers = null;
 			activeButtons.Clear();
+			offset = Vector3.zero;
 		}
 
 		public ListItem GetSelected()
@@ -158,6 +159,11 @@ namespace AtomosZ.RPG.UI.Panels
 			selectionChanged = true;
 		}
 
+		public void Ready()
+		{
+			SetSelected(selectedPanel, selectedRow);
+		}
+
 		/// <summary>
 		/// Must check if activeButtons[panelIndex][index] is valid before hand
 		/// and adjust panelIndex/index accordingly.
@@ -181,14 +187,14 @@ namespace AtomosZ.RPG.UI.Panels
 			{
 				float diff = buttonpos.y - (viewport.rect.min.y - offset.y);
 				int mult = Mathf.Abs(Mathf.CeilToInt(diff / buttonSize.y)) + 1;
-				offset += new Vector3(0, buttonSize.y) * mult;
+				offset += new Vector2(0, buttonSize.y) * mult;
 				contentsHolder.position += new Vector3(0, buttonSize.y) * mult;
 			}
 			else if (buttonpos.y >= viewport.rect.max.y - offset.y)
 			{
 				float diff = buttonpos.y - (viewport.rect.max.y - offset.y);
 				int mult = Mathf.Abs(Mathf.CeilToInt(diff / buttonSize.y)) + 1;
-				offset -= new Vector3(0, buttonSize.y) * mult;
+				offset -= new Vector2(0, buttonSize.y) * mult;
 				contentsHolder.position -= new Vector3(0, buttonSize.y) * mult;
 			}
 
@@ -200,11 +206,13 @@ namespace AtomosZ.RPG.UI.Panels
 			//infoPanel.SetDetails(activeButtons[index].commandData);
 		}
 
+		/// <summary>
+		/// Layout needs an update to arrange itself before position of content panel can be moved.
+		/// </summary>
+		/// <returns></returns>
 		private System.Collections.IEnumerator DelayedSelectionChange()
 		{
 			yield return null;
-			selectionChanged = true;
-
 			RectTransform contentsTrans = ((RectTransform)contentsHolder);
 			contentsTrans.anchoredPosition = new Vector2(contentsTrans.anchoredPosition.x, -contentsTrans.sizeDelta.y / 2);
 		}

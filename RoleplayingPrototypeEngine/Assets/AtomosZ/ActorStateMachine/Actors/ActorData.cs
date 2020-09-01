@@ -8,6 +8,7 @@ namespace AtomosZ.ActorStateMachine.Actors
 	public class ActorData : ScriptableObject
 	{
 		public string actorName;
+		public bool isPlayerCharacter;
 		[Tooltip("If this actor is a descendant of another, put the base actor here." +
 			" Essential for palette swapping.")]
 		public ActorData baseActor;

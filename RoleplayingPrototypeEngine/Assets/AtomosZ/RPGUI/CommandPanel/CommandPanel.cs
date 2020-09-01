@@ -40,7 +40,6 @@ namespace AtomosZ.RPG.UI.Panels
 			Vector2 panelsSize = buttonPanel.InitializePanels(columns, columnWidth, panelMargin);
 			RectTransform rectTrans = ((RectTransform)transform);
 			rectTrans.sizeDelta = new Vector2(panelsSize.x + panelMargin.x * 2, viewportHeight + panelMargin.y * 2);
-
 		}
 
 		public void DeleteDummyData()
@@ -82,6 +81,7 @@ namespace AtomosZ.RPG.UI.Panels
 		/// <param name="position"></param>
 		public void OpenPanel(ListItemContainer items, Vector2 position)
 		{
+			gameObject.SetActive(true);
 			listItemContainer = items;
 			this.transform.localPosition = position
 				+ new Vector2(-((RectTransform)transform).rect.size.x, ((RectTransform)transform).rect.size.y) * .5f;
@@ -91,18 +91,31 @@ namespace AtomosZ.RPG.UI.Panels
 		}
 
 
+		public void Hide()
+		{
+			this.gameObject.SetActive(false);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="showPanel"></param>
+		public void Show()
+		{
+			this.gameObject.SetActive(true);
+		}
+
 		public void ClosePanel()
 		{
-			if (listItemContainer.isCancelable)
-			{
-				buttonPanel.DeactivateButtons();
-				this.gameObject.SetActive(false);
-			}
+			buttonPanel.DeactivateButtons();
+			this.gameObject.SetActive(false);
 		}
 
 		public ListItem GetSelected()
 		{
-			return buttonPanel.GetSelected();
+			ListItem selected = buttonPanel.GetSelected();
+			listItemContainer.lastSelected = selected;
+			return selected;
 		}
 
 		public void NavigateDown()
@@ -127,8 +140,22 @@ namespace AtomosZ.RPG.UI.Panels
 
 		private System.Collections.IEnumerator OpenAnimation()
 		{
-			yield return null;
+			RectTransform rt = (RectTransform)transform;
+			Vector2 finalSize = rt.sizeDelta;
+			Vector2 initialSize = new Vector2(0, 0);
+			rt.sizeDelta = new Vector2(0, 0);
 			this.gameObject.SetActive(true);
+			float t = 0;
+			float timeToFinishAnimation = .25f;
+			while (t <= timeToFinishAnimation)
+			{
+				yield return null;
+				t += Time.unscaledDeltaTime;
+				rt.sizeDelta = Vector2.Lerp(initialSize, finalSize, t / timeToFinishAnimation);
+			}
+
+			rt.sizeDelta = finalSize;
+			buttonPanel.Ready();
 		}
 	}
 
@@ -153,6 +180,7 @@ namespace AtomosZ.RPG.UI.Panels
 		/// Can the submenu be canceled or must an option be selected?
 		/// </summary>
 		public bool isCancelable = true;
+		public ListItem lastSelected;
 
 
 		public ListItemContainer(List<ListItem> items, string listName, int columns = 1, bool isStackable = true, bool isCancelable = true)
@@ -169,7 +197,7 @@ namespace AtomosZ.RPG.UI.Panels
 	public class ChooseTargetListItem : ListItem
 	{
 		/// <summary>
-		/// If true, starts selecting enemies first.
+		/// Is this ability used primarily as an attack? If true, starts selecting enemies first.
 		/// </summary>
 		public bool isOffensive;
 	}
