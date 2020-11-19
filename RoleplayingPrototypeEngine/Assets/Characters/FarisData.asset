@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab91905399dad554db2601d703af96ec, type: 3}
+  m_Name: FarisData
+  m_EditorClassIdentifier: 
+  actorName: Faris
+  isPlayerCharacter: 1
+  baseActor: {fileID: 0}
+  sprite: {fileID: -7964831491746213158, guid: c0219c3e340946145b0a2fbbf9fc7391, type: 3}
+  animatorController: {fileID: 9100000, guid: 24e67cab4de4bae4a9e810c5ba8cf015, type: 2}
+  animationPrefix: Faris_NoClass_
+  animationStates: 00000000010000000200000003000000040000000500000006000000
+  hasFacings: 00000000000000
+  colorPalette: []
+  movementSpeed: 0
+  hp: 10
+  mp: 5
+  speed: 5
+  stamina: 10
+  commands:
+  - Fight
