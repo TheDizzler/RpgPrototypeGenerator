@@ -160,6 +160,14 @@ namespace AtomosZ.RPG.UI.Panels
 	}
 
 
+	public class ListItem
+	{
+		/// <summary>
+		/// Name that appears on the button.
+		/// </summary>
+		public string name;
+	}
+
 	/// <summary>
 	/// A ListItem that opens a submenu when selected.
 	/// ListItem.name becomes the header for the new menu.
@@ -200,18 +208,10 @@ namespace AtomosZ.RPG.UI.Panels
 		/// Is this ability used primarily as an attack? If true, starts selecting enemies first.
 		/// </summary>
 		public bool isOffensive;
-	}
-
-	public class ListItem
-	{
-		public string name;
 		//private void Test() {}
 		//new ListItem() { onItemSelect = Test };
-		public UnityAction onItemSelect;
-		/// <summary>
-		/// Name that appears on the button.
-		/// </summary>
+		public UnityAction<GameObject> onTargetSelect;
+
+		public class TargetedUnityAction : UnityEvent<GameObject> { }
 	}
-
-
 }

@@ -18,18 +18,22 @@ namespace AtomosZ.ActorStateMachine.Actors
 		protected ActionFSM<TActor> actionFSM;
 
 
+
+		public abstract bool IsDead();
+		protected abstract void UpdateActor();
+
+
 		void Update()
 		{
 			actorController.UpdateCommands();
-			actionFSM.UpdateState();
+			if (movementFSM != null) // if null probably deleted after In-Editor game close
+				actionFSM.UpdateState();
 			actorController.PostFSMInputConsume();
 
 			UpdateActor();
 
 			inputQueue.Clear();
 		}
-
-		protected abstract void UpdateActor();
 
 
 		void FixedUpdate()
@@ -38,7 +42,8 @@ namespace AtomosZ.ActorStateMachine.Actors
 
 			// may have to do another physics update here
 
-			movementFSM.UpdateState();
+			if (movementFSM != null) // if null probably deleted after In-Editor game close
+				movementFSM.UpdateState();
 
 			actorPhysics.ApplyToPhysics();
 
@@ -62,13 +67,13 @@ namespace AtomosZ.ActorStateMachine.Actors
 	/// <summary>
 	/// Do not inherit from this class. Inherit from Actor instead.
 	/// </summary>
-	public abstract class BaseActor: MonoBehaviour
+	public abstract class BaseActor : MonoBehaviour
 	{
 		[System.NonSerialized] public Vector2 inputVector = Vector2.zero;
 
 		public LinkedList<ActionType> inputQueue = new LinkedList<ActionType>();
 
-		public IActorPhysics actorPhysics;
+		public ActorPhysics2D actorPhysics;
 		public FacingDirection currentFacing = (FacingDirection)(-1);
 
 		[SerializeField]
@@ -86,10 +91,10 @@ namespace AtomosZ.ActorStateMachine.Actors
 
 		void Start()
 		{
-			actorPhysics = GetComponent<IActorPhysics>();
+			actorPhysics = GetComponent<ActorPhysics2D>();
 
 			if (actorController == null)
-			{// no controller eh?
+			{ // no controller eh?
 				actorController = GetComponent<IActorController>();
 			}
 

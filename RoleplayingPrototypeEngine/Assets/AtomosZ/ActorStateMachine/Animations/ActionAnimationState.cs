@@ -10,6 +10,8 @@
 	/// </summary>
 	public enum ActionAnimationState
 	{
+		NotSet = 0,
+
 		Neutral,
 		Walk,
 

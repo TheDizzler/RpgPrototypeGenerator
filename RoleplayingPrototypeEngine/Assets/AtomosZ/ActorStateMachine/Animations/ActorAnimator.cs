@@ -47,10 +47,10 @@ namespace AtomosZ.ActorStateMachine.Animation
 			offsetPropertyId = Shader.PropertyToID("_Offset");
 
 			animator = GetComponent<Animator>();
+			spriteRenderer.sprite = data.sprite;
 			if (data.animatorController == null)
 			{
 				Debug.LogWarning(data.actorName + " data has no animatorController");
-				GetComponent<SpriteRenderer>().sprite = data.sprite;
 			}
 			else
 			{
@@ -197,8 +197,8 @@ namespace AtomosZ.ActorStateMachine.Animation
 
 		void LateUpdate()
 		{
-			float relativeZ = transform.localPosition.y;
-			spriteMaterial.SetFloat(offsetPropertyId, relativeZ * 100);
+			//float relativeZ = transform.localPosition.y;
+			//spriteMaterial.SetFloat(offsetPropertyId, relativeZ * 100);
 		}
 	}
 }

@@ -17,7 +17,8 @@ namespace AtomosZ.RPG.UI.Panels
 		public void SetButton(ListItem lstItm)
 		{
 			listItem = lstItm;
-			button.onClick.AddListener(listItem.onItemSelect);
+			// this is not used but if touch input is enabled will be required
+			//button.onClick.AddListener(listItem.buttonAction);
 			text.SetText(listItem.name);
 		}
 	}

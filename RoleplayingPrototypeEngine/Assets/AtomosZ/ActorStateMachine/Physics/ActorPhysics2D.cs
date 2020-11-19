@@ -4,7 +4,6 @@ namespace AtomosZ.ActorStateMachine.Physics
 {
 	public class ActorPhysics2D : IActorPhysics
 	{
-		protected Rigidbody2D body;
 		/// <summary>
 		/// The actor's facing direction
 		/// </summary>
@@ -12,10 +11,14 @@ namespace AtomosZ.ActorStateMachine.Physics
 		public Vector2 desiredVelocity;
 		public Vector2 velocityLastUpdate;
 
+		public Rigidbody2D body2d;
+		public CapsuleCollider2D coll2d;
+
 
 		void OnEnable()
 		{
-			body = GetComponent<Rigidbody2D>();
+			body2d = GetComponent<Rigidbody2D>();
+			coll2d = GetComponent<CapsuleCollider2D>();
 		}
 
 
@@ -30,7 +33,7 @@ namespace AtomosZ.ActorStateMachine.Physics
 
 		public override void ApplyToPhysics()
 		{
-			body.velocity = desiredVelocity;
+			body2d.velocity = desiredVelocity;
 			velocityLastUpdate = desiredVelocity;
 			desiredVelocity = Vector3.zero;
 		}
