@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AtomosZ.RPG.UI.Panels;
 using UnityEngine;
 
@@ -14,7 +13,7 @@ namespace AtomosZ.RPG.UI
 	{
 		public DialogPanel dialogPanel;
 
-		private Queue<CinematicEvent> eventQueue = new Queue<CinematicEvent>();
+		public Queue<CinematicEvent> eventQueue = new Queue<CinematicEvent>();
 
 
 
@@ -32,10 +31,9 @@ namespace AtomosZ.RPG.UI
 					Debug.Log(imageName);
 					string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
 					Debug.Log(dialogText);
-					DialogEvent dialog = new DialogEvent(dialogText, imageName);
 
-					//eventQueue.Enqueue(dialog);
-					dialogPanel.NextLine(dialog);
+					DialogEvent dialog = new DialogEvent(dialogText, imageName);
+					eventQueue.Enqueue(dialog);
 					break;
 				default:
 					Debug.Log("Unknown event tag: " + eventTag);
@@ -46,7 +44,20 @@ namespace AtomosZ.RPG.UI
 
 		public void RunEventQueue()
 		{
+			if (eventQueue.Count == 0)
+			{
+				Debug.Log("EventQueue empty");
+				return;
+			}
+
 			var nextEvent = eventQueue.Dequeue();
+			switch (nextEvent.eventType)
+			{
+				case CinematicEvent.CinematicEventType.Dialog:
+					dialogPanel.NextLine((DialogEvent)nextEvent);
+					break;
+
+			}
 		}
 
 
