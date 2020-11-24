@@ -1,0 +1,42 @@
+# this is an example of how cinematic may look
+
+{
+	"eventID": "0001",					# event ID for debugging
+	"tasks": [
+		{
+			"camera":
+			{
+				"halts":false,			#must following tasks wait for this task to complete (default true)
+				"pan":
+				[
+					"relative": true,	#are x and y numbers below relative movement or real
+					"x":100,			#relative horizontal distance to move OR final x-pos to move to
+					"y":10,				#relative horizontal distance to move OR final x-pos to move to
+					"time":2000, 		#time in ms
+				]
+			},
+			"camera":
+			{
+				"halts":true,			#must following tasks wait for this task to complete (default true)
+				"fade":
+				[
+					"#ffffffff",		#from color
+					"#00000000",		#to color
+					1000, 				#time in ms
+				],
+			},
+			
+			"dialog":
+			{
+				"speaker":
+			}
+		}
+	
+	]
+	
+	
+# waitFlag is boolean whether next task must wait for this task to complete before starting 0 -> must wait 1-> no wait
+
+#waitFlag taskDelegate taskInstruction taskArg1 taskArg2 ....
+1 camera pan x:
+0 camera fade 000000 ffffff		# camera action

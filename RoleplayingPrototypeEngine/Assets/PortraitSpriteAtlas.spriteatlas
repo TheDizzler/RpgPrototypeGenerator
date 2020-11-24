@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PortraitSpriteAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+    totalSpriteSurfaceArea: 722500
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: -5149109853906446404, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 4580815906964446333, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 1201550759005165614, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -3768282605009354842, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -2311493140615799596, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -2295531045377761368, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 4732438055769092815, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 2806210187566748925, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 1225756115207026691, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 6849351713469637572, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -8948496794781068342, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -8636171165632500948, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -7374529750845097451, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -4917599896374068636, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -6805365404088411655, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -6657604301679923032, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 7817158121695121598, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -7925202540230920254, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -7033941139450228182, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -1049846711241413706, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -746970748654786462, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -5840502199327576941, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: 7560138608904442887, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -3556206833386805183, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  - {fileID: -6562941394075184819, guid: f347ef518785e924782eaf15fec0cdbf, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Edgar_Portrait
+  - 67790_23
+  - 67790_22
+  - 67790_21
+  - 67790_20
+  - 67790_16
+  - 67790_17
+  - 67790_14
+  - 67790_15
+  - 67790_12
+  - Relm_Portrait
+  - 67790_13
+  - 67790_11
+  - 67790_18
+  - 67790_19
+  - Empty_Portrait
+  - 67790_3
+  - 67790_1
+  - 67790_7
+  - 67790_6
+  - 67790_4
+  - 67790_9
+  - 67790_8
+  - Terra_Portrait
+  - Celes_Portrait
+  m_Tag: PortraitSpriteAtlas
+  m_IsVariant: 0
