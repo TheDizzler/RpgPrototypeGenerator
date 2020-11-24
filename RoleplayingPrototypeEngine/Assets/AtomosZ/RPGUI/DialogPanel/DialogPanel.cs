@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using TMPro;
+using Unity.EditorCoroutines.Editor;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
@@ -33,9 +34,9 @@ namespace AtomosZ.RPG.UI.Panels
 		private bool displayAll = false;
 
 		private Coroutine typingCoroutine = null;
+		private EditorCoroutine editorCoroutine;
 
-
-		 void Start()
+		void Start()
 		{
 			waitForChar = new WaitForSeconds(timeBetweenChars);
 		}
@@ -57,20 +58,30 @@ namespace AtomosZ.RPG.UI.Panels
 			{
 				Debug.LogError("Should not be pushing a line will "
 					+ "other line is not finished displaying");
+				StopCoroutine(typingCoroutine);
 			}
+#if UNITY_EDITOR
+			else if (editorCoroutine != null)
+			{
+				EditorCoroutineUtility.StopCoroutine(editorCoroutine);
+			}
+#endif
 
 			Sprite sprite = spriteAtlas.GetSprite(dialog.image);
 			if (sprite != null)
-			{
 				portrait.sprite = sprite;
-			}
 			else
 				portrait.sprite = missingPortrait;
 
 
 			continueTextImage.gameObject.SetActive(false);
 
-			typingCoroutine = StartCoroutine(DisplayText(dialog.text));
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(DisplayText(dialog.text));
+			else
+#endif
+				typingCoroutine = StartCoroutine(DisplayText(dialog.text));
 		}
 
 
