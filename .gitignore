@@ -35,7 +35,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
-OhBehaveTree/Assets/OhBehaveTree/Editor/_Blueprints/
-OhBehaveTree/Assets/StreamingAssets/OhBehaveTrees/
-OhBehaveTree/Assets/StreamingAssets/OhBehaveTrees.meta
 RoleplayingPrototypeEngine/Assets/TextMesh Pro/Documentation/
+RoleplayingPrototypeEngine/Assets/TextMesh Pro/Documentation.meta
