@@ -24,8 +24,9 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils
 			/// </summary>
 			End
 		}
-
+#pragma warning disable 0414  // temp disable warning
 		private ContestPhase contestPhase;
+#pragma warning restore 0414
 		private BattleActor initiator;
 		private BattleActor target;
 		private FightAction action;

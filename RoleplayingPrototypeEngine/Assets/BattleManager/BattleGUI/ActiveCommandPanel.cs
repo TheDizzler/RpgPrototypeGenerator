@@ -14,7 +14,9 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
 	public class ActiveCommandPanel : CommandPanel
 	{
 		[SerializeField] private Vector2 screenPosition = Vector2.zero;
+#pragma warning disable 0414  // temp disable warning
 		[SerializeField] private InfoPanel infoPanel = null;
+#pragma warning restore 0414
 
 		private PlayerTacticalController owningPlayer;
 		private BattleActor battleActor;

@@ -10,8 +10,10 @@ namespace AtomosZ.RPG.UI.Panels
 
 		[SerializeField]
 		private TextMeshProUGUI text = null;
+#pragma warning disable 0414  // temp disable warning
 		[SerializeField]
 		private Button button = null;
+#pragma warning restore 0414
 
 
 		public void SetButton(ListItem lstItm)
