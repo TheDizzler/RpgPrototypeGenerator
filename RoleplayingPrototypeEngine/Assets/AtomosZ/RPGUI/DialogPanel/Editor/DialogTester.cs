@@ -7,27 +7,17 @@ namespace AtomosZ.RPG.UI.EditorTools
 	[CustomEditor(typeof(CinematicManager))]
 	public class DialogTester : Editor
 	{
-		private List<string> test = new List<string> {
-			"dialog Relm_Portrait This is a test.\nIs it succesful?",
-			"dialog Terra_Portrait It seems so.",
-			"dialog Edgar_Portrait Hello, ladies.",
-		};
-		private int next = 0;
-
-
 		public override void OnInspectorGUI()
 		{
 			DrawDefaultInspector();
 
 
-			if (GUILayout.Button("Add Event to queue"))
+			if (GUILayout.Button("Load Event"))
 			{
-				if (next >= test.Count)
-					next = 0;
-				((CinematicManager)target).LoadEvent(test[next++]);
+				((CinematicManager)target).LoadEvent(((CinematicManager)target).testEvent);
 			}
 
-			int numEvents = ((CinematicManager)target).eventQueue.Count;
+			int numEvents = ((CinematicManager)target).GetEventCount();
 			if (GUILayout.Button("Test Events (" + numEvents + " in queue)"))
 			{
 				((CinematicManager)target).RunEventQueue();
@@ -36,11 +26,6 @@ namespace AtomosZ.RPG.UI.EditorTools
 			if (GUILayout.Button("Clear Dialog"))
 			{
 				((CinematicManager)target).ClearDialog();
-				test = new List<string> {
-					"dialog Relm_Portrait This is a test.\nIs it succesful?",
-					"dialog Terra_Portrait It seems so.",
-					"dialog Edgar_Portrait Hello, ladies.",
-				};
 			}
 		}
 	}

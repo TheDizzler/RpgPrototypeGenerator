@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using TMPro;
 using Unity.EditorCoroutines.Editor;
 using UnityEngine;
@@ -30,15 +29,18 @@ namespace AtomosZ.RPG.UI.Panels
 		public SpriteAtlas spriteAtlas;
 		public float timeBetweenChars = .1f;
 
-		private WaitForSeconds waitForChar;
+		private WaitForSecondsRealtime waitForChar;
 		private bool displayAll = false;
 
 		private Coroutine typingCoroutine = null;
+#if UNITY_EDITOR
 		private EditorCoroutine editorCoroutine;
+#endif
+
 
 		void Start()
 		{
-			waitForChar = new WaitForSeconds(timeBetweenChars);
+			waitForChar = new WaitForSecondsRealtime(timeBetweenChars);
 		}
 
 
@@ -73,7 +75,6 @@ namespace AtomosZ.RPG.UI.Panels
 			else
 				portrait.sprite = missingPortrait;
 
-
 			continueTextImage.gameObject.SetActive(false);
 
 #if UNITY_EDITOR
@@ -85,11 +86,11 @@ namespace AtomosZ.RPG.UI.Panels
 		}
 
 
-
 		public void HurryText()
 		{
 			displayAll = true;
 		}
+
 
 
 		private IEnumerator DisplayText(string fullText)
@@ -114,14 +115,16 @@ namespace AtomosZ.RPG.UI.Panels
 
 				currentText += fullText[charIndex++];
 				textbox.SetText(currentText);
-				yield return waitForChar;
+#if UNITY_EDITOR
+				if (!Application.isPlaying)
+					yield return null;
+				else
+#endif
+					yield return waitForChar;
 			}
 
 			continueTextImage.gameObject.SetActive(true);
 			typingCoroutine = null;
 		}
 	}
-
-
-
 }

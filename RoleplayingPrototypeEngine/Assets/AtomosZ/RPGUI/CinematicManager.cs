@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AtomosZ.RPG.UI.Panels;
 using UnityEngine;
 
@@ -11,42 +12,52 @@ namespace AtomosZ.RPG.UI
 	/// </summary>
 	public class CinematicManager : MonoBehaviour
 	{
+		public TextAsset testEvent;
 		public DialogPanel dialogPanel;
 
-		public Queue<CinematicEvent> eventQueue = new Queue<CinematicEvent>();
+		private Queue<CinematicEvent> eventQueue = new Queue<CinematicEvent>();
+		private string eventText;
 
 
 
-		public void LoadEvent(string eventTextFile)
+		public void LoadEvent(TextAsset eventTextAsset)
 		{
-			int secondArgIndex = eventTextFile.IndexOf(' ');
-			string eventTag = eventTextFile.Substring(0, secondArgIndex);
-			switch (eventTag)
+			eventText = eventTextAsset.text;
+			List<string> lines = new List<string>(eventText.Split('\r'));
+			foreach (var line in lines)
 			{
-				case "dialog":
-					Debug.Log(eventTag);
-					string minusTag = eventTextFile.Substring(secondArgIndex + 1);
-					Debug.Log(minusTag);
-					string imageName = minusTag.Substring(0, minusTag.IndexOf(' '));
-					Debug.Log(imageName);
-					string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
-					Debug.Log(dialogText);
-
-					DialogEvent dialog = new DialogEvent(dialogText, imageName);
-					eventQueue.Enqueue(dialog);
-					break;
-				default:
-					Debug.Log("Unknown event tag: " + eventTag);
-					break;
+				string trimmedLine = line.TrimStart();
+				Debug.Log(trimmedLine);
+				int secondArgIndex = trimmedLine.IndexOf(' ');
+				string eventTag = trimmedLine.Substring(0, secondArgIndex);
+				switch (eventTag)
+				{
+					case "dialog":
+						string minusTag = trimmedLine.Substring(secondArgIndex + 1);
+						string imageName = minusTag.Substring(0, minusTag.IndexOf(' '));
+						string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
+						DialogEvent dialog = new DialogEvent(dialogText, imageName);
+						eventQueue.Enqueue(dialog);
+						break;
+					default:
+						Debug.Log("Unknown event tag: " + eventTag);
+						break;
+				}
 			}
 		}
 
+
+		public int GetEventCount()
+		{
+			return eventQueue.Count;
+		}
 
 		public void RunEventQueue()
 		{
 			if (eventQueue.Count == 0)
 			{
 				Debug.Log("EventQueue empty");
+				ClearDialog();
 				return;
 			}
 
@@ -56,7 +67,6 @@ namespace AtomosZ.RPG.UI
 				case CinematicEvent.CinematicEventType.Dialog:
 					dialogPanel.NextLine((DialogEvent)nextEvent);
 					break;
-
 			}
 		}
 
@@ -75,7 +85,7 @@ namespace AtomosZ.RPG.UI
 		{
 			Unknown,    // this event uninitialized
 			Camera,     // camera does something
-			Character,  // character on screen does something
+			Actor,  // actor on screen does something
 			Dialog,     // dialog popup
 		}
 
@@ -106,6 +116,5 @@ namespace AtomosZ.RPG.UI
 			text = dialogText;
 			image = spriteName;
 		}
-
 	}
 }
