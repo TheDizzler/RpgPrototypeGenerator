@@ -18,7 +18,7 @@ namespace AtomosZ.RPG.UI.EditorTools
 			}
 
 			int numEvents = ((CinematicManager)target).GetEventCount();
-			if (GUILayout.Button("Test Events (" + numEvents + " in queue)"))
+			if (GUILayout.Button("Next Event (" + numEvents + " in queue)"))
 			{
 				((CinematicManager)target).RunEventQueue();
 			}
