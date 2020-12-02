@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AtomosZ.RPG.UI;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using static AtomosZ.RPG.UI.CinematicEvent;
 
@@ -13,6 +12,7 @@ namespace AtomosZ.RPG.Event.EditorTools
 
 		private static GUIStyle rectStyle;
 
+		private Queue<DeferredCommand> deferredCommandQueue;
 		private List<CinematicEvent> sceneEvents = new List<CinematicEvent>();
 		private Vector2 scrollPos;
 
@@ -32,8 +32,10 @@ namespace AtomosZ.RPG.Event.EditorTools
 		{
 			if (rectStyle == null)
 				rectStyle = new GUIStyle(EditorStyles.helpBox) { };
+			if (deferredCommandQueue == null)
+				deferredCommandQueue = new Queue<DeferredCommand>();
 
-			
+
 			EditorGUILayout.BeginVertical(rectStyle);
 			{
 				// header toolbar
@@ -74,6 +76,32 @@ namespace AtomosZ.RPG.Event.EditorTools
 				EditorGUILayout.EndHorizontal();
 			}
 			EditorGUILayout.EndVertical();
+
+			
+			while (deferredCommandQueue.Count != 0)
+			{
+				DeferredCommand command = deferredCommandQueue.Dequeue();
+				switch (command.commandType)
+				{
+					case DeferredCommand.DeferredCommandType.MoveUp:
+					{
+						int index = sceneEvents.IndexOf(command.eventData);
+						sceneEvents.Remove(command.eventData);
+						sceneEvents.Insert(index - 1, command.eventData);
+					}
+					break;
+					case DeferredCommand.DeferredCommandType.MoveDown:
+					{
+						int index = sceneEvents.IndexOf(command.eventData);
+						sceneEvents.Remove(command.eventData);
+						sceneEvents.Insert(index + 1, command.eventData);
+					}
+					break;
+					default:
+						Debug.LogError("No actions for deferred command type " + command.commandType);
+						break;
+				}
+			}
 		}
 
 
@@ -84,6 +112,23 @@ namespace AtomosZ.RPG.Event.EditorTools
 
 			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(500));
 			{
+				// move up/down buttons
+				EditorGUILayout.BeginVertical(GUILayout.Width(10));
+				{
+					if (GUILayout.Button("^"))
+					{
+						if (sceneEvents.IndexOf(eventData) != 0)
+							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveUp));
+					}
+
+					if (GUILayout.Button("v"))
+					{
+						if (sceneEvents.IndexOf(eventData) != sceneEvents.Count - 1)
+							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveDown));
+					}
+				}
+				EditorGUILayout.EndVertical();
+
 				eventType = (CinematicEventType)EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
 
 				if (eventType != eventData.eventType)
@@ -124,6 +169,22 @@ namespace AtomosZ.RPG.Event.EditorTools
 		private void NotImplementedEvent()
 		{
 			GUILayout.Label(new GUIContent("Not yet implemented"));
+		}
+
+
+		private class DeferredCommand
+		{
+			public enum DeferredCommandType { MoveUp, MoveDown };
+
+			public CinematicEvent eventData;
+			public DeferredCommandType commandType;
+
+
+			public DeferredCommand(CinematicEvent eventData, DeferredCommandType commandType)
+			{
+				this.eventData = eventData;
+				this.commandType = commandType;
+			}
 		}
 	}
 }
