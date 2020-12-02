@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AtomosZ.RPG.UI.Panels;
 using UnityEngine;
 
@@ -67,6 +66,9 @@ namespace AtomosZ.RPG.UI
 				case CinematicEvent.CinematicEventType.Dialog:
 					dialogPanel.NextLine((DialogEvent)nextEvent);
 					break;
+				default:
+					Debug.LogWarning("Event type " + nextEvent.eventType + " unrecognized or un-implemented");
+					break;
 			}
 		}
 
@@ -90,9 +92,17 @@ namespace AtomosZ.RPG.UI
 		}
 
 		public CinematicEventType eventType = CinematicEventType.Unknown;
-		public bool haltsQueueUntilFinished;
+		public bool haltsQueueUntilFinished = false;
 	}
 
+
+	public class EmptyCinematicEvent : CinematicEvent
+	{
+		public EmptyCinematicEvent()
+		{
+			eventType = CinematicEventType.Unknown;
+		}
+	}
 
 	/// <summary>
 	/// The smallest part of a dialog.
