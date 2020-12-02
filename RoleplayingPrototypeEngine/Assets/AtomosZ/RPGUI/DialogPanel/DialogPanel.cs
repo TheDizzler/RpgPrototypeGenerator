@@ -15,6 +15,7 @@ namespace AtomosZ.RPG.UI.Panels
 	///		
 	/// NOT duties of DialogPanel:
 	///		Consume results of Response Dialog
+	///		Parsing any text or files (aside from font/style info)
 	///		
 	/// </summary>
 	public class DialogPanel : MonoBehaviour
