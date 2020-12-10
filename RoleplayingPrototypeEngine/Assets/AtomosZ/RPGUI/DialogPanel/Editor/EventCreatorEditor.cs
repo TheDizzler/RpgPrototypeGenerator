@@ -9,6 +9,7 @@ namespace AtomosZ.RPG.Event.EditorTools
 	public class EventCreatorEditor : EditorWindow
 	{
 		private static EventCreatorEditor window;
+		private static DialogTreeViewEditor treeViewWindow;
 
 		private static GUIStyle rectStyle;
 
@@ -22,6 +23,8 @@ namespace AtomosZ.RPG.Event.EditorTools
 		{
 			window = (EventCreatorEditor)GetWindow(typeof(EventCreatorEditor));
 			window.titleContent = new GUIContent("Event Editor");
+
+			treeViewWindow = (DialogTreeViewEditor)GetWindow(typeof(DialogTreeViewEditor));
 
 			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
 			// open last edited scene
