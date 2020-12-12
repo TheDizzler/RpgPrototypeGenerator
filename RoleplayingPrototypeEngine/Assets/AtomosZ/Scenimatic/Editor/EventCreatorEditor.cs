@@ -1,20 +1,23 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.UI;
+using System.IO;
+using AtomosZ.RPG.Scenimatic.Schemas;
 using UnityEditor;
 using UnityEngine;
-using static AtomosZ.RPG.UI.CinematicEvent;
+using static AtomosZ.RPG.Scenimatic.ScenimaticEvent;
 
-namespace AtomosZ.RPG.Event.EditorTools
+namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	public class EventCreatorEditor : EditorWindow
 	{
+		public static string userScenimaticFolder = "/Assets/StreamingAssets/Scenimatic/";
+
 		private static EventCreatorEditor window;
 		private static DialogTreeViewEditor treeViewWindow;
 
 		private static GUIStyle rectStyle;
 
 		private Queue<DeferredCommand> deferredCommandQueue;
-		private List<CinematicEvent> sceneEvents = new List<CinematicEvent>();
+		private List<ScenimaticEvent> sceneEvents = new List<ScenimaticEvent>();
 		private Vector2 scrollPos;
 
 
@@ -47,12 +50,42 @@ namespace AtomosZ.RPG.Event.EditorTools
 					GUILayout.Label(new GUIContent("Name of Scene here maybe"));
 					if (GUILayout.Button("Load Scene"))
 					{
+						string path = EditorUtility.OpenFilePanelWithFilters(
+							"Choose new OhBehave file",
+							"Assets/StreamingAssets/" + EventCreatorEditor.userScenimaticFolder,
+							new string[] { "Scenimatic Json file", "SceneJson" });
+					}
 
+					if (GUILayout.Button("New Scene"))
+					{
+						var di = Directory.CreateDirectory(
+							Directory.GetCurrentDirectory() + EventCreatorEditor.userScenimaticFolder);
+						AssetDatabase.Refresh(); // does this do ?
+						
+						ScenimaticScript script = new ScenimaticScript();
+						script.branches = new List<ScenimaticBranch>();
+						script.branches.Add(new ScenimaticBranch() {
+							events = new List<ScenimaticEvent>()
+							{
+								new ScenimaticEvent("test", "image"),
+							}
+						});
+
+
+						StreamWriter writer = new StreamWriter(di.FullName + "NewScenimatic.SceneJson");
+						writer.WriteLine(JsonUtility.ToJson(script, true));
+						writer.Close();
+
+						AssetDatabase.SaveAssets();
+						AssetDatabase.Refresh();
+						EditorUtility.SetDirty(this);
+
+						//EditorUtility.FocusProjectWindow();
 					}
 
 					if (GUILayout.Button("Add Event"))
 					{
-						sceneEvents.Add(new EmptyCinematicEvent());
+						sceneEvents.Add(new ScenimaticEvent()); // add empty event
 					}
 				}
 				EditorGUILayout.EndHorizontal();
@@ -80,7 +113,7 @@ namespace AtomosZ.RPG.Event.EditorTools
 			}
 			EditorGUILayout.EndVertical();
 
-			
+
 			while (deferredCommandQueue.Count != 0)
 			{
 				DeferredCommand command = deferredCommandQueue.Dequeue();
@@ -108,9 +141,9 @@ namespace AtomosZ.RPG.Event.EditorTools
 		}
 
 
-		private CinematicEvent ParseEvent(CinematicEvent eventData)
+		private ScenimaticEvent ParseEvent(ScenimaticEvent eventData)
 		{
-			CinematicEventType eventType = eventData.eventType;
+			ScenimaticEventType eventType = eventData.eventType;
 			// Event Type selection/detection
 
 			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(500));
@@ -132,27 +165,27 @@ namespace AtomosZ.RPG.Event.EditorTools
 				}
 				EditorGUILayout.EndVertical();
 
-				eventType = (CinematicEventType)EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
+				eventType = (ScenimaticEventType)EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
 
 				if (eventType != eventData.eventType)
 				{
-					if (eventData.eventType != CinematicEventType.Unknown)
+					if (eventData.eventType != ScenimaticEventType.Unknown)
 					{
 						Debug.LogWarning("Event type changed. Loss of data likely. Need warning popup here.");
 					}
 
 					switch (eventType)
 					{
-						case CinematicEventType.Dialog:
-							eventData = new DialogEvent("Dialog Text here", "Image name here");
+						case ScenimaticEventType.Dialog:
+							eventData = new ScenimaticEvent("Dialog Text here", "Image name here");
 							break;
 					}
 				}
 
 				switch (eventData.eventType)
 				{
-					case CinematicEventType.Dialog:
-						DialogEventEdit((DialogEvent)eventData);
+					case ScenimaticEventType.Dialog:
+						DialogEventEdit(eventData);
 						break;
 					default:
 						NotImplementedEvent();
@@ -164,7 +197,7 @@ namespace AtomosZ.RPG.Event.EditorTools
 			return eventData;
 		}
 
-		private void DialogEventEdit(DialogEvent eventData)
+		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
 			eventData.text = EditorGUILayout.TextField(eventData.text);
 		}
@@ -179,11 +212,11 @@ namespace AtomosZ.RPG.Event.EditorTools
 		{
 			public enum DeferredCommandType { MoveUp, MoveDown };
 
-			public CinematicEvent eventData;
+			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
 
 
-			public DeferredCommand(CinematicEvent eventData, DeferredCommandType commandType)
+			public DeferredCommand(ScenimaticEvent eventData, DeferredCommandType commandType)
 			{
 				this.eventData = eventData;
 				this.commandType = commandType;

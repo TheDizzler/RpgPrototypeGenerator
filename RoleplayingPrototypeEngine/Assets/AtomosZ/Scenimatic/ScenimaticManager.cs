@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.UI.Panels;
+using AtomosZ.RPG.Scenimatic.UI.Panels;
 using UnityEngine;
 
-namespace AtomosZ.RPG.UI
+namespace AtomosZ.RPG.Scenimatic
 {
 	/// <summary>
 	/// Responsibilities:
 	///		Parse directions for cinematic (from txt or json file, probably).
 	///		Delegate responsibilities to their appriopriate controls (ex: dialog to DialogPanel, camera movement to Camera, etc.)
 	/// </summary>
-	public class CinematicManager : MonoBehaviour
+	public class ScenimaticManager : MonoBehaviour
 	{
 		public TextAsset testEvent;
 		public DialogPanel dialogPanel;
 
-		private Queue<CinematicEvent> eventQueue = new Queue<CinematicEvent>();
+		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
 		private string eventText;
 
 
@@ -35,7 +35,7 @@ namespace AtomosZ.RPG.UI
 						string minusTag = trimmedLine.Substring(secondArgIndex + 1);
 						string imageName = minusTag.Substring(0, minusTag.IndexOf(' '));
 						string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
-						DialogEvent dialog = new DialogEvent(dialogText, imageName);
+						ScenimaticEvent dialog = new ScenimaticEvent(dialogText, imageName);
 						eventQueue.Enqueue(dialog);
 						break;
 					default:
@@ -63,8 +63,8 @@ namespace AtomosZ.RPG.UI
 			var nextEvent = eventQueue.Dequeue();
 			switch (nextEvent.eventType)
 			{
-				case CinematicEvent.CinematicEventType.Dialog:
-					dialogPanel.NextLine((DialogEvent)nextEvent);
+				case ScenimaticEvent.ScenimaticEventType.Dialog:
+					dialogPanel.NextLine(nextEvent.image, nextEvent.text);
 					break;
 				default:
 					Debug.LogWarning("Event type " + nextEvent.eventType + " unrecognized or un-implemented");
@@ -80,51 +80,65 @@ namespace AtomosZ.RPG.UI
 	}
 
 
-
-	public abstract class CinematicEvent
+	[System.Serializable]
+	public class ScenimaticEvent
 	{
-		public enum CinematicEventType
+		public enum ScenimaticEventType
 		{
-			Unknown,    // this event uninitialized
-			Camera,     // camera does something
-			Actor,  // actor on screen does something
-			Dialog,     // dialog popup
+			/// <summary>
+			/// this event uninitialized
+			/// </summary>
+			Unknown,
+			/// <summary>
+			/// camera does something
+			/// </summary>
+			Camera,
+			/// <summary>
+			/// actor on screen does something (emote, move to location, etc.)
+			/// </summary>
+			Actor,
+			/// <summary>
+			/// The smallest part of a dialog.
+			/// Has one text (can be a single word to multiple paragraphs), and one portrait.
+			/// TODO:
+			///		font changes
+			///		audio files
+			/// </summary>
+			Dialog,
 		}
 
-		public CinematicEventType eventType = CinematicEventType.Unknown;
+		// variables for all Scenimatics
+		public ScenimaticEventType eventType = ScenimaticEventType.Unknown;
 		public bool haltsQueueUntilFinished = false;
-	}
 
-
-	public class EmptyCinematicEvent : CinematicEvent
-	{
-		public EmptyCinematicEvent()
-		{
-			eventType = CinematicEventType.Unknown;
-		}
-	}
-
-	/// <summary>
-	/// The smallest part of a dialog.
-	/// Has one text (can be a single word to multiple paragraphs), and one portrait.
-	/// TODO:
-	///		font changes
-	///		audio files
-	/// </summary>
-	public class DialogEvent : CinematicEvent
-	{
+		// Dialog variables
 		/// <summary>
 		/// Image code for portrait of character speaking and facial expression (maybe empty).
 		/// </summary>
 		public string image = string.Empty;
 		public string text;
 
-		public DialogEvent(string dialogText, string spriteName)
+
+
+		/// <summary>
+		/// Creates an empty event.
+		/// </summary>
+		public ScenimaticEvent()
 		{
-			eventType = CinematicEventType.Dialog;
-			haltsQueueUntilFinished = true;
-			text = dialogText;
-			image = spriteName;
 		}
+
+		/// <summary>
+		/// Creates a Dialog Scenimatic event.
+		/// </summary>
+		/// <param name="dialogText"></param>
+		/// <param name="imageName"></param>
+		public ScenimaticEvent(string dialogText, string imageName)
+		{
+			eventType = ScenimaticEventType.Dialog;
+			text = dialogText;
+			image = imageName;
+		}
+
 	}
+
 }

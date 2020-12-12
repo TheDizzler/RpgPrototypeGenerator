@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-namespace AtomosZ.RPG.UI.Panels
+namespace AtomosZ.RPG.Scenimatic.UI.Panels
 {
 	/// <summary>
 	/// Duties of DialogPanel:
@@ -52,7 +52,7 @@ namespace AtomosZ.RPG.UI.Panels
 			gameObject.SetActive(false);
 		}
 
-		public void NextLine(DialogEvent dialog)
+		public void NextLine(string image, string text)
 		{
 			if (!gameObject.activeInHierarchy)
 				gameObject.SetActive(true);
@@ -70,7 +70,7 @@ namespace AtomosZ.RPG.UI.Panels
 			}
 #endif
 
-			Sprite sprite = spriteAtlas.GetSprite(dialog.image);
+			Sprite sprite = spriteAtlas.GetSprite(image);
 			if (sprite != null)
 				portrait.sprite = sprite;
 			else
@@ -80,10 +80,10 @@ namespace AtomosZ.RPG.UI.Panels
 
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
-				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(DisplayText(dialog.text));
+				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(DisplayText(text));
 			else
 #endif
-				typingCoroutine = StartCoroutine(DisplayText(dialog.text));
+				typingCoroutine = StartCoroutine(DisplayText(text));
 		}
 
 
