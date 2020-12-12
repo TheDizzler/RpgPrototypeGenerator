@@ -50,7 +50,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		public Rect GetRect()
 		{
 			Rect rect = nodeData.windowRect;
-			rect.position -= nodeObject.offset;
+			rect.position -= nodeData.offset;
 			return rect;
 		}
 
@@ -76,7 +76,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 
 
 				currentStyle = nodeData.nodeStyle.selectedStyle;
-				//Selection.SetActiveObjectWithContext(treeBlueprint, null);
+				//Selection.SetActiveObjectWithContext(treeBlueprint, null); // this ensures the proper object in the scene editor (?) is selected
 				e.Use();
 			}
 			else if (GetRect().Contains(e.mousePosition))
