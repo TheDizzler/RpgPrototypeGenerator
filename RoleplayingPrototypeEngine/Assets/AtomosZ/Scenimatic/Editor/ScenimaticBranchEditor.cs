@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -7,30 +6,35 @@ using static AtomosZ.RPG.Scenimatic.ScenimaticEvent;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
-	public class EventCreatorEditor : EditorWindow
+	public class ScenimaticBranchEditor : EditorWindow
 	{
 		public static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
 
-		private static EventCreatorEditor window;
-		private static DialogTreeViewEditor treeViewWindow;
-
-		private static GUIStyle rectStyle;
+		private static ScenimaticBranchEditor window;
+		private static ScenimaticScriptEditor scenimaticScriptWindow;
+		private GUIStyle rectStyle;
+		private int branchIndex;
+		public List<ScenimaticEvent> sceneEvents = new List<ScenimaticEvent>();
 
 		private Queue<DeferredCommand> deferredCommandQueue;
-		private List<ScenimaticEvent> sceneEvents = new List<ScenimaticEvent>();
 		private Vector2 scrollPos;
+		private ScenimaticScript script;
 
 
-		[MenuItem("Tools/Event Creator")]
-		public static void EventCreator()
+		public void Initialize(ScenimaticScript script)
 		{
-			window = (EventCreatorEditor)GetWindow(typeof(EventCreatorEditor));
-			window.titleContent = new GUIContent("Event Editor");
+			this.script = script;
+		}
 
-			treeViewWindow = (DialogTreeViewEditor)GetWindow(typeof(DialogTreeViewEditor));
+		public void LoadBranch(int branchIndex)
+		{
+			this.branchIndex = branchIndex;
+			sceneEvents = script.branches[branchIndex].events;
+		}
 
-			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
-			// open last edited scene
+		public void SaveBranch()
+		{
+			script.branches[branchIndex].events = sceneEvents;
 		}
 
 
@@ -42,86 +46,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				deferredCommandQueue = new Queue<DeferredCommand>();
 
 
-			EditorGUILayout.BeginVertical(rectStyle);
+			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
-				// header toolbar
-				EditorGUILayout.BeginHorizontal(rectStyle);
+				GUILayout.Label(new GUIContent("Description of branch"));
+				if (GUILayout.Button("Add Event"))
 				{
-					GUILayout.Label(new GUIContent("Name of Scene here maybe"));
-					if (GUILayout.Button("Load Scene"))
-					{
-						string path = EditorUtility.OpenFilePanelWithFilters(
-							"Choose new OhBehave file",
-							EventCreatorEditor.userScenimaticFolder,
-							new string[] { "Scenimatic Json file", "SceneJson" });
-
-						if (!string.IsNullOrEmpty(path))
-						{
-							StreamReader reader = new StreamReader(path);
-							string fileString = reader.ReadToEnd();
-							reader.Close();
-							ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
-							sceneEvents.Add(script.branches[0].events[0]);
-						}
-					}
-
-					if (GUILayout.Button("New Scene"))
-					{
-						var di = Directory.CreateDirectory(
-							Directory.GetCurrentDirectory() + "/" + EventCreatorEditor.userScenimaticFolder);
-						AssetDatabase.Refresh(); // does this do ?
-
-						ScenimaticScript script = new ScenimaticScript();
-						script.branches = new List<ScenimaticBranch>();
-						script.branches.Add(new ScenimaticBranch()
-						{
-							events = new List<ScenimaticEvent>()
-							{
-								ScenimaticEvent.CreateDialogEvent("test", "image"),
-							}
-						});
-
-
-						StreamWriter writer = new StreamWriter(di.FullName + "NewScenimatic.SceneJson");
-						writer.WriteLine(JsonUtility.ToJson(script, true));
-						writer.Close();
-
-						AssetDatabase.SaveAssets();
-						AssetDatabase.Refresh();
-						EditorUtility.SetDirty(this);
-
-						//EditorUtility.FocusProjectWindow();
-					}
-
-					if (GUILayout.Button("Add Event"))
-					{
-						sceneEvents.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
-					}
+					sceneEvents.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
 				}
-				EditorGUILayout.EndHorizontal();
-
-				// events
-				scrollPos = EditorGUILayout.BeginScrollView(scrollPos, rectStyle);
-				{
-					for (int i = 0; i < sceneEvents.Count; ++i)
-					{
-						sceneEvents[i] = ParseEvent(sceneEvents[i]);
-					}
-				}
-				EditorGUILayout.EndScrollView();
-
-				// footer toolbar
-				EditorGUILayout.BeginHorizontal(rectStyle);
-				{
-					GUILayout.Label(new GUIContent("Do we need a footer tool bar?"));
-					if (GUILayout.Button("Do we need buttons down here?"))
-					{
-
-					}
-				}
-				EditorGUILayout.EndHorizontal();
 			}
-			EditorGUILayout.EndVertical();
+			EditorGUILayout.EndHorizontal();
 
 
 			while (deferredCommandQueue.Count != 0)
@@ -148,6 +81,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						break;
 				}
 			}
+
+			scrollPos = EditorGUILayout.BeginScrollView(scrollPos, rectStyle);
+			{
+				for (int i = 0; i < sceneEvents.Count; ++i)
+				{
+					sceneEvents[i] = ParseEvent(sceneEvents[i]);
+				}
+			}
+			EditorGUILayout.EndScrollView();
 		}
 
 
@@ -206,6 +148,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			return eventData;
 		}
+
+
 
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
