@@ -35,7 +35,7 @@ namespace AtomosZ.RPG.Scenimatic
 						string minusTag = trimmedLine.Substring(secondArgIndex + 1);
 						string imageName = minusTag.Substring(0, minusTag.IndexOf(' '));
 						string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
-						ScenimaticEvent dialog = new ScenimaticEvent(dialogText, imageName);
+						ScenimaticEvent dialog = ScenimaticEvent.CreateDialogEvent(dialogText, imageName);
 						eventQueue.Enqueue(dialog);
 						break;
 					default:
@@ -119,20 +119,28 @@ namespace AtomosZ.RPG.Scenimatic
 		public string text;
 
 
+		public static ScenimaticEvent CreateEmpytEvent()
+		{
+			return new ScenimaticEvent();
+		}
+
+		public static ScenimaticEvent CreateDialogEvent(string dialogText, string imageName)
+		{
+			return new ScenimaticEvent(dialogText, imageName);
+		}
+
 
 		/// <summary>
 		/// Creates an empty event.
 		/// </summary>
-		public ScenimaticEvent()
-		{
-		}
+		private ScenimaticEvent() { }
 
 		/// <summary>
 		/// Creates a Dialog Scenimatic event.
 		/// </summary>
 		/// <param name="dialogText"></param>
 		/// <param name="imageName"></param>
-		public ScenimaticEvent(string dialogText, string imageName)
+		private ScenimaticEvent(string dialogText, string imageName)
 		{
 			eventType = ScenimaticEventType.Dialog;
 			text = dialogText;

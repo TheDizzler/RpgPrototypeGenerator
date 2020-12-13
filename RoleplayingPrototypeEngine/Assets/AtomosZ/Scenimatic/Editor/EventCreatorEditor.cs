@@ -9,7 +9,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	public class EventCreatorEditor : EditorWindow
 	{
-		public static string userScenimaticFolder = "/Assets/StreamingAssets/Scenimatic/";
+		public static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
 
 		private static EventCreatorEditor window;
 		private static DialogTreeViewEditor treeViewWindow;
@@ -52,22 +52,32 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					{
 						string path = EditorUtility.OpenFilePanelWithFilters(
 							"Choose new OhBehave file",
-							"Assets/StreamingAssets/" + EventCreatorEditor.userScenimaticFolder,
+							EventCreatorEditor.userScenimaticFolder,
 							new string[] { "Scenimatic Json file", "SceneJson" });
+
+						if (!string.IsNullOrEmpty(path))
+						{
+							StreamReader reader = new StreamReader(path);
+							string fileString = reader.ReadToEnd();
+							reader.Close();
+							ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
+							sceneEvents.Add(script.branches[0].events[0]);
+						}
 					}
 
 					if (GUILayout.Button("New Scene"))
 					{
 						var di = Directory.CreateDirectory(
-							Directory.GetCurrentDirectory() + EventCreatorEditor.userScenimaticFolder);
+							Directory.GetCurrentDirectory() + "/" + EventCreatorEditor.userScenimaticFolder);
 						AssetDatabase.Refresh(); // does this do ?
-						
+
 						ScenimaticScript script = new ScenimaticScript();
 						script.branches = new List<ScenimaticBranch>();
-						script.branches.Add(new ScenimaticBranch() {
+						script.branches.Add(new ScenimaticBranch()
+						{
 							events = new List<ScenimaticEvent>()
 							{
-								new ScenimaticEvent("test", "image"),
+								ScenimaticEvent.CreateDialogEvent("test", "image"),
 							}
 						});
 
@@ -85,7 +95,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 					if (GUILayout.Button("Add Event"))
 					{
-						sceneEvents.Add(new ScenimaticEvent()); // add empty event
+						sceneEvents.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
 					}
 				}
 				EditorGUILayout.EndHorizontal();
@@ -177,7 +187,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					switch (eventType)
 					{
 						case ScenimaticEventType.Dialog:
-							eventData = new ScenimaticEvent("Dialog Text here", "Image name here");
+							eventData = ScenimaticEvent.CreateDialogEvent("Dialog Text here", "Image name here");
 							break;
 					}
 				}
