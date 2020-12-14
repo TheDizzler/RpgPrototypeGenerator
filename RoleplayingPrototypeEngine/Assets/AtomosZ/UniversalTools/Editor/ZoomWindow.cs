@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AtomosZ.UniversalEditorTools.Graphs;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ namespace AtomosZ.UniversalEditorTools.ZoomWindow
 		/// Optional BG image.
 		/// TODO(?): have way to turn on/off and customize.
 		/// </summary>
-		private Texture2D bgTexture;
+		public Texture2D bgTexture = null;
 		private bool useBGTexture = false;
 		/// <summary>
 		/// Prevents zoom area from jumping around when left mouse button was clicked in a different context.
