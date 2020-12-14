@@ -8,17 +8,17 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	public class ScenimaticBranchEditor : EditorWindow
 	{
-		public static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
-
 		private static ScenimaticBranchEditor window;
 		private static ScenimaticScriptEditor scenimaticScriptWindow;
-		private GUIStyle rectStyle;
-		private int branchIndex;
+
+		
 		public List<ScenimaticEvent> sceneEvents = new List<ScenimaticEvent>();
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
 		private ScenimaticScript script;
+		private GUIStyle rectStyle;
+		private int branchIndex;
 
 
 		public void Initialize(ScenimaticScript script)
