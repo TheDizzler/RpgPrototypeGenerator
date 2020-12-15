@@ -31,8 +31,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void LoadBranch(int branchIndex)
 		{
+			if (window == null)
+				window = this;
+			window.Show();
 			this.branchIndex = branchIndex;
 			branch = script.branches[branchIndex];
+			Repaint();
 		}
 
 		public void SaveBranch()

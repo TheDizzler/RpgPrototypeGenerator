@@ -8,11 +8,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 	public class EventBranchNodeWindow : NodeWindow
 	{
 		private ScenimaticBranch branch;
+		private ScenimaticScriptView scenimaticScriptView;
 
 
 		public EventBranchNodeWindow(EventBranchObjectData nodeData) : base(nodeData)
 		{
 			branch = nodeData.branch;
+			scenimaticScriptView = EditorWindow.GetWindow<ScenimaticScriptEditor>().scenimaticView;
 		}
 
 		public override void OnGUI()
@@ -87,17 +89,31 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
+		protected override void Selected()
+		{
+			scenimaticScriptView.SelectNode((EventBranchObjectData) nodeData);
+		}
+
+		protected override void Deselected()
+		{
+			scenimaticScriptView.DeselectNode();
+		}
 	}
 
 
 	public class EventBranchObjectData : NodeObjectData
 	{
 		public ScenimaticBranch branch;
+		/// <summary>
+		/// WARNING: this MUST be updated if the branch index order is ever changed.
+		/// </summary>
+		public int branchIndex;
 
 
-		public EventBranchObjectData(ScenimaticBranch branch)
+		public EventBranchObjectData(ScenimaticBranch branch, int index)
 		{
 			this.branch = branch;
+			branchIndex = index;
 			nodeStyle = ScenimaticScriptEditor.branchWindowStyle;
 			defaultBGColor = Color.white;
 			selectedBGColor = Color.green;

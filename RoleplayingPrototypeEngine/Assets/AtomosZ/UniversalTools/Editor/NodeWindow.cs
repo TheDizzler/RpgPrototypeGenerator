@@ -33,7 +33,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			this.nodeData = nodeData;
 			currentStyle = nodeData.nodeStyle.defaultStyle;
 
-			titleBarStyle = nodeData.nodeStyle.labelStyle;
+			titleBarStyle = nodeData.nodeStyle.defaultLabelStyle;
 
 			defaultBGColor = nodeData.defaultBGColor;
 			selectedBGColor = nodeData.selectedBGColor;
@@ -42,13 +42,26 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 
 		public abstract bool ProcessEvents(Event e);
 		public abstract void OnGUI();
+		protected abstract void Selected();
+		protected abstract void Deselected();
 
+
+		public void Select()
+		{
+			GUI.changed = true;
+			isSelected = true;
+			titleBarStyle = nodeData.nodeStyle.selectedLabelStyle;
+			currentStyle = nodeData.nodeStyle.selectedStyle;
+			Selected();
+		}
 
 		public void Deselect()
 		{
+			GUI.changed = true;
 			isSelected = false;
+			isDragged = false;
 			currentStyle = nodeData.nodeStyle.defaultStyle;
-			titleBarStyle.normal.textColor = Color.black;
+			titleBarStyle = nodeData.nodeStyle.defaultLabelStyle;
 		}
 
 		public Rect GetRect()
@@ -74,29 +87,20 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 
 				timeClicked = EditorApplication.timeSinceStartup;
 				isDragged = true;
-				GUI.changed = true;
-				isSelected = true;
-				titleBarStyle.normal.textColor = Color.white;
-
-
-				currentStyle = nodeData.nodeStyle.selectedStyle;
+				Select();
+				
 				//Selection.SetActiveObjectWithContext(treeBlueprint, null); // this ensures the proper object in the scene editor (?) is selected
 				e.Use();
 			}
 			else if (GetRect().Contains(e.mousePosition))
 			{ // select node
-				GUI.changed = true;
-				isSelected = true;
-				titleBarStyle.normal.textColor = Color.white;
-
-				currentStyle = nodeData.nodeStyle.selectedStyle;
+				Select();
 				//Selection.SetActiveObjectWithContext(treeBlueprint, null);
-				//e.Use();
+				e.Use();
 			}
 			else
 			{ // deselect node
-				GUI.changed = true;
-				Deselect();
+				Deselected();
 			}
 		}
 
@@ -187,7 +191,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 	public class NodeStyle
 	{
 		public GUIStyle defaultStyle, selectedStyle;
-		public GUIStyle labelStyle;
+		public GUIStyle defaultLabelStyle, selectedLabelStyle;
 		public Vector2 size;
 
 		private Texture2D texture2D;
@@ -209,10 +213,21 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			selectedStyle.normal.textColor = new Color(0, 0, 0, 0);
 			selectedStyle.alignment = TextAnchor.UpperCenter;
 
-			labelStyle = new GUIStyle();
+			defaultLabelStyle = new GUIStyle();
 			Texture2D tex = new Texture2D(2, 2);
 			var fillColorArray = tex.GetPixels32();
+			for (var i = 0; i < fillColorArray.Length; ++i)
+			{
+				fillColorArray[i] = Color.cyan;
+			}
 
+			tex.SetPixels32(fillColorArray);
+			tex.Apply();
+			defaultLabelStyle.normal.background = tex;
+			defaultLabelStyle.normal.textColor = Color.white;
+			defaultLabelStyle.alignment = TextAnchor.UpperCenter;
+
+			selectedLabelStyle = new GUIStyle();
 			for (var i = 0; i < fillColorArray.Length; ++i)
 			{
 				fillColorArray[i] = Color.green;
@@ -220,8 +235,9 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 
 			tex.SetPixels32(fillColorArray);
 			tex.Apply();
-			labelStyle.normal.background = tex;
-			labelStyle.alignment = TextAnchor.UpperCenter;
+			selectedLabelStyle.normal.background = tex;
+			selectedLabelStyle.normal.textColor = Color.white;
+			selectedLabelStyle.alignment = TextAnchor.UpperCenter;
 		}
 
 	}

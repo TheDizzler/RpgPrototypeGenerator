@@ -29,10 +29,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private static ScenimaticBranchEditor branchWindow;
 
 
-		private ScenimaticScriptView scenimaticView;
+		public ScenimaticScriptView scenimaticView;
 		private ZoomWindow zoomer;
 		private Rect zoomRect;
-		private float areaBelowZoomHeight = 10;
+		private float areaBelowZoomHeight = 20;
 		private string sceneFileName;
 
 
@@ -115,7 +115,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			if (scenimaticView == null)
 				scenimaticView = new ScenimaticScriptView();
-			scenimaticView.Initialize(script);
+			scenimaticView.Initialize(script, branchWindow);
 			branchWindow.Initialize(script);
 			branchWindow.LoadBranch(0);
 
@@ -145,7 +145,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				}
 			}
 
-			EditorGUILayout.BeginVertical(rectStyle);
+			EditorGUILayout.BeginVertical();
 			{
 				// header toolbar
 				EditorGUILayout.BeginHorizontal(rectStyle);
@@ -215,7 +215,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				scenimaticView.OnGui(Event.current, zoomer);
 			}
-			zoomer.End(new Rect(0, zoomRect.yMax + zoomRect.position.y - 50, window.position.width, window.position.height));
+			zoomer.End(new Rect(0, (zoomRect.yMax - zoomRect.position.y) + areaBelowZoomHeight*1.5f, window.position.width, window.position.height));
+
+			if (GUILayout.Button("New Dialog Branch"))
+			{
+				scenimaticView.AddBranch(new ScenimaticBranch()
+				{
+					branchName = "New Branch",
+					events = new List<ScenimaticEvent>()
+					{
+						ScenimaticEvent.CreateDialogEvent("test", "image"),
+					}
+				});
+			}
 
 			if (GUI.changed)
 				Repaint();
@@ -244,7 +256,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (scenimaticView == null)
 				scenimaticView = new ScenimaticScriptView();
 
-			scenimaticView.Initialize(script);
+			scenimaticView.Initialize(script, branchWindow);
 			branchWindow.Initialize(script);
 			branchWindow.LoadBranch(0);
 
