@@ -19,8 +19,8 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		protected string nodeName;
 		protected GUIStyle currentStyle;
 		protected GUIStyle titleBarStyle;
-		protected Color bgColor;
-
+		protected Color defaultBGColor;
+		protected Color selectedBGColor;
 		protected bool isDragged;
 		protected bool isSelected;
 
@@ -34,6 +34,9 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			currentStyle = nodeData.nodeStyle.defaultStyle;
 
 			titleBarStyle = nodeData.nodeStyle.labelStyle;
+
+			defaultBGColor = nodeData.defaultBGColor;
+			selectedBGColor = nodeData.selectedBGColor;
 		}
 
 
@@ -44,6 +47,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		public void Deselect()
 		{
 			isSelected = false;
+			currentStyle = nodeData.nodeStyle.defaultStyle;
 			titleBarStyle.normal.textColor = Color.black;
 		}
 
@@ -92,9 +96,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			else
 			{ // deselect node
 				GUI.changed = true;
-
-
-				currentStyle = nodeData.nodeStyle.defaultStyle;
+				Deselect();
 			}
 		}
 
@@ -103,6 +105,11 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			Rect rect = GetRect();
 			rect.height = EditorGUIUtility.singleLineHeight + TITLEBAR_OFFSET;
 			return rect;
+		}
+
+		protected void Drag(Vector2 delta)
+		{
+			nodeData.MoveWindowPosition(delta);
 		}
 	}
 
@@ -115,12 +122,60 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		/// <summary>
 		/// Stylings associated with this node.
 		/// </summary>
-		public readonly NodeStyle nodeStyle;
+		public NodeStyle nodeStyle;
 		public Rect windowRect;
 
 		[NonSerialized]
 		public Vector2 offset;
 
+		protected NodeWindow window;
+		public Color defaultBGColor;
+		public Color selectedBGColor;
+
+
+		/// <summary>
+		/// Returns true if save needed.
+		/// </summary>
+		/// <param name="current"></param>
+		/// <returns></returns>
+		public bool ProcessEvents(Event current)
+		{
+			if (window == null)
+			{
+				CreateWindow();
+			}
+
+			return window.ProcessEvents(current);
+		}
+
+		public void OnGUI()
+		{
+			if (window == null)
+			{
+				Debug.LogError("No window!");
+				return;
+			}
+
+			window.OnGUI();
+		}
+
+		public NodeWindow GetWindow()
+		{
+			if (window == null)
+			{
+				CreateWindow();
+			}
+
+			return window;
+		}
+
+		protected abstract void CreateWindow();
+
+
+		public virtual void MoveWindowPosition(Vector2 delta)
+		{
+			windowRect.position += delta;
+		}
 
 		public void Offset(Vector2 contentOffset)
 		{
@@ -153,6 +208,20 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			selectedStyle = new GUIStyle(EditorStyles.helpBox);
 			selectedStyle.normal.textColor = new Color(0, 0, 0, 0);
 			selectedStyle.alignment = TextAnchor.UpperCenter;
+
+			labelStyle = new GUIStyle();
+			Texture2D tex = new Texture2D(2, 2);
+			var fillColorArray = tex.GetPixels32();
+
+			for (var i = 0; i < fillColorArray.Length; ++i)
+			{
+				fillColorArray[i] = Color.green;
+			}
+
+			tex.SetPixels32(fillColorArray);
+			tex.Apply();
+			labelStyle.normal.background = tex;
+			labelStyle.alignment = TextAnchor.UpperCenter;
 		}
 
 	}

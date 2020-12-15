@@ -2,23 +2,26 @@
 using AtomosZ.RPG.Scenimatic.Schemas;
 using UnityEditor;
 using UnityEngine;
-using static AtomosZ.RPG.Scenimatic.ScenimaticEvent;
+using static AtomosZ.RPG.Scenimatic.Schemas.ScenimaticEvent;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
+	/// <summary>
+	/// Slave to ScenimaticScriptEditor.
+	/// </summary>
 	public class ScenimaticBranchEditor : EditorWindow
 	{
 		private static ScenimaticBranchEditor window;
 		private static ScenimaticScriptEditor scenimaticScriptWindow;
 
-		
-		public List<ScenimaticEvent> sceneEvents = new List<ScenimaticEvent>();
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
 		private ScenimaticScript script;
+		private ScenimaticBranch branch = null;
+		private int branchIndex = -1;
 		private GUIStyle rectStyle;
-		private int branchIndex;
+
 
 
 		public void Initialize(ScenimaticScript script)
@@ -29,17 +32,23 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public void LoadBranch(int branchIndex)
 		{
 			this.branchIndex = branchIndex;
-			sceneEvents = script.branches[branchIndex].events;
+			branch = script.branches[branchIndex];
 		}
 
 		public void SaveBranch()
 		{
-			script.branches[branchIndex].events = sceneEvents;
+			script.branches[branchIndex] = branch;
 		}
 
 
 		void OnGUI()
 		{
+			if (branch == null)
+			{
+				GUILayout.Label(new GUIContent("No branch loaded"));
+				return;
+			}
+
 			if (rectStyle == null)
 				rectStyle = new GUIStyle(EditorStyles.helpBox) { };
 			if (deferredCommandQueue == null)
@@ -48,10 +57,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
-				GUILayout.Label(new GUIContent("Description of branch"));
+				branch.branchName = GUILayout.TextField(branch.branchName);
 				if (GUILayout.Button("Add Event"))
 				{
-					sceneEvents.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
+					branch.events.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
 				}
 			}
 			EditorGUILayout.EndHorizontal();
@@ -64,16 +73,16 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					case DeferredCommand.DeferredCommandType.MoveUp:
 					{
-						int index = sceneEvents.IndexOf(command.eventData);
-						sceneEvents.Remove(command.eventData);
-						sceneEvents.Insert(index - 1, command.eventData);
+						int index = branch.events.IndexOf(command.eventData);
+						branch.events.Remove(command.eventData);
+						branch.events.Insert(index - 1, command.eventData);
 					}
 					break;
 					case DeferredCommand.DeferredCommandType.MoveDown:
 					{
-						int index = sceneEvents.IndexOf(command.eventData);
-						sceneEvents.Remove(command.eventData);
-						sceneEvents.Insert(index + 1, command.eventData);
+						int index = branch.events.IndexOf(command.eventData);
+						branch.events.Remove(command.eventData);
+						branch.events.Insert(index + 1, command.eventData);
 					}
 					break;
 					default:
@@ -84,9 +93,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			scrollPos = EditorGUILayout.BeginScrollView(scrollPos, rectStyle);
 			{
-				for (int i = 0; i < sceneEvents.Count; ++i)
+				for (int i = 0; i < branch.events.Count; ++i)
 				{
-					sceneEvents[i] = ParseEvent(sceneEvents[i]);
+					branch.events[i] = ParseEvent(branch.events[i]);
 				}
 			}
 			EditorGUILayout.EndScrollView();
@@ -105,13 +114,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					if (GUILayout.Button("^"))
 					{
-						if (sceneEvents.IndexOf(eventData) != 0)
+						if (branch.events.IndexOf(eventData) != 0)
 							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveUp));
 					}
 
 					if (GUILayout.Button("v"))
 					{
-						if (sceneEvents.IndexOf(eventData) != sceneEvents.Count - 1)
+						if (branch.events.IndexOf(eventData) != branch.events.Count - 1)
 							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveDown));
 					}
 				}

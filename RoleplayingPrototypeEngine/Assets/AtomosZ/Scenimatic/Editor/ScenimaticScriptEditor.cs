@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
+using AtomosZ.UniversalEditorTools.Nodes;
 using AtomosZ.UniversalEditorTools.ZoomWindow;
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +13,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private const float ZOOM_BORDER = 10;
 
 		private readonly string ScenimaticFileExtension = "SceneJson";
+
+		public static NodeStyle branchWindowStyle;
+
+		private static GUIStyle rectStyle;
 
 		// save this to editor prefs
 		private static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
@@ -28,17 +33,46 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private ZoomWindow zoomer;
 		private Rect zoomRect;
 		private float areaBelowZoomHeight = 10;
-		private GUIStyle rectStyle;
 		private string sceneFileName;
+
 
 		[MenuItem("Tools/Scenimatic Creator")]
 		public static void ScenimaticCreator()
 		{
-			window = (ScenimaticScriptEditor)GetWindow(typeof(ScenimaticScriptEditor));
-			window.titleContent = new GUIContent("Scenimatic Editor");
+			CreateWindows();
+		}
 
-			branchWindow = (ScenimaticBranchEditor)GetWindow(typeof(ScenimaticBranchEditor));
-			// open last edited scene
+		private static void CreateWindows()
+		{
+			window = GetWindow<ScenimaticScriptEditor>();
+			window.titleContent = new GUIContent("Scenimatic Editor");
+			branchWindow = GetWindow<ScenimaticBranchEditor>();
+			branchWindow.titleContent = new GUIContent("Scenimatic Branch");
+
+			CreateStyles();
+		}
+
+
+		private static bool CreateStyles()
+		{
+			try
+			{
+				if (EditorStyles.helpBox == null)
+				{ //EditorStyle not yet initialized
+					return false;
+				}
+			}
+			catch (System.Exception)
+			{ //EditorStyle not yet initialized
+				return false;
+			}
+
+
+			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
+			branchWindowStyle = new NodeStyle();
+			branchWindowStyle.Init(new Vector2(250, 100));
+
+			return true;
 		}
 
 
@@ -46,16 +80,22 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			if (window == null)
 			{
-				window = GetWindow<ScenimaticScriptEditor>();
-				window.titleContent = new GUIContent("Tree View");
-				branchWindow = GetWindow<ScenimaticBranchEditor>();
+				CreateWindows();
 			}
 
-			projectPrefsPrefix
-				= PlayerSettings.companyName + "." + PlayerSettings.productName + ".";
+			projectPrefsPrefix =
+				PlayerSettings.companyName + "." + PlayerSettings.productName + ".";
 			lastOpenScriptKey = projectPrefsPrefix + "LastOpenScript";
 
-			if (EditorPrefs.HasKey(lastOpenScriptKey) && !string.IsNullOrEmpty(EditorPrefs.GetString(lastOpenScriptKey)))
+			if (rectStyle == null)
+			{
+				if (!CreateStyles())
+					return; // couldn't create styles
+			}
+
+			// open last edited scene
+			if (EditorPrefs.HasKey(lastOpenScriptKey)
+				&& !string.IsNullOrEmpty(EditorPrefs.GetString(lastOpenScriptKey)))
 			{
 				OpenScript(EditorPrefs.GetString(lastOpenScriptKey));
 			}
@@ -82,7 +122,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorPrefs.SetString(lastOpenScriptKey, pathToScript);
 
 			sceneFileName = Path.GetFileNameWithoutExtension(pathToScript);
-			Debug.Log(sceneFileName);
 
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
@@ -92,7 +131,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		void OnGUI()
 		{
 			if (rectStyle == null)
-				rectStyle = new GUIStyle(EditorStyles.helpBox) { };
+			{
+				if (!CreateStyles())
+					return; // couldn't create styles
+			}
+
+			if (scenimaticView == null || scenimaticView.script == null)
+			{
+				if (EditorPrefs.HasKey(lastOpenScriptKey)
+					&& !string.IsNullOrEmpty(EditorPrefs.GetString(lastOpenScriptKey)))
+				{
+					OpenScript(EditorPrefs.GetString(lastOpenScriptKey));
+				}
+			}
 
 			EditorGUILayout.BeginVertical(rectStyle);
 			{
@@ -109,27 +160,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 						if (GUILayout.Button("Save Scene"))
 						{
-							if (string.IsNullOrEmpty(sceneFileName))
-							{
-								// prompt for save
-								var path = EditorUtility.SaveFilePanelInProject(
-									"Save Scenimatic Script", "NewScenimatic", ScenimaticFileExtension,
-									"Where to save script file?", userScenimaticFolder);
-								if (!string.IsNullOrEmpty(path) && path.Length != 0)
-								{
-									sceneFileName = Path.GetFileNameWithoutExtension(path);
-									// check if new path is different from userScenimaticFolder
-								}
-							}
-
-							branchWindow.SaveBranch();
-							var di = Directory.CreateDirectory(
-								Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
-
-							Debug.Log(di);
-							StreamWriter writer = new StreamWriter(di.FullName + sceneFileName + "." + ScenimaticFileExtension);
-							writer.WriteLine(JsonUtility.ToJson(scenimaticView.script, true));
-							writer.Close();
+							SaveScene(); // this stuff should be done in update to prevent annoying error messages
 						}
 					}
 
@@ -142,38 +173,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 						if (!string.IsNullOrEmpty(path))
 						{
-							OpenScript(path);
+							OpenScript(path);// this stuff should be done in update to prevent annoying error messages
 						}
 					}
 
 					if (GUILayout.Button("New Scene"))
 					{
-						sceneFileName = null;
-
-						var di = Directory.CreateDirectory(
-							Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
-
-						ScenimaticScript script = new ScenimaticScript("New Scene");
-						script.branches = new List<ScenimaticBranch>();
-						script.branches.Add(new ScenimaticBranch()
-						{
-							events = new List<ScenimaticEvent>()
-							{
-								ScenimaticEvent.CreateDialogEvent("test", "image"),
-							}
-						});
-
-
-						if (scenimaticView == null)
-							scenimaticView = new ScenimaticScriptView();
-
-						scenimaticView.Initialize(script);
-						branchWindow.Initialize(script);
-						branchWindow.LoadBranch(0);
-
-						AssetDatabase.SaveAssets();
-						AssetDatabase.Refresh();
-						EditorUtility.SetDirty(this);
+						NewScene();
 					}
 				}
 				EditorGUILayout.EndHorizontal();
@@ -191,10 +197,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				zoomer.Reset(scenimaticView.zoomerSettings);
 			}
 
-
 			zoomer.HandleEvents(Event.current);
-
-			DrawHorizontalUILine(Color.gray);
 
 			Rect lastRect = GUILayoutUtility.GetLastRect();
 			if (Event.current.type == EventType.Repaint)
@@ -210,13 +213,71 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			zoomer.Begin(zoomRect);
 			{
-				//scenimaticView.OnGui(Event.current, zoomer);
+				scenimaticView.OnGui(Event.current, zoomer);
 			}
 			zoomer.End(new Rect(0, zoomRect.yMax + zoomRect.position.y - 50, window.position.width, window.position.height));
 
 			if (GUI.changed)
 				Repaint();
 		}
+
+
+		private void NewScene()
+		{
+			sceneFileName = null;
+
+			var di = Directory.CreateDirectory(
+				Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
+
+			ScenimaticScript script = new ScenimaticScript("New Scene");
+			script.branches = new List<ScenimaticBranch>();
+			script.branches.Add(new ScenimaticBranch()
+			{
+				branchName = "New Branch",
+				events = new List<ScenimaticEvent>()
+				{
+					ScenimaticEvent.CreateDialogEvent("test", "image"),
+				}
+			});
+
+
+			if (scenimaticView == null)
+				scenimaticView = new ScenimaticScriptView();
+
+			scenimaticView.Initialize(script);
+			branchWindow.Initialize(script);
+			branchWindow.LoadBranch(0);
+
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+			EditorUtility.SetDirty(this);
+		}
+
+		private void SaveScene()
+		{
+			if (string.IsNullOrEmpty(sceneFileName))
+			{
+				// prompt for save
+				var path = EditorUtility.SaveFilePanelInProject(
+					"Save Scenimatic Script", "NewScenimatic", ScenimaticFileExtension,
+					"Where to save script file?", userScenimaticFolder);
+				if (!string.IsNullOrEmpty(path) && path.Length != 0)
+				{
+					sceneFileName = Path.GetFileNameWithoutExtension(path);
+					// check if new path is different from userScenimaticFolder
+				}
+			}
+
+			branchWindow.SaveBranch();
+			var di = Directory.CreateDirectory(
+				Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
+
+			Debug.Log(di.FullName);
+			StreamWriter writer = new StreamWriter(di.FullName + sceneFileName + "." + ScenimaticFileExtension);
+			writer.WriteLine(JsonUtility.ToJson(scenimaticView.script, true));
+			writer.Close();
+		}
+
 
 		public static void DrawHorizontalUILine(Color color, int thickness = 2, int padding = 10)
 		{
