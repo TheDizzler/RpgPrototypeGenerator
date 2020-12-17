@@ -126,5 +126,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			window = new EventBranchNodeWindow(this);
 		}
+
+		public override void MoveWindowPosition(Vector2 delta)
+		{
+			windowRect.position += delta;
+			branch.position = windowRect.position;
+		}
 	}
 }
