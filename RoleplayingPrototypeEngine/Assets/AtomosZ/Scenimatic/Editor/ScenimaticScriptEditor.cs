@@ -14,7 +14,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private readonly string ScenimaticFileExtension = "SceneJson";
 
-		public static NodeStyle branchWindowStyle;
+		public static NodeStyle branchNodeStyle;
 
 		private static GUIStyle rectStyle;
 
@@ -48,7 +48,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			window.titleContent = new GUIContent("Scenimatic Editor");
 			branchWindow = GetWindow<ScenimaticBranchEditor>();
 			branchWindow.titleContent = new GUIContent("Scenimatic Branch");
-
+			branchWindow.minSize = new Vector2(400, 200);
 			CreateStyles();
 		}
 
@@ -69,8 +69,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 
 			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
-			branchWindowStyle = new NodeStyle();
-			branchWindowStyle.Init(new Vector2(250, 100));
+			branchNodeStyle = new NodeStyle();
+			branchNodeStyle.Init(new Vector2(250, 100));
 
 			return true;
 		}

@@ -114,11 +114,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			this.branch = branch;
 			branchIndex = index;
-			nodeStyle = ScenimaticScriptEditor.branchWindowStyle;
+			nodeStyle = ScenimaticScriptEditor.branchNodeStyle;
 			defaultBGColor = Color.white;
 			selectedBGColor = Color.green;
 
-			windowRect = new Rect(Vector2.zero, nodeStyle.size);
+			windowRect = new Rect(branch.position, nodeStyle.size);
 
 		}
 
