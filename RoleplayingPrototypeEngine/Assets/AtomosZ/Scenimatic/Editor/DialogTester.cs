@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AtomosZ.RPG.Scenimatic;
+﻿using AtomosZ.RPG.Scenimatic;
 using UnityEditor;
 using UnityEngine;
 

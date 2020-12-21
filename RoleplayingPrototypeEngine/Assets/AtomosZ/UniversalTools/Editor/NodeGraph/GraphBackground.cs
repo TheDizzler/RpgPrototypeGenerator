@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace AtomosZ.UniversalEditorTools.Graphs
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	// Implementation from UnityEditor.Graphs.GraphGUI
 	public static class GraphBackground

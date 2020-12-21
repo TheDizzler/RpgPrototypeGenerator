@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace AtomosZ.RPG.Scenimatic.Schemas
 {
@@ -6,7 +7,9 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 	public class ScenimaticScript
 	{
 		public string sceneName;
-		public List<ScenimaticBranch> branches;
+		public Vector2 savedScreenSize;
+		public Vector2 savedScreenPos;
+		public List<ScenimaticSerializedNode> branches;
 
 		public ScenimaticScript(string sceneName)
 		{

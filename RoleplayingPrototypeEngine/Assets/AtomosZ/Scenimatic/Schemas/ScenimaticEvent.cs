@@ -66,6 +66,5 @@
 			text = dialogText;
 			image = imageName;
 		}
-
 	}
 }

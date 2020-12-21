@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AtomosZ.UniversalEditorTools.Graphs;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.ZoomWindow
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public class ZoomWindow
 	{

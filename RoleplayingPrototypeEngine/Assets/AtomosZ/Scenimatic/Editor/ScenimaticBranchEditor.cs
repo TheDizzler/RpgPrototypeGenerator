@@ -17,31 +17,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
-		private ScenimaticScript script;
 		private ScenimaticBranch branch = null;
-		private int branchIndex = -1;
 		private GUIStyle rectStyle;
 
 
 
-		public void Initialize(ScenimaticScript script)
-		{
-			this.script = script;
-		}
-
-		public void LoadBranch(int branchIndex)
+		public void LoadBranch(ScenimaticSerializedNode newBranch)
 		{
 			if (window == null)
 				window = this;
 			window.Show();
-			this.branchIndex = branchIndex;
-			branch = script.branches[branchIndex];
-			Repaint();
-		}
 
-		public void SaveBranch()
-		{
-			script.branches[branchIndex] = branch;
+			branch = newBranch.data;
+			Repaint();
 		}
 
 
@@ -161,7 +149,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			return eventData;
 		}
-
 
 
 		private void DialogEventEdit(ScenimaticEvent eventData)

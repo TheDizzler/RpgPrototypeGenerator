@@ -1,21 +1,62 @@
 ﻿using AtomosZ.RPG.Scenimatic.Schemas;
-using AtomosZ.UniversalEditorTools.Nodes;
+using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
+using AtomosZ.UniversalTools.NodeGraph.Connections;
 using UnityEditor;
 using UnityEngine;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
-	public class EventBranchNodeWindow : NodeWindow
+	public class EventBranchNodeWindow : NodeWindow<ScenimaticBranch>
 	{
 		private ScenimaticBranch branch;
-		private ScenimaticScriptView scenimaticScriptView;
+		private ScenimaticScriptGraph scenimaticScriptView;
 
 
 		public EventBranchNodeWindow(EventBranchObjectData nodeData) : base(nodeData)
 		{
-			branch = nodeData.branch;
-			scenimaticScriptView = EditorWindow.GetWindow<ScenimaticScriptEditor>().scenimaticView;
+			branch = nodeData.serializedNode.data;
+			scenimaticScriptView = EditorWindow.GetWindow<ScenimaticScriptEditor>().scenimaticGraph;
 		}
+
+
+		public override bool ProcessEvents(Event e)
+		{
+			bool saveNeeded = false;
+			controlFlowIn.ProcessEvents(e);
+			controlFlowOut.ProcessEvents(e);
+
+
+			switch (e.type)
+			{
+				case EventType.MouseDown:
+					if (e.button == 0)
+					{
+						LeftClick(e);
+					}
+					else if (e.button == 1)
+					{
+						//RightClick(e);
+					}
+					break;
+				case EventType.MouseDrag:
+					if (e.button == 0 && isDragged)
+					{
+						Drag(e.delta);
+						e.Use();
+					}
+
+					break;
+			}
+
+			return saveNeeded;
+		}
+
+
+		public override void DrawConnectionWires()
+		{
+			base.DrawConnectionWires();
+		}
+
 
 		public override void OnGUI()
 		{
@@ -56,42 +97,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			GUILayout.EndArea();
 
-
 			GUI.backgroundColor = defaultColor;
+
+			controlFlowIn.OnGUI();
+			controlFlowOut.OnGUI();
 		}
-
-		public override bool ProcessEvents(Event e)
-		{
-			bool saveNeeded = false;
-			switch (e.type)
-			{
-				case EventType.MouseDown:
-					if (e.button == 0)
-					{
-						LeftClick(e);
-					}
-					else if (e.button == 1)
-					{
-						//RightClick(e);
-					}
-					break;
-				case EventType.MouseDrag:
-					if (e.button == 0 && isDragged)
-					{
-						Drag(e.delta);
-						e.Use();
-					}
-
-					break;
-			}
-
-			return saveNeeded;
-		}
-
 
 		protected override void Selected()
 		{
-			scenimaticScriptView.SelectNode((EventBranchObjectData) nodeData);
+			scenimaticScriptView.SelectNode((EventBranchObjectData)nodeData);
 		}
 
 		protected override void Deselected()
@@ -101,25 +115,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 	}
 
 
-	public class EventBranchObjectData : NodeObjectData
+	public class EventBranchObjectData : NodeObjectData<ScenimaticBranch>
 	{
-		public ScenimaticBranch branch;
-		/// <summary>
-		/// WARNING: this MUST be updated if the branch index order is ever changed.
-		/// </summary>
-		public int branchIndex;
-
-
-		public EventBranchObjectData(ScenimaticBranch branch, int index)
+		public EventBranchObjectData(ScenimaticSerializedNode branchData)
 		{
-			this.branch = branch;
-			branchIndex = index;
+			this.serializedNode = branchData;
+			GUID = branchData.GUID;
+			inputConnections = branchData.connectionInputs;
+			outputConnections = branchData.connectionOutputs;
 			nodeStyle = ScenimaticScriptEditor.branchNodeStyle;
 			defaultBGColor = Color.white;
 			selectedBGColor = Color.green;
 
-			windowRect = new Rect(branch.position, nodeStyle.size);
-
+			windowRect = new Rect(branchData.position, nodeStyle.size);
 		}
 
 		protected override void CreateWindow()
@@ -130,7 +138,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public override void MoveWindowPosition(Vector2 delta)
 		{
 			windowRect.position += delta;
-			branch.position = windowRect.position;
+			serializedNode.position = windowRect.position;
+		}
+
+		public void DrawConnectionWires()
+		{
+			window.DrawConnectionWires();
 		}
 	}
 }

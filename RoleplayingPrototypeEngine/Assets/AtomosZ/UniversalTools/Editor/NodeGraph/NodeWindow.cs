@@ -1,20 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.Nodes
+namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 {
 	/// <summary>
 	/// A generic draggable window box that appears in an editor window (usually a ZoomWindow).
 	/// Can contain data and tools.
 	/// </summary>
-	public abstract class NodeWindow
+	public abstract class NodeWindow<T>
 	{
 		protected const float TITLEBAR_OFFSET = 15;
-
 		protected const float DoubleClickTime = .3f;
 
-		public NodeObjectData nodeData;
+		public NodeObjectData<T> nodeData;
+
+		// for now, we are assuming all nodes have control flow.
+		protected ConnectionPoint<T> controlFlowIn;
+		protected ConnectionPoint<T> controlFlowOut;
 
 		protected string nodeName;
 		protected GUIStyle currentStyle;
@@ -28,7 +35,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		private double timeClicked = double.MinValue;
 
 
-		public NodeWindow(NodeObjectData nodeData)
+		public NodeWindow(NodeObjectData<T> nodeData)
 		{
 			this.nodeData = nodeData;
 			currentStyle = nodeData.nodeStyle.defaultStyle;
@@ -37,8 +44,47 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 
 			defaultBGColor = nodeData.defaultBGColor;
 			selectedBGColor = nodeData.selectedBGColor;
+
+
+			foreach (var connection in nodeData.inputConnections)
+			{
+				switch (connection.type)
+				{
+					case ConnectionType.ControlFlow:
+						if (controlFlowIn != null)
+							throw new System.Exception("how in not null?");
+						controlFlowIn = new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+							ConnectionPointData.GetControlFlowTypeData(), connection);
+						break;
+					case ConnectionType.Float:
+					case ConnectionType.Int:
+					case ConnectionType.String:
+						throw new Exception("Connection type not yet implemented");
+				}
+			}
+
+			foreach (var connection in nodeData.outputConnections)
+			{
+				switch (connection.type)
+				{
+					case ConnectionType.ControlFlow:
+						if (controlFlowOut != null)
+							throw new System.Exception("how out not null?");
+						controlFlowOut = new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+							ConnectionPointData.GetControlFlowTypeData(), connection);
+						break;
+					case ConnectionType.Float:
+					case ConnectionType.Int:
+					case ConnectionType.String:
+						throw new Exception("Connection type not yet implemented");
+				}
+			}
 		}
 
+		public virtual void DrawConnectionWires()
+		{
+			controlFlowOut.DrawConnections();
+		}
 
 		public abstract bool ProcessEvents(Event e);
 		public abstract void OnGUI();
@@ -88,7 +134,7 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 				timeClicked = EditorApplication.timeSinceStartup;
 				isDragged = true;
 				Select();
-				
+
 				//Selection.SetActiveObjectWithContext(treeBlueprint, null); // this ensures the proper object in the scene editor (?) is selected
 				e.Use();
 			}
@@ -120,9 +166,15 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 	/// <summary>
 	/// The data\tools that we want displayed in our Node Window.
 	/// </summary>
-	[Serializable]
-	public abstract class NodeObjectData
+	public abstract class NodeObjectData<T>
 	{
+		/// <summary>
+		/// This must match the GUID of matching serialized data that constructs this node.
+		/// </summary>
+		public string GUID;
+		public List<Connection> inputConnections;
+		public List<Connection> outputConnections;
+
 		/// <summary>
 		/// Stylings associated with this node.
 		/// </summary>
@@ -132,10 +184,11 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 		[NonSerialized]
 		public Vector2 offset;
 
-		protected NodeWindow window;
 		public Color defaultBGColor;
 		public Color selectedBGColor;
 
+		public SerializedNode<T> serializedNode;
+		protected NodeWindow<T> window;
 
 		/// <summary>
 		/// Returns true if save needed.
@@ -163,7 +216,8 @@ namespace AtomosZ.UniversalEditorTools.Nodes
 			window.OnGUI();
 		}
 
-		public NodeWindow GetWindow()
+
+		public NodeWindow<T> GetWindow()
 		{
 			if (window == null)
 			{
