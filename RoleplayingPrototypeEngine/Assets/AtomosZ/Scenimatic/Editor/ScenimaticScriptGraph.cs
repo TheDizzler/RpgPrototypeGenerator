@@ -46,6 +46,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public ScenimaticScript SaveScript()
 		{
+			script.zoomOrigin = zoomerSettings.zoomOrigin;
+			script.zoomScale = zoomerSettings.zoomScale;
 			return script;
 		}
 
@@ -129,6 +131,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				savedMousePos = current.mousePosition + zoomer.GetContentOffset();
 				CreateStandAloneContextMenu();
+			}
+			else
+			{
+				zoomer.UpdateWithCurrentZoomerSettings(zoomerSettings);
 			}
 
 			if (save)

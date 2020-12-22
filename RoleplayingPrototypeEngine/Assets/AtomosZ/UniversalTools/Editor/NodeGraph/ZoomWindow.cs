@@ -12,8 +12,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		/// </summary>
 		public static GUIStyle warningTextStyle;
 
-		private const float MIN_ZOOM = .1f;
-		private const float MAX_ZOOM = 2;
+		public const float MIN_ZOOM = .1f;
+		public const float MAX_ZOOM = 2;
 		private const float sliderWidth = 75;
 		private const float sliderHeight = 50;
 		private readonly float panMinimum = 1f;
@@ -109,7 +109,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		}
 
 
-		public void Update(ZoomerSettings zoomerSettings)
+		public void UpdateWithCurrentZoomerSettings(ZoomerSettings zoomerSettings)
 		{
 			zoomerSettings.zoomOrigin = zoomOrigin;
 			zoomerSettings.zoomScale = zoomScale;

@@ -147,6 +147,14 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			scenimaticGraph.Initialize(script, branchWindow);
 
+			if (zoomer == null)
+			{
+				zoomer = new ZoomWindow();
+			}
+
+
+			zoomer.Reset(scenimaticGraph.zoomerSettings);
+
 			EditorPrefs.SetString(lastOpenScriptKey, pathToScript);
 
 			sceneFileName = Path.GetFileNameWithoutExtension(pathToScript);
