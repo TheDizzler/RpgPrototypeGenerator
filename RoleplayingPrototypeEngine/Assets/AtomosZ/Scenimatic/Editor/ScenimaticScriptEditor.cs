@@ -137,6 +137,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			StreamReader reader = new StreamReader(pathToScript);
 			string fileString = reader.ReadToEnd();
 			reader.Close();
+			if (string.IsNullOrEmpty(fileString))
+			{
+				EditorPrefs.SetString(lastOpenScriptKey, "");
+				Debug.Log("File is empty or invalid: " + pathToScript);
+				return;
+			}
+
 			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
 
 			if (scenimaticGraph == null)
@@ -180,7 +187,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					if (!string.IsNullOrEmpty(lastOpenedScript)
 						&& File.Exists(lastOpenedScript))
 					{
-						OpenScript(EditorPrefs.GetString(lastOpenScriptKey));
+						OpenScript(lastOpenedScript);
 					}
 				}
 			}
@@ -310,7 +317,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			var di = Directory.CreateDirectory(
 				Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
 
-			Debug.Log(di.FullName);
 			StreamWriter writer = new StreamWriter(di.FullName + sceneFileName + "." + ScenimaticFileExtension);
 			writer.WriteLine(JsonUtility.ToJson(scenimaticGraph.SaveScript(), true));
 			writer.Close();
