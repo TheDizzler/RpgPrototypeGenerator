@@ -17,8 +17,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private EventBranchObjectData selectedNode;
 
-		private Dictionary<string, ConnectionPoint<ScenimaticBranch>> refreshConnections
-			= new Dictionary<string, ConnectionPoint<ScenimaticBranch>>();
+		private List<ConnectionPoint<ScenimaticBranch>> refreshConnections;
+		private Dictionary<string, ConnectionPoint<ScenimaticBranch>> connectionPoints;
 		private ConnectionPoint<ScenimaticBranch> startConnection;
 		private ConnectionPoint<ScenimaticBranch> endConnection;
 		private Vector2 savedMousePos;
@@ -28,8 +28,14 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void Initialize(ScenimaticScript newScript, ScenimaticBranchEditor scenimaticBranchEditor)
 		{
+			refreshConnections = new List<ConnectionPoint<ScenimaticBranch>>();
+			connectionPoints = new Dictionary<string, ConnectionPoint<ScenimaticBranch>>();
 			script = newScript;
 			branchEditor = scenimaticBranchEditor;
+
+			zoomerSettings = new ZoomerSettings();
+			zoomerSettings.zoomOrigin = script.zoomOrigin;
+			zoomerSettings.zoomScale = script.zoomScale > ZoomWindow.MIN_ZOOM ? script.zoomScale : 1;
 
 			ConnectionPoint<ScenimaticBranch>.nodeGraph = this;
 
@@ -61,7 +67,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void RefreshConnection(ConnectionPoint<ScenimaticBranch> connectionPoint)
 		{
-			refreshConnections.Add(connectionPoint.GUID, connectionPoint);
+			refreshConnections.Add(connectionPoint);
+			connectionPoints.Add(connectionPoint.GUID, connectionPoint);
 		}
 
 		public void OnGui(Event current, ZoomWindow zoomer)
@@ -71,12 +78,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			if (refreshConnections.Count > 0)
 			{
-				foreach (var guidcp in refreshConnections)
+				foreach (var cp in refreshConnections)
 				{
-					var cp = guidcp.Value;
 					foreach (var connGUID in cp.connection.connectedToGUIDs)
 					{
-						var otherCP = refreshConnections[connGUID];
+						var otherCP = connectionPoints[connGUID];
 						otherCP.ConnectTo(cp);
 						cp.ConnectTo(otherCP);
 					}

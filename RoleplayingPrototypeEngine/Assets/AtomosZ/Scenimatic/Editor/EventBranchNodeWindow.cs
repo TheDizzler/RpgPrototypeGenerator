@@ -1,6 +1,5 @@
 ﻿using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
-using AtomosZ.UniversalTools.NodeGraph.Connections;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,6 +17,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			scenimaticScriptView = EditorWindow.GetWindow<ScenimaticScriptEditor>().scenimaticGraph;
 		}
 
+		public override string GetName()
+		{
+			return branch.branchName;
+		}
+
 
 		public override bool ProcessEvents(Event e)
 		{
@@ -31,11 +35,17 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				case EventType.MouseDown:
 					if (e.button == 0)
 					{
-						LeftClick(e);
+						LeftClickDown(e);
 					}
 					else if (e.button == 1)
 					{
-						//RightClick(e);
+						RightClickDown(e);
+					}
+					break;
+				case EventType.MouseUp:
+					if (e.button == 1)
+					{
+						RightClickUp(e);
 					}
 					break;
 				case EventType.MouseDrag:

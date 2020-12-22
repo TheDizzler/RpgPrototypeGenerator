@@ -86,6 +86,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			controlFlowOut.DrawConnections();
 		}
 
+		public abstract string GetName();
 		public abstract bool ProcessEvents(Event e);
 		public abstract void OnGUI();
 		protected abstract void Selected();
@@ -117,7 +118,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			return rect;
 		}
 
-		protected void LeftClick(Event e)
+
+		protected virtual void LeftClickDown(Event e)
 		{
 			if (TitleLabelRect().Contains(e.mousePosition))
 			{ // title bar clicked
@@ -150,6 +152,23 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			}
 		}
 
+		protected virtual void RightClickDown(Event e)
+		{
+			if (GetRect().Contains(e.mousePosition))
+			{
+				Debug.Log("Window right clicked");
+				e.Use();
+			}
+		}
+
+		protected virtual void RightClickUp(Event e)
+		{
+			if (GetRect().Contains(e.mousePosition))
+			{
+				e.Use();
+			}
+		}
+
 		protected Rect TitleLabelRect()
 		{
 			Rect rect = GetRect();
@@ -162,6 +181,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			nodeData.MoveWindowPosition(delta);
 		}
 	}
+
 
 	/// <summary>
 	/// The data\tools that we want displayed in our Node Window.

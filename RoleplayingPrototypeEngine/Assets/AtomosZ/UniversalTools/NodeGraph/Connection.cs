@@ -33,6 +33,6 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 		/// IDs of connections that data flows TO (i.e. branches in this list get control/data FROM this connection.)
 		/// Therefore, if this an input connection, this list should always be empty.
 		/// </summary>
-		public List<string> connectedToGUIDs;
+		public List<string> connectedToGUIDs = new List<string>();
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
@@ -39,7 +40,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		private Color hoverBGColor;
 		private bool isHovering;
 		private bool isConnected = false;
-		private bool wasHovering = false;
 
 
 		public ConnectionPoint(NodeWindow<T> node,
@@ -115,19 +115,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				}
 				else if (e.button == 1)
 				{
-					if (e.type == EventType.MouseUp)
+					if (e.type == EventType.MouseDown)
 					{
-						LeftClick();
-						e.Use();
+						RightClickDown(e);
 					}
 				}
 			}
 			else
 				isHovering = false;
-
-			if (wasHovering != isHovering)
-				GUI.changed = true;
-			wasHovering = isHovering;
 		}
 
 
@@ -154,13 +149,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			GUI.Label(rect, "", isConnected ? connectedStyle : unconnectedStyle);
 
 			GUI.backgroundColor = clr;
-
-			isConnected = false;
-		}
-
-		public void LeftClick()
-		{
-
 		}
 
 		public void RemoveConnectionTo(ConnectionPoint<T> otherConnection)
@@ -168,6 +156,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			connectedTo.Remove(otherConnection);
 			if (connectionDirection == ConnectionPointDirection.Out)
 				connection.connectedToGUIDs.Remove(otherConnection.GUID);
+
+			isConnected = connectedTo.Count > 0;
 		}
 
 		public void RemoveAllConnections()
@@ -180,11 +170,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 
 			connectedTo.Clear();
+			isConnected = false;
 		}
 
 		public void ConnectTo(ConnectionPoint<T> otherConnectionPoint)
 		{
 			connectedTo.Add(otherConnectionPoint);
+			isConnected = true;
 		}
 
 		public void MakeNewConnectionTo(ConnectionPoint<T> otherConnectionPoint)
@@ -192,8 +184,37 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			if (connectedTo.Contains(otherConnectionPoint))
 				throw new System.Exception("trying to add connection that already exists");
 			connectedTo.Add(otherConnectionPoint);
+			isConnected = true;
 			if (connectionDirection == ConnectionPointDirection.Out)
 				connection.connectedToGUIDs.Add(otherConnectionPoint.GUID);
+		}
+
+		private void RightClickDown(Event e)
+		{
+			if (connectedTo.Count == 1)
+				RemoveAllConnections();
+			else if (connectedTo.Count > 1)
+			{
+				var genericMenu = new GenericMenu();
+				genericMenu.AddDisabledItem(new GUIContent("Disconnect which nodes?"));
+				genericMenu.AddSeparator("");
+				foreach (var conn in connectedTo)
+				{
+					genericMenu.AddItem(new GUIContent(conn.nodeWindow.GetName()), false,
+						() => RemoveConnectionBetween(this, conn));
+				}
+				genericMenu.AddItem(new GUIContent("All"), false, () => RemoveAllConnections());
+				genericMenu.ShowAsContext();
+			}
+
+			e.Use();
+		}
+
+		private static void RemoveConnectionBetween(ConnectionPoint<T> connectionPoint1, ConnectionPoint<T> connectionPoint2)
+		{
+			connectionPoint2.RemoveConnectionTo(connectionPoint1);
+			if (connectionPoint1.connectionDirection == ConnectionPointDirection.Out)
+				connectionPoint1.connection.connectedToGUIDs.Remove(connectionPoint2.GUID);
 		}
 	}
 }
