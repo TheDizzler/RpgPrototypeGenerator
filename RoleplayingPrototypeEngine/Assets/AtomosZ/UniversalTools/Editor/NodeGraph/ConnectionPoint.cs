@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
@@ -69,7 +68,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 		}
 
-
+		/// <summary>
+		/// Returns true if mouse event used.
+		/// Note: this does not set the event to used, as consuming the input will prevent
+		/// nodes from deselecting. (Right MouseDown DOES consume though).
+		/// </summary>
+		/// <param name="e"></param>
 		public void ProcessEvents(Event e)
 		{
 			Rect windowRect = nodeWindow.GetRect();
@@ -118,6 +122,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 					if (e.type == EventType.MouseDown)
 					{
 						RightClickDown(e);
+					}
+					else if (e.type == EventType.MouseDrag)
+					{
+						e.Use();
+					}
+					else if (e.type == EventType.MouseUp)
+					{
+						RightClickUp(e);
 					}
 				}
 			}
@@ -189,22 +201,34 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				connection.connectedToGUIDs.Add(otherConnectionPoint.GUID);
 		}
 
-		private void RightClickDown(Event e)
+
+		protected void RightClickDown(Event e)
 		{
-			if (connectedTo.Count == 1)
-				RemoveAllConnections();
-			else if (connectedTo.Count > 1)
+			e.Use();
+		}
+
+		protected virtual void RightClickUp(Event e)
+		{
+			if (connectedTo.Count > 0)
 			{
-				var genericMenu = new GenericMenu();
-				genericMenu.AddDisabledItem(new GUIContent("Disconnect which nodes?"));
-				genericMenu.AddSeparator("");
-				foreach (var conn in connectedTo)
+				if (connectedTo.Count == 1)
 				{
-					genericMenu.AddItem(new GUIContent(conn.nodeWindow.GetName()), false,
-						() => RemoveConnectionBetween(this, conn));
+					RemoveAllConnections();
 				}
-				genericMenu.AddItem(new GUIContent("All"), false, () => RemoveAllConnections());
-				genericMenu.ShowAsContext();
+				else if (connectedTo.Count > 1)
+				{
+					var genericMenu = new GenericMenu();
+					genericMenu.allowDuplicateNames = true;
+					genericMenu.AddDisabledItem(new GUIContent("Disconnect which nodes?"));
+					genericMenu.AddSeparator("");
+					foreach (var conn in connectedTo)
+					{
+						genericMenu.AddItem(new GUIContent(conn.nodeWindow.GetName()), false,
+							() => RemoveConnectionBetween(this, conn));
+					}
+					genericMenu.AddItem(new GUIContent("All"), false, () => RemoveAllConnections());
+					genericMenu.ShowAsContext();
+				}
 			}
 
 			e.Use();
@@ -212,9 +236,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		private static void RemoveConnectionBetween(ConnectionPoint<T> connectionPoint1, ConnectionPoint<T> connectionPoint2)
 		{
+			connectionPoint1.RemoveConnectionTo(connectionPoint2);
 			connectionPoint2.RemoveConnectionTo(connectionPoint1);
-			if (connectionPoint1.connectionDirection == ConnectionPointDirection.Out)
-				connectionPoint1.connection.connectedToGUIDs.Remove(connectionPoint2.GUID);
 		}
 	}
 }

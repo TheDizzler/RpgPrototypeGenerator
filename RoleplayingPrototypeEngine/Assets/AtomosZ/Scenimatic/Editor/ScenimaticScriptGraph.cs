@@ -76,6 +76,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (script == null)
 				return;
 
+			if (refreshConnections == null)
+				throw new System.Exception("Graph in invalid state. Should have called Initialize().");
 			if (refreshConnections.Count > 0)
 			{
 				foreach (var cp in refreshConnections)
@@ -91,10 +93,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				refreshConnections.Clear();
 			}
 
+			Vector2 zoomerOffset = zoomer.GetContentOffset();
+
 			save = false;
 			foreach (var node in branchNodes)
 			{
-				node.Offset(zoomer.GetContentOffset());
+				node.Offset(zoomerOffset);
 				if (node.ProcessEvents(current))
 					save = true;
 
@@ -125,7 +129,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					// if this has not been consumed we can (?) assume that
 					//	the mouse was not released over a connection point
-					savedMousePos = current.mousePosition + zoomer.GetContentOffset();
+					savedMousePos = current.mousePosition + zoomerOffset;
 					startConnection.isCreatingNewConnection = false;
 
 					startConnection = null;
@@ -135,7 +139,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				&& current.type == EventType.MouseUp
 				&& !zoomer.isScreenMoved)
 			{
-				savedMousePos = current.mousePosition + zoomer.GetContentOffset();
+				savedMousePos = current.mousePosition + zoomerOffset;
 				CreateStandAloneContextMenu();
 			}
 			else

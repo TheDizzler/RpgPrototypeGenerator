@@ -28,33 +28,45 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			bool saveNeeded = false;
 			controlFlowIn.ProcessEvents(e);
 			controlFlowOut.ProcessEvents(e);
-
-
+			
 			switch (e.type)
 			{
 				case EventType.MouseDown:
-					if (e.button == 0)
-					{
-						LeftClickDown(e);
+					if (TitleLabelRect().Contains(e.mousePosition))
+					{ // title bar clicked
+						if (e.button == 0)
+							TitleBarLeftClickDown(e);
 					}
-					else if (e.button == 1)
+					else if (GetRect().Contains(e.mousePosition))
 					{
-						RightClickDown(e);
+						if (e.button == 0)
+							LeftClickDown(e);
+						else if (e.button == 1)
+							RightClickDown(e);
 					}
 					break;
+
 				case EventType.MouseUp:
-					if (e.button == 1)
+					if (TitleLabelRect().Contains(e.mousePosition))
+					{ // title bar clicked
+						if (e.button == 0)
+							TitleBarLeftClickUp(e);
+					}
+					if (GetRect().Contains(e.mousePosition))
 					{
-						RightClickUp(e);
+						if (e.button == 1)
+						{
+							RightClickUp(e);
+						}
 					}
 					break;
+
 				case EventType.MouseDrag:
 					if (e.button == 0 && isDragged)
 					{
 						Drag(e.delta);
 						e.Use();
 					}
-
 					break;
 			}
 
@@ -79,7 +91,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			else
 				GUI.backgroundColor = defaultBGColor;
 
-			GUILayout.BeginArea(GetRect(), new GUIContent("Name", "tooltip"), currentStyle);
+			GUILayout.BeginArea(GetRect(), currentStyle);
 			{
 				GUILayout.BeginVertical(EditorStyles.helpBox);
 				{
@@ -143,12 +155,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		protected override void CreateWindow()
 		{
 			window = new EventBranchNodeWindow(this);
-		}
-
-		public override void MoveWindowPosition(Vector2 delta)
-		{
-			windowRect.position += delta;
-			serializedNode.position = windowRect.position;
 		}
 
 		public void DrawConnectionWires()

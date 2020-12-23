@@ -119,54 +119,47 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		}
 
 
-		protected virtual void LeftClickDown(Event e)
+		protected virtual void TitleBarLeftClickUp(Event e)
 		{
-			if (TitleLabelRect().Contains(e.mousePosition))
-			{ // title bar clicked
-				if (EditorApplication.timeSinceStartup - timeClicked <= DoubleClickTime)
-				{
-					timeClicked = double.MinValue;
-					isDragged = false;
-
-					Debug.Log("Double clicked");
-					return;
-				}
+			isDragged = false;
+		}
 
 
+		protected virtual void TitleBarLeftClickDown(Event e)
+		{
+			if (EditorApplication.timeSinceStartup - timeClicked <= DoubleClickTime)
+			{
+				timeClicked = double.MinValue;
+				isDragged = false;
+
+				Debug.Log("Double clicked");
+			}
+			else
+			{
 				timeClicked = EditorApplication.timeSinceStartup;
 				isDragged = true;
 				Select();
+			}
 
-				//Selection.SetActiveObjectWithContext(treeBlueprint, null); // this ensures the proper object in the scene editor (?) is selected
-				e.Use();
-			}
-			else if (GetRect().Contains(e.mousePosition))
-			{ // select node
-				Select();
-				//Selection.SetActiveObjectWithContext(treeBlueprint, null);
-				e.Use();
-			}
-			else
-			{ // deselect node
-				Deselected();
-			}
+			e.Use();
+		}
+
+		protected virtual void LeftClickDown(Event e)
+		{
+			isDragged = false;
+			Select();
+			e.Use();
 		}
 
 		protected virtual void RightClickDown(Event e)
 		{
-			if (GetRect().Contains(e.mousePosition))
-			{
-				Debug.Log("Window right clicked");
-				e.Use();
-			}
+			Debug.Log("Window right clicked");
+			e.Use();
 		}
 
 		protected virtual void RightClickUp(Event e)
 		{
-			if (GetRect().Contains(e.mousePosition))
-			{
-				e.Use();
-			}
+			e.Use();
 		}
 
 		protected Rect TitleLabelRect()
@@ -253,6 +246,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		public virtual void MoveWindowPosition(Vector2 delta)
 		{
 			windowRect.position += delta;
+			serializedNode.position = windowRect.position;
 		}
 
 		public void Offset(Vector2 contentOffset)

@@ -105,6 +105,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (window == null)
 			{
 				CreateWindows();
+				scenimaticGraph = null; // make sure the graph gets re-initialized
 			}
 
 			projectPrefsPrefix =
@@ -114,7 +115,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (rectStyle == null)
 			{
 				if (!CreateStyles())
+				{
 					return; // couldn't create styles
+				}
 			}
 
 			// open last edited scene
@@ -127,6 +130,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 		}
 
+		void OnDisable()
+		{
+			// this saves changes whenever scripts are reloaded.
+			SaveScene(); // maybe save to a temp file?
+		}
 
 		/// <summary>
 		/// WARNING: This assumes the path has already been validated to exist.
@@ -170,6 +178,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			AssetDatabase.Refresh();
 			EditorUtility.SetDirty(this);
 		}
+
 
 		void OnGUI()
 		{
