@@ -158,19 +158,20 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			{
 				if (current.type == EventType.MouseDrag &&
 					((current.button == 0 && current.modifiers == EventModifiers.Alt)
-						|| current.button == 1))
+						|| current.button == 1
+						|| current.button == 2))
 				{
 					if (lastWasDragging)
 					{
-						var mouseDelta = Event.current.mousePosition - lastMouse;
+						var mouseDelta = current.mousePosition - lastMouse;
 						zoomOrigin += mouseDelta;
 						prePanZoomOrigin += mouseDelta;
-						Event.current.Use();
+						current.Use();
 					}
 
 					lastWasDragging = true;
 				}
-				else if (current.type == EventType.MouseUp && current.button == 1)
+				else if (current.type == EventType.MouseUp && (current.button == 1 || current.button == 2))
 				{
 					isScreenMoved = Mathf.Abs(prePanZoomOrigin.x) > panMinimum
 						|| Mathf.Abs(prePanZoomOrigin.y) > panMinimum;
