@@ -22,12 +22,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 
 
+
+		private void OnEnable()
+		{
+			window = this;
+		}
+
+
 		public void LoadBranch(ScenimaticSerializedNode newBranch)
 		{
-			if (window == null)
-				window = this;
-			window.Show();
-
 			branch = newBranch.data;
 			Repaint();
 		}
@@ -46,10 +49,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (deferredCommandQueue == null)
 				deferredCommandQueue = new Queue<DeferredCommand>();
 
-
 			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				branch.branchName = GUILayout.TextField(branch.branchName);
+
 				if (GUILayout.Button("Add Event"))
 				{
 					branch.events.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event

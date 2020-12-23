@@ -25,9 +25,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private static string lastOpenScriptKey;
 
 
-
 		private static ScenimaticScriptEditor window;
-		private static ScenimaticBranchEditor branchWindow;
 
 
 		public ScenimaticScriptGraph scenimaticGraph;
@@ -57,20 +55,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				Debug.LogWarning("Window is open but lost refernce...");
 				window = GetWindow<ScenimaticScriptEditor>();
-			}
-
-			if (!EditorWindow.HasOpenInstances<ScenimaticBranchEditor>())
-			{
-				Debug.LogWarning("Making new branch window");
-				branchWindow = GetWindow<ScenimaticBranchEditor>();
-				branchWindow.titleContent = new GUIContent("Scenimatic Branch");
-				branchWindow.minSize = new Vector2(400, 200);
-				branchWindow.Show();
-			}
-			else if (branchWindow == null)
-			{
-				Debug.LogWarning("branchWindow is open but lost refernce...");
-				branchWindow = GetWindow<ScenimaticBranchEditor>();
 			}
 
 			CreateStyles();
@@ -160,7 +144,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				CreateWindows();
 			window.position = new Rect(script.savedScreenPos, script.savedScreenSize);
 
-			scenimaticGraph.Initialize(script, branchWindow);
+			scenimaticGraph.Initialize(script);
 
 			if (zoomer == null)
 			{
@@ -271,14 +255,16 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				scenimaticGraph.OnGui(Event.current, zoomer);
 			}
-			zoomer.End(new Rect(0, (zoomRect.yMax - zoomRect.position.y) + areaBelowZoomHeight * 1.5f, window.position.width, window.position.height));
+			zoomer.End(new Rect(
+				0, (zoomRect.yMax - zoomRect.position.y) + areaBelowZoomHeight * 1.5f,
+				window.position.width, window.position.height));
 
 			if (GUILayout.Button("New Dialog Branch"))
 			{
 				scenimaticGraph.AddBranch(CreateNewBranch(Vector2.zero));
 			}
 
-			if (GUI.changed)
+			//if (GUI.changed) // adding this check means there is a delay when hovering over connection points.
 				Repaint();
 		}
 
@@ -298,7 +284,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (scenimaticGraph == null)
 				scenimaticGraph = new ScenimaticScriptGraph();
 
-			scenimaticGraph.Initialize(script, branchWindow);
+			scenimaticGraph.Initialize(script);
 
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();

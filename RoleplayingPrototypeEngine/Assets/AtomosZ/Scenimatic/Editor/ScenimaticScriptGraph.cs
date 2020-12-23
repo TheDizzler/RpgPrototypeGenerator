@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
@@ -7,6 +8,7 @@ using UnityEngine;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
+	[System.Serializable]
 	public class ScenimaticScriptGraph : INodeGraph<ScenimaticBranch>
 	{
 		public ZoomerSettings zoomerSettings;
@@ -26,12 +28,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 
 
-		public void Initialize(ScenimaticScript newScript, ScenimaticBranchEditor scenimaticBranchEditor)
+		public void Initialize(ScenimaticScript newScript)
 		{
 			refreshConnections = new List<ConnectionPoint<ScenimaticBranch>>();
 			connectionPoints = new Dictionary<string, ConnectionPoint<ScenimaticBranch>>();
 			script = newScript;
-			branchEditor = scenimaticBranchEditor;
+
+			CreateBranchWindow();
 
 			zoomerSettings = new ZoomerSettings();
 			zoomerSettings.zoomOrigin = script.zoomOrigin;
@@ -47,8 +50,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				branchNodes.Add(node);
 			}
 
-			scenimaticBranchEditor.LoadBranch(script.branches[0]);
+			branchEditor.LoadBranch(script.branches[0]);
 		}
+
 
 		public ScenimaticScript SaveScript()
 		{
@@ -163,6 +167,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 
 			selectedNode = nodeData;
+			CreateBranchWindow();
 			branchEditor.LoadBranch((ScenimaticSerializedNode)selectedNode.serializedNode);
 		}
 
@@ -221,6 +226,25 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 		}
 
+
+		private void CreateBranchWindow()
+		{
+			if (!EditorWindow.HasOpenInstances<ScenimaticBranchEditor>())
+			{
+				if (branchEditor == null)
+				{
+					branchEditor = EditorWindow.GetWindow<ScenimaticBranchEditor>();
+					branchEditor.titleContent = new GUIContent("Scenimatic Branch");
+					branchEditor.minSize = new Vector2(600, 200);
+				}
+			}
+			else
+			{
+				branchEditor = EditorWindow.GetWindow<ScenimaticBranchEditor>();
+				branchEditor.titleContent = new GUIContent("Scenimatic Branch");
+				branchEditor.minSize = new Vector2(600, 200);
+			}
+		}
 
 		private void CreateStandAloneContextMenu()
 		{
