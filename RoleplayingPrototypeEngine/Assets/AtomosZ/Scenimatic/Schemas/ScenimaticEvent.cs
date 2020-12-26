@@ -1,4 +1,6 @@
-﻿namespace AtomosZ.RPG.Scenimatic.Schemas
+﻿using System.Collections.Generic;
+
+namespace AtomosZ.RPG.Scenimatic.Schemas
 {
 	[System.Serializable]
 	public class ScenimaticEvent
@@ -25,6 +27,14 @@
 			///		audio files
 			/// </summary>
 			Dialog,
+			/// <summary>
+			/// User is prompted with a multiple choice question.
+			/// </summary>
+			Query,
+			/// <summary>
+			/// User is prompted for text input. (ex: name input)
+			/// </summary>
+			TextInput,
 		}
 
 		// variables for all Scenimatics
@@ -33,10 +43,15 @@
 
 		// Dialog variables
 		/// <summary>
-		/// Image code for portrait of character speaking and facial expression (maybe empty).
+		/// Image name for portrait of character speaking and facial expression (maybe empty).
 		/// </summary>
 		public string image = string.Empty;
 		public string text;
+
+		//  Query variables
+		public List<string> options;
+		public string outputVariableName;
+
 
 
 		public static ScenimaticEvent CreateEmpytEvent()
@@ -47,6 +62,11 @@
 		public static ScenimaticEvent CreateDialogEvent(string dialogText, string imageName)
 		{
 			return new ScenimaticEvent(dialogText, imageName);
+		}
+
+		public static ScenimaticEvent CreateQueryEvent(List<string> choices)
+		{
+			return new ScenimaticEvent(choices);
 		}
 
 
@@ -65,6 +85,15 @@
 			eventType = ScenimaticEventType.Dialog;
 			text = dialogText;
 			image = imageName;
+			haltsQueueUntilFinished = true;
+		}
+
+		private ScenimaticEvent(List<string> choices)
+		{
+			eventType = ScenimaticEventType.Query;
+			options = choices;
+			haltsQueueUntilFinished = true;
+			outputVariableName = "(int) temp_name";
 		}
 	}
 }

@@ -108,7 +108,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			ScenimaticEventType eventType = eventData.eventType;
 			// Event Type selection/detection
 
-			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(500));
+			Rect clickArea = EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(500));
 			{
 				// move up/down buttons
 				EditorGUILayout.BeginVertical(GUILayout.Width(10));
@@ -141,6 +141,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						case ScenimaticEventType.Dialog:
 							eventData = ScenimaticEvent.CreateDialogEvent("Dialog Text here", "Image name here");
 							break;
+						case ScenimaticEventType.Query:
+							eventData = CreateQueryEvent(new List<string>() { "A", "B"});
+							break;
 					}
 				}
 
@@ -148,6 +151,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					case ScenimaticEventType.Dialog:
 						DialogEventEdit(eventData);
+						break;
+					case ScenimaticEventType.Query:
+						QueryEventEdit(eventData);
 						break;
 					default:
 						NotImplementedEvent();
@@ -168,6 +174,54 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			return eventData;
 		}
 
+
+		private void QueryEventEdit(ScenimaticEvent eventData)
+		{
+			EditorGUILayout.BeginVertical();
+			{
+				int size = eventData.options.Count;
+				EditorGUILayout.BeginHorizontal();
+				{
+					size = EditorGUILayout.DelayedIntField("List Size", size);
+
+					if (size != eventData.options.Count)
+					{
+						while (size > eventData.options.Count)
+						{
+							eventData.options.Add("");
+						}
+						while (size < eventData.options.Count)
+						{
+							eventData.options.RemoveAt(eventData.options.Count - 1);
+						}
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+
+				EditorGUILayout.BeginHorizontal();
+				{
+					for (int i = 0; i < size; ++i)
+					{
+						if (i % 4 == 0)
+						{
+							EditorGUILayout.EndHorizontal();
+							EditorGUILayout.BeginHorizontal();
+						}
+						eventData.options[i] = EditorGUILayout.DelayedTextField(eventData.options[i]);
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+			EditorGUILayout.EndVertical();
+
+
+			EditorGUILayout.EndHorizontal();
+			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(275));
+			{
+				EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
+				eventData.outputVariableName = EditorGUILayout.DelayedTextField(eventData.outputVariableName);
+			}
+		}
 
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
