@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AtomosZ.RPG.Scenimatic.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
 using static AtomosZ.RPG.Scenimatic.Schemas.ScenimaticEvent;
@@ -17,6 +18,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
+		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
 
@@ -31,6 +33,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void LoadBranch(ScenimaticSerializedNode newBranch)
 		{
+			serializedBranch = newBranch;
 			branch = newBranch.data;
 			Repaint();
 		}
@@ -83,7 +86,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					case DeferredCommand.DeferredCommandType.DeleteEvent:
 					{
 						branch.events.Remove(command.eventData);
-
 					}
 					break;
 					default:
@@ -139,10 +141,16 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					switch (eventType)
 					{
 						case ScenimaticEventType.Dialog:
-							eventData = ScenimaticEvent.CreateDialogEvent("Dialog Text here", "Image name here");
+							eventData = CreateDialogEvent("Dialog Text here", "Image name here");
 							break;
 						case ScenimaticEventType.Query:
-							eventData = CreateQueryEvent(new List<string>() { "A", "B"});
+							eventData = CreateQueryEvent(new List<string>() { "A", "B" });
+							serializedBranch.connectionOutputs.Add(new Connection()
+							{
+								GUID = System.Guid.NewGuid().ToString(),
+								type = ConnectionType.Int,
+								data = "variable name",
+							});
 							break;
 					}
 				}

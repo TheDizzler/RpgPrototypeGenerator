@@ -26,9 +26,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public override bool ProcessEvents(Event e)
 		{
 			bool saveNeeded = false;
-			controlFlowIn.ProcessEvents(e);
-			controlFlowOut.ProcessEvents(e);
-			
+			for (int i = 0; i < inConnectionPoints.Count; ++i)
+				inConnectionPoints[i].ProcessEvents(e, i);
+			for (int i = 0; i < outConnectionPoints.Count; ++i)
+				outConnectionPoints[i].ProcessEvents(e, i);
+
 			switch (e.type)
 			{
 				case EventType.MouseDown:
@@ -121,8 +123,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			GUI.backgroundColor = defaultColor;
 
-			controlFlowIn.OnGUI();
-			controlFlowOut.OnGUI();
+			foreach (var conn in inConnectionPoints)
+				conn.OnGUI();
+			foreach (var conn in outConnectionPoints)
+				conn.OnGUI();
 		}
 
 		protected override void Selected()

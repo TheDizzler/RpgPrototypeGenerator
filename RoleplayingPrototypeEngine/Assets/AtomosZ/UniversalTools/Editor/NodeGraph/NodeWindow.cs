@@ -19,9 +19,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		public NodeObjectData<T> nodeData;
 
-		// for now, we are assuming all nodes have control flow.
-		protected ConnectionPoint<T> controlFlowIn;
-		protected ConnectionPoint<T> controlFlowOut;
+
+		protected List<ConnectionPoint<T>> inConnectionPoints;
+		protected List<ConnectionPoint<T>> outConnectionPoints;
 
 		protected string nodeName;
 		protected GUIStyle currentStyle;
@@ -45,36 +45,48 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			defaultBGColor = nodeData.defaultBGColor;
 			selectedBGColor = nodeData.selectedBGColor;
 
+			inConnectionPoints = new List<ConnectionPoint<T>>();
+			outConnectionPoints = new List<ConnectionPoint<T>>();
+			inConnectionPoints.Add(null); // reserved for Control Flow In
+			outConnectionPoints.Add(null); // reserved for Control Flow Out
 
 			foreach (var connection in nodeData.inputConnections)
 			{
 				switch (connection.type)
 				{
 					case ConnectionType.ControlFlow:
-						if (controlFlowIn != null)
-							throw new System.Exception("how in not null?");
-						controlFlowIn = new ConnectionPoint<T>(this, ConnectionPointDirection.In,
-							ConnectionPointData.GetControlFlowTypeData(), connection);
+						inConnectionPoints[0] =
+							new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+								ConnectionPointData.GetControlFlowTypeData(), connection);
+						break;
+					case ConnectionType.Int:
+						inConnectionPoints.Add(
+							new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+							ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
-					case ConnectionType.Int:
 					case ConnectionType.String:
 						throw new Exception("Connection type not yet implemented");
 				}
 			}
 
-			foreach (var connection in nodeData.outputConnections)
+
+			for (int i = 0; i < nodeData.outputConnections.Count; ++i)
 			{
+				var connection = nodeData.outputConnections[i];
 				switch (connection.type)
 				{
 					case ConnectionType.ControlFlow:
-						if (controlFlowOut != null)
-							throw new System.Exception("how out not null?");
-						controlFlowOut = new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
-							ConnectionPointData.GetControlFlowTypeData(), connection);
+						outConnectionPoints[0] =
+							new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetControlFlowTypeData(), connection);
+						break;
+					case ConnectionType.Int:
+						outConnectionPoints.Add(
+							new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
-					case ConnectionType.Int:
 					case ConnectionType.String:
 						throw new Exception("Connection type not yet implemented");
 				}
@@ -83,7 +95,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		public virtual void DrawConnectionWires()
 		{
-			controlFlowOut.DrawConnections();
+			foreach (var conn in inConnectionPoints)
+				conn.DrawConnections();
+			foreach (var conn in outConnectionPoints)
+				conn.DrawConnections();
 		}
 
 		public abstract string GetName();

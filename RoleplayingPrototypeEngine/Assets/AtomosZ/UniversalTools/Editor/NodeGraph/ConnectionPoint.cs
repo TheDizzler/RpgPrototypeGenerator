@@ -15,6 +15,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 	/// </summary>
 	public class ConnectionPoint<T>
 	{
+		private const int connectionMargin = 32;
+
 		public static INodeGraph<T> nodeGraph;
 
 		public string GUID;
@@ -34,12 +36,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public bool isCreatingNewConnection;
 
 		public Connection connection;
+
 		private GUIStyle unconnectedStyle;
 		private GUIStyle connectedStyle;
 		private Color hoverBGColor;
 		private bool isHovering;
 		private bool isConnected = false;
-
+		
 
 		public ConnectionPoint(NodeWindow<T> node,
 			ConnectionPointDirection direction, ConnectionPointData dataType, Connection connection)
@@ -74,10 +77,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		/// nodes from deselecting. (Right MouseDown DOES consume though).
 		/// </summary>
 		/// <param name="e"></param>
-		public void ProcessEvents(Event e)
+		public void ProcessEvents(Event e, int connectionOrder)
 		{
 			Rect windowRect = nodeWindow.GetRect();
-			rect.x = windowRect.x + windowRect.width * .5f - rect.width * .5f;
+			rect.x = windowRect.x + (connectionOrder * connectionMargin) - rect.width * .5f;
 
 			switch (connectionDirection)
 			{
