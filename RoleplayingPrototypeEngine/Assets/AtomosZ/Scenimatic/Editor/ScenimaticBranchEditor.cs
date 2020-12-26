@@ -80,6 +80,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						branch.events.Insert(index + 1, command.eventData);
 					}
 					break;
+					case DeferredCommand.DeferredCommandType.DeleteEvent:
+					{
+						branch.events.Remove(command.eventData);
+
+					}
+					break;
 					default:
 						Debug.LogError("No actions for deferred command type " + command.commandType);
 						break;
@@ -150,6 +156,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			EditorGUILayout.EndHorizontal();
 
+			if (Event.current.type == EventType.ContextClick && clickArea.Contains(Event.current.mousePosition))
+			{
+				GenericMenu menu = new GenericMenu();
+				menu.AddItem(new GUIContent("Delete Event"), false, () => DeleteEvent(eventData));
+				menu.ShowAsContext();
+
+				Event.current.Use();
+			}
+
 			return eventData;
 		}
 
@@ -164,10 +179,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			GUILayout.Label(new GUIContent("Not yet implemented"));
 		}
 
+		private void DeleteEvent(ScenimaticEvent eventData)
+		{
+			deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.DeleteEvent));
+		}
+
 
 		private class DeferredCommand
 		{
-			public enum DeferredCommandType { MoveUp, MoveDown };
+			public enum DeferredCommandType
+			{
+				MoveUp, MoveDown,
+				DeleteEvent,
+			};
 
 			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
