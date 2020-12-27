@@ -3,6 +3,7 @@ using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
+using static AtomosZ.UniversalEditorTools.NodeGraph.Connections.ConnectionPointData;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 {
@@ -37,38 +38,35 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public Connection connection;
 
-		private GUIStyle unconnectedStyle;
-		private GUIStyle connectedStyle;
-		private Color hoverBGColor;
+		private ConnectionPointStyle connectionStyles;
+		private GUIStyle currentStyle;
 		private bool isHovering;
 		private bool isConnected = false;
-		
+		private bool isValidConnection;
 
 		public ConnectionPoint(NodeWindow<T> node,
 			ConnectionPointDirection direction, ConnectionPointData dataType, Connection connection)
 		{
 			if (nodeGraph == null)
 				throw new System.Exception("ConnectionPoint.nodeGraph MUST be set!");
+			if (connection == null)
+				throw new System.Exception("Connection may not be null");
+
 			nodeWindow = node;
 			connectionDirection = direction;
 			data = dataType;
 			connectionType = dataType.type;
 			wireThickness = dataType.wireThickness;
-			unconnectedStyle = dataType.connectionPointStyle.unconnectedStyle;
-			connectedStyle = dataType.connectionPointStyle.connectedStyle;
 
-			rect = new Rect(0, 0, unconnectedStyle.normal.background.width, unconnectedStyle.normal.background.height);
+			connectionStyles = dataType.connectionPointStyle;
+			currentStyle = connectionStyles.unconnectedStyle;
+			rect = new Rect(0, 0,
+				currentStyle.normal.background.width,
+				currentStyle.normal.background.height);
 
-			if (connection == null)
-			{
-				throw new System.Exception("Connection may not be null");
-			}
-			else
-			{
-				GUID = connection.GUID;
-				this.connection = connection;
-				nodeGraph.RefreshConnection(this);
-			}
+			GUID = connection.GUID;
+			this.connection = connection;
+			nodeGraph.RefreshConnection(this);
 		}
 
 		/// <summary>
@@ -96,15 +94,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			if (rect.Contains(e.mousePosition))
 			{
 				isHovering = true;
+				SetCurrentStyle();
 
-				if (nodeGraph.IsValidConnection(this))
-				{
-					hoverBGColor = Color.green;
-				}
-				else
-				{
-					hoverBGColor = Color.red;
-				}
+				isValidConnection = nodeGraph.IsValidConnection(this);
 
 				if (e.button == 0)
 				{
@@ -136,8 +128,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 					}
 				}
 			}
-			else
+			else if (!isCreatingNewConnection)
+			{
 				isHovering = false;
+				SetCurrentStyle();
+				isValidConnection = true;
+			}
 		}
 
 
@@ -157,13 +153,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void OnGUI()
 		{
-			Color clr = GUI.backgroundColor;
-			if (isHovering || isCreatingNewConnection)
-				GUI.backgroundColor = hoverBGColor;
-
-			GUI.Label(rect, "", isConnected ? connectedStyle : unconnectedStyle);
-
-			GUI.backgroundColor = clr;
+			GUI.Label(rect, "", isValidConnection ? currentStyle : ConnectionPointData.invalidStyle);
 		}
 
 		public void RemoveConnectionTo(ConnectionPoint<T> otherConnection)
@@ -173,6 +163,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				connection.connectedToGUIDs.Remove(otherConnection.GUID);
 
 			isConnected = connectedTo.Count > 0;
+			SetCurrentStyle();
+		}
+
+		private void SetCurrentStyle()
+		{
+			if (isHovering)
+				currentStyle = isConnected ?
+					connectionStyles.connectedHoverStyle : connectionStyles.unconnectedHoverStyle;
+			else
+				currentStyle = isConnected ?
+					connectionStyles.connectedStyle : connectionStyles.unconnectedStyle;
+
 		}
 
 		public void RemoveAllConnections()
@@ -186,12 +188,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			connectedTo.Clear();
 			isConnected = false;
+			SetCurrentStyle();
 		}
 
 		public void ConnectTo(ConnectionPoint<T> otherConnectionPoint)
 		{
 			connectedTo.Add(otherConnectionPoint);
 			isConnected = true;
+			SetCurrentStyle();
 		}
 
 		public void MakeNewConnectionTo(ConnectionPoint<T> otherConnectionPoint)
@@ -200,6 +204,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				throw new System.Exception("trying to add connection that already exists");
 			connectedTo.Add(otherConnectionPoint);
 			isConnected = true;
+			SetCurrentStyle();
 			if (connectionDirection == ConnectionPointDirection.Out)
 				connection.connectedToGUIDs.Add(otherConnectionPoint.GUID);
 		}

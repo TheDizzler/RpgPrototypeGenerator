@@ -7,7 +7,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 	public class ConnectionPointData
 	{
 		public static string ImageFolder = "Assets/AtomosZ/UniversalTools/Editor/NodeGraph/Images/";
-
+		public static GUIStyle invalidStyle = CreateStyle(ImageFolder + "Node Broken Branch.png");
 
 		private static ConnectionPointData controlFlowType = null;
 		private static ConnectionPointData intType = null;
@@ -29,8 +29,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 					type = ConnectionType.Int,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateIntUnconnectedStyle(),
-						connectedStyle = CreateIntConnectedStyle(),
+						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint Int unconnected.png"),
+						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int unconnected hover.png"),
+						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected.png"),
+						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected hover.png"),
 					},
 					wireThickness = 6,
 					allowsMultipleInputs = false,
@@ -50,8 +52,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 					type = ConnectionType.ControlFlow,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateCreateFlowUnconnectedStyle(),
-						connectedStyle = CreateControlFlowConnectedStyle(),
+						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected.png"),
+						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected hover.png"),
+						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected.png"),
+						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected hover.png"),
 					},
 					wireThickness = 8,
 					allowsMultipleInputs = true,
@@ -63,61 +67,24 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		}
 
 
-		private static GUIStyle CreateIntConnectedStyle()
+
+		private static GUIStyle CreateStyle(string imagePath)
 		{
-			GUIStyle connectedStyle = new GUIStyle();
-			connectedStyle.normal.background =
-				EditorGUIUtility.FindTexture(ImageFolder + "ConnectionPoint Int InOut connected.png");
-			connectedStyle.hover.background =
-				EditorGUIUtility.FindTexture(ImageFolder + "ConnectionPoint Int InOut connected hover.png");
-			return connectedStyle;
-		}
-
-		private static GUIStyle CreateIntUnconnectedStyle()
-		{
-			GUIStyle unconnectedStyle = new GUIStyle();
-			var image = EditorGUIUtility.FindTexture(ImageFolder + "ConnectionPoint Int InOut unconnected.png");
+			GUIStyle style = new GUIStyle();
+			var image = EditorGUIUtility.FindTexture(imagePath);
 			if (image == null)
-				throw new System.Exception("Unable to find image at " + ImageFolder + "ConnectionPoint Int InOut unconnected.png");
-			unconnectedStyle.normal.background = image;
-
-			image = EditorGUIUtility.FindTexture(ImageFolder + "ConnectionPoint Int InOut connected hover.png");
-			if (image == null)
-				throw new System.Exception("Unable to find image at " + ImageFolder + "ConnectionPoint Int InOut connected hover.png");
-			unconnectedStyle.hover.background = image;
-
-			return unconnectedStyle;
-		}
-
-		private static GUIStyle CreateControlFlowConnectedStyle()
-		{
-			GUIStyle connectedStyle = new GUIStyle();
-			connectedStyle.normal.background =
-				EditorGUIUtility.FindTexture(ImageFolder + "NodeInOut hover.png");
-			return connectedStyle;
-		}
-
-		private static GUIStyle CreateCreateFlowUnconnectedStyle()
-		{
-			GUIStyle unconnectedStyle = new GUIStyle();
-			var image = EditorGUIUtility.FindTexture(ImageFolder + "NodeInOut normal.png");
-			if (image == null)
-				throw new System.Exception("Unable to find image at " + ImageFolder + "NodeInOut normal.png");
-			unconnectedStyle.normal.background = image;
-
-			image = EditorGUIUtility.FindTexture(ImageFolder + "NodeInOut hover.png");
-			if (image == null)
-				throw new System.Exception("Unable to find image at " + ImageFolder + "NodeInOut hover.png");
-			unconnectedStyle.hover.background = image;
-
-			return unconnectedStyle;
+				throw new System.Exception("Unable to find image at " + imagePath);
+			style.normal.background = image;
+			return style;
 		}
 
 
 		public class ConnectionPointStyle
 		{
 			public GUIStyle connectedStyle;
+			public GUIStyle connectedHoverStyle;
 			public GUIStyle unconnectedStyle;
+			public GUIStyle unconnectedHoverStyle;
 		}
 	}
 }
