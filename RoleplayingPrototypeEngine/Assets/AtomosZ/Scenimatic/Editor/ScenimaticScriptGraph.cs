@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
 
@@ -50,7 +50,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				branchNodes.Add(node);
 			}
 
-			branchEditor.LoadBranch(script.branches[0]);
+			branchEditor.LoadBranch(branchNodes[0]);
 		}
 
 
@@ -69,11 +69,39 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			script.branches.Add(newBranch);
 		}
 
+
+
+		public void RemoveConnection(Connection connection)
+		{
+			foreach (var conn in connectionPoints[connection.GUID].connectedTo)
+			{
+				refreshConnections.Add(conn);
+				conn.RemoveConnectionTo(connection.GUID);
+			}
+
+			connectionPoints.Remove(connection.GUID);
+		}
+
+
 		public void RefreshConnection(ConnectionPoint<ScenimaticBranch> connectionPoint)
 		{
 			refreshConnections.Add(connectionPoint);
-			connectionPoints.Add(connectionPoint.GUID, connectionPoint);
+			if (connectionPoints.ContainsKey(connectionPoint.GUID))
+			{
+				Debug.Log("Reconstructing connection for " + connectionPoint.GUID);
+
+				foreach (var conn in connectionPoints[connectionPoint.GUID].connectedTo)
+				{
+					refreshConnections.Add(conn);
+					conn.ReplaceOld(connectionPoint);
+				}
+
+				connectionPoints[connectionPoint.GUID] = connectionPoint;
+			}
+			else
+				connectionPoints.Add(connectionPoint.GUID, connectionPoint);
 		}
+
 
 		public void OnGui(Event current, ZoomWindow zoomer)
 		{
@@ -82,6 +110,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			if (refreshConnections == null)
 				throw new System.Exception("Graph in invalid state. Should have called Initialize().");
+
 			if (refreshConnections.Count > 0)
 			{
 				foreach (var cp in refreshConnections)
@@ -168,7 +197,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			selectedNode = nodeData;
 			CreateBranchWindow();
-			branchEditor.LoadBranch((ScenimaticSerializedNode)selectedNode.serializedNode);
+			branchEditor.LoadBranch(selectedNode);
 		}
 
 
@@ -244,6 +273,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				branchEditor.titleContent = new GUIContent("Scenimatic Branch");
 				branchEditor.minSize = new Vector2(600, 200);
 			}
+
+			branchEditor.nodeGraph = this;
 		}
 
 		private void CreateStandAloneContextMenu()

@@ -62,7 +62,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 					case ConnectionType.Int:
 						inConnectionPoints.Add(
 							new ConnectionPoint<T>(this, ConnectionPointDirection.In,
-							ConnectionPointData.GetIntTypeData(), connection));
+								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
 					case ConnectionType.String:
@@ -93,10 +93,61 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			}
 		}
 
+
+		public void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
+		{
+			if (direction == ConnectionPointDirection.In)
+			{
+				inConnectionPoints.Add(
+					new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+						ConnectionPointData.GetIntTypeData(), newConn));
+			}
+			else
+			{
+				outConnectionPoints.Add(
+					new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+						ConnectionPointData.GetIntTypeData(), newConn));
+			}
+		}
+
+		public void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction)
+		{
+			if (direction == ConnectionPointDirection.In)
+			{
+				ConnectionPoint<T> del = null;
+				for (int i = 0; i < inConnectionPoints.Count; ++i)
+				{
+					if (inConnectionPoints[i].GUID == conn.GUID)
+					{
+						del = inConnectionPoints[i];
+						break;
+					}
+				}
+				if (del == null)
+					Debug.LogError("Connection was not found trying to remove " + conn.GUID);
+				else
+					inConnectionPoints.Remove(del);
+			}
+			else
+			{
+				ConnectionPoint<T> del = null;
+				for (int i = 0; i < outConnectionPoints.Count; ++i)
+				{
+					if (outConnectionPoints[i].GUID == conn.GUID)
+					{
+						del = outConnectionPoints[i];
+						break;
+					}
+				}
+				if (del == null)
+					Debug.LogError("Connection was not found trying to remove " + conn.GUID);
+				else
+					outConnectionPoints.Remove(del);
+			}
+		}
+
 		public virtual void DrawConnectionWires()
 		{
-			foreach (var conn in inConnectionPoints)
-				conn.DrawConnections();
 			foreach (var conn in outConnectionPoints)
 				conn.DrawConnections();
 		}
@@ -255,8 +306,25 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			return window;
 		}
 
-		protected abstract void CreateWindow();
 
+		public void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
+		{
+			// add to input/output here as well?
+			if (direction == ConnectionPointDirection.In)
+				inputConnections.Add(newConn);
+			else
+				outputConnections.Add(newConn);
+			window.AddNewConnectionPoint(newConn, direction);
+		}
+
+		public void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction)
+		{
+			if (direction == ConnectionPointDirection.In)
+				inputConnections.Remove(connection);
+			else
+				outputConnections.Remove(connection);
+			window.RemoveConnectionPoint(connection, direction);
+		}
 
 		public virtual void MoveWindowPosition(Vector2 delta)
 		{
@@ -268,6 +336,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			offset = contentOffset;
 		}
+
+
+		protected abstract void CreateWindow();
 	}
 
 

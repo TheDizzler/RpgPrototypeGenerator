@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AtomosZ.RPG.Scenimatic.Schemas;
+using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -12,17 +13,26 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 	/// </summary>
 	public class ScenimaticBranchEditor : EditorWindow
 	{
-		private static ScenimaticBranchEditor window;
-		private static ScenimaticScriptEditor scenimaticScriptWindow;
+		private enum ConnectionTypeMini
+		{
+			Int = 1,
+			Float = 2,
+			String = 3,
+		}
 
+
+		private static ScenimaticBranchEditor window;
+
+		public ScenimaticScriptGraph nodeGraph;
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
+		private EventBranchObjectData branchData;
 		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
-
-
+		private GUILayoutOption[] inputLabelOptions = { GUILayout.MaxWidth(40), GUILayout.MinWidth(37), };
+		private GUILayoutOption[] inputFieldOptions = { GUILayout.MaxWidth(60), GUILayout.MinWidth(40), };
 
 
 		private void OnEnable()
@@ -31,10 +41,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public void LoadBranch(ScenimaticSerializedNode newBranch)
+		public void LoadBranch(EventBranchObjectData branchData)
 		{
-			serializedBranch = newBranch;
-			branch = newBranch.data;
+			this.branchData = branchData;
+			serializedBranch = (ScenimaticSerializedNode)branchData.serializedNode;
+			branch = serializedBranch.data;
 			Repaint();
 		}
 
@@ -63,6 +74,70 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			EditorGUILayout.EndHorizontal();
 
+			// inputs
+			GUILayout.BeginVertical(rectStyle);
+			{
+				EditorGUILayout.BeginHorizontal();
+				{
+					GUILayout.Label("Inputs:");
+					int size = EditorGUILayout.DelayedIntField(
+						serializedBranch.connectionInputs.Count - 1, GUILayout.MaxWidth(30));
+					if (size != serializedBranch.connectionInputs.Count - 1)
+					{
+						while (size > serializedBranch.connectionInputs.Count - 1)
+						{
+							Connection newConn = new Connection()
+							{
+								type = ConnectionType.Int,
+								GUID = System.Guid.NewGuid().ToString(),
+							};
+
+							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+						}
+						while (size < serializedBranch.connectionInputs.Count - 1)
+						{
+							Connection remove = 
+								serializedBranch.connectionInputs[
+									serializedBranch.connectionInputs.Count - 1];
+							nodeGraph.RemoveConnection(remove);
+							branchData.RemoveConnectionPoint(
+								remove, ConnectionPointDirection.In);
+						}
+					}
+				}
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
+
+				EditorGUILayout.BeginHorizontal();
+				{
+					for (int i = 0; i < serializedBranch.connectionInputs.Count; ++i)
+					{
+
+						Connection conn = serializedBranch.connectionInputs[i];
+						if (conn.type != ConnectionType.ControlFlow) // ignore ControlFlows
+						{
+							EditorGUILayout.BeginVertical(rectStyle);
+							{
+								EditorGUILayout.BeginHorizontal();
+								GUILayout.Label("Type:");
+								ConnectionTypeMini type = (ConnectionTypeMini)conn.type;
+								conn.type = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
+								EditorGUILayout.EndHorizontal();
+								EditorGUILayout.BeginHorizontal();
+								GUILayout.Label("Name:");
+								conn.data = EditorGUILayout.TextField(conn.data, inputFieldOptions);
+								EditorGUILayout.EndHorizontal();
+							}
+							EditorGUILayout.EndVertical();
+						}
+					}
+				}
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
+
+			}
+			EditorGUILayout.EndVertical();
+
 
 			while (deferredCommandQueue.Count != 0)
 			{
@@ -74,20 +149,47 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						int index = branch.events.IndexOf(command.eventData);
 						branch.events.Remove(command.eventData);
 						branch.events.Insert(index - 1, command.eventData);
+						break;
 					}
-					break;
+
 					case DeferredCommand.DeferredCommandType.MoveDown:
 					{
 						int index = branch.events.IndexOf(command.eventData);
 						branch.events.Remove(command.eventData);
 						branch.events.Insert(index + 1, command.eventData);
+						break;
 					}
-					break;
+
 					case DeferredCommand.DeferredCommandType.DeleteEvent:
-					{
+						if (command.eventData.eventType == ScenimaticEventType.Query)
+						{
+							nodeGraph.RemoveConnection(command.eventData.connection);
+							branchData.RemoveConnectionPoint(
+								command.eventData.connection, ConnectionPointDirection.Out);
+
+							if (!branch.events.Remove(command.eventData))
+								Debug.LogWarning(
+									"Could not find ConnectionPoint " 
+										+ command.eventData.linkedOutputGUID
+										+ " in ScenimaticBranch");
+						}
+
 						branch.events.Remove(command.eventData);
-					}
-					break;
+						break;
+
+					case DeferredCommand.DeferredCommandType.CreateQueryEvent:
+						var newConn = new Connection()
+						{
+							GUID = System.Guid.NewGuid().ToString(),
+							type = ConnectionType.Int,
+							data = "variable name (int)",
+						};
+
+						branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+						command.eventData.linkedOutputGUID = newConn.GUID;
+						command.eventData.connection = newConn;
+						break;
+
 					default:
 						Debug.LogError("No actions for deferred command type " + command.commandType);
 						break;
@@ -118,13 +220,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					if (GUILayout.Button("^"))
 					{
 						if (branch.events.IndexOf(eventData) != 0)
-							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveUp));
+							deferredCommandQueue.Enqueue(
+								new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveUp));
 					}
 
 					if (GUILayout.Button("v"))
 					{
 						if (branch.events.IndexOf(eventData) != branch.events.Count - 1)
-							deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveDown));
+							deferredCommandQueue.Enqueue(
+								new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveDown));
 					}
 				}
 				EditorGUILayout.EndVertical();
@@ -145,12 +249,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 							break;
 						case ScenimaticEventType.Query:
 							eventData = CreateQueryEvent(new List<string>() { "A", "B" });
-							serializedBranch.connectionOutputs.Add(new Connection()
-							{
-								GUID = System.Guid.NewGuid().ToString(),
-								type = ConnectionType.Int,
-								data = "variable name",
-							});
+							deferredCommandQueue.Enqueue(
+								new DeferredCommand(eventData,
+								DeferredCommand.DeferredCommandType.CreateQueryEvent));
 							break;
 					}
 				}
@@ -190,7 +291,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				int size = eventData.options.Count;
 				EditorGUILayout.BeginHorizontal();
 				{
-					size = EditorGUILayout.DelayedIntField("List Size", size);
+					GUILayout.Label("Choices:");
+					size = EditorGUILayout.DelayedIntField(size, GUILayout.MaxWidth(20));
 
 					if (size != eventData.options.Count)
 					{
@@ -204,6 +306,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						}
 					}
 				}
+				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 
 				EditorGUILayout.BeginHorizontal();
@@ -222,13 +325,22 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			EditorGUILayout.EndVertical();
 
-
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(275));
 			{
 				EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
-				eventData.outputVariableName = EditorGUILayout.DelayedTextField(eventData.outputVariableName);
+				if (eventData.connection == null)
+				{
+					eventData.connection = serializedBranch.GetOutputConnectionByGUID(eventData.linkedOutputGUID);
+					if (eventData.connection == null)
+					{ // this will be null the first time
+						return;
+					}
+				}
+
+				eventData.connection.data = EditorGUILayout.DelayedTextField(eventData.connection.data);
 			}
+			// this is purposefully left un-Ended!
 		}
 
 		private void DialogEventEdit(ScenimaticEvent eventData)
@@ -253,6 +365,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				MoveUp, MoveDown,
 				DeleteEvent,
+				CreateQueryEvent,
 			};
 
 			public ScenimaticEvent eventData;

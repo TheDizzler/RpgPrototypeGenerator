@@ -1,5 +1,7 @@
-﻿using AtomosZ.RPG.Scenimatic.Schemas;
+﻿using System;
+using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
 

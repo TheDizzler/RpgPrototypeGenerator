@@ -4,10 +4,10 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 {
 	public enum ConnectionType
 	{
-		ControlFlow,
-		Int,
-		Float,
-		String,
+		ControlFlow = 0,
+		Int = 1,
+		Float = 2,
+		String = 3,
 	}
 
 	[System.Serializable]
@@ -18,12 +18,6 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 		/// Only needs to be unique to the script it belongs to.
 		/// </summary>
 		public string GUID;
-		/// <summary>
-		/// The personal id for the branch this connection point belongs to.
-		/// (THIS CAN BE RETRIEVED FROM THE BRANCH ITSELF WHEN CONSTRUCTING THE WINDOWS)
-		/// </summary>
-		[System.Obsolete]
-		public string branchGUID;
 		public ConnectionType type;
 		/// <summary>
 		/// All data gets serialized as a string.

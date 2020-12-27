@@ -31,7 +31,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		/// MUST be the same type as owner.
 		/// Some connections allow for multiple inputs/outputs.
 		/// </summary>
-		private List<ConnectionPoint<T>> connectedTo = new List<ConnectionPoint<T>>();
+		public List<ConnectionPoint<T>> connectedTo = new List<ConnectionPoint<T>>();
 
 		public float wireThickness;
 		public bool isCreatingNewConnection;
@@ -66,8 +66,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			GUID = connection.GUID;
 			this.connection = connection;
+
 			nodeGraph.RefreshConnection(this);
 		}
+
 
 		/// <summary>
 		/// Returns true if mouse event used.
@@ -136,6 +138,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 		}
 
+		public void OnGUI()
+		{
+			GUI.Label(rect, "", isValidConnection ? currentStyle : ConnectionPointData.invalidStyle);
+		}
 
 
 		public bool AllowsMultipleConnections()
@@ -151,9 +157,29 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		}
 
 
-		public void OnGUI()
+		public void ReplaceOld(ConnectionPoint<T> connectionPoint)
 		{
-			GUI.Label(rect, "", isValidConnection ? currentStyle : ConnectionPointData.invalidStyle);
+			for (int i = 0; i < connectedTo.Count; ++i)
+			{
+				if (connectedTo[i].GUID == connectionPoint.GUID)
+				{
+					connectedTo[i] = connectionPoint;
+					return;
+				}
+			}
+		}
+
+
+		public void RemoveConnectionTo(string guid)
+		{
+			for (int i = 0; i < connectedTo.Count; ++i)
+			{
+				if (connectedTo[i].GUID == guid)
+				{
+					connectedTo[i] = null;
+					return;
+				}
+			}
 		}
 
 		public void RemoveConnectionTo(ConnectionPoint<T> otherConnection)
@@ -166,16 +192,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			SetCurrentStyle();
 		}
 
-		private void SetCurrentStyle()
-		{
-			if (isHovering)
-				currentStyle = isConnected ?
-					connectionStyles.connectedHoverStyle : connectionStyles.unconnectedHoverStyle;
-			else
-				currentStyle = isConnected ?
-					connectionStyles.connectedStyle : connectionStyles.unconnectedStyle;
-
-		}
 
 		public void RemoveAllConnections()
 		{
@@ -193,6 +209,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void ConnectTo(ConnectionPoint<T> otherConnectionPoint)
 		{
+			if (!AllowsMultipleConnections() && connectedTo.Count > 0)
+			{
+				Debug.LogError("This point may only have one connection!");
+			}
+
 			connectedTo.Add(otherConnectionPoint);
 			isConnected = true;
 			SetCurrentStyle();
@@ -246,6 +267,17 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		{
 			connectionPoint1.RemoveConnectionTo(connectionPoint2);
 			connectionPoint2.RemoveConnectionTo(connectionPoint1);
+		}
+
+
+		private void SetCurrentStyle()
+		{
+			if (isHovering)
+				currentStyle = isConnected ?
+					connectionStyles.connectedHoverStyle : connectionStyles.unconnectedHoverStyle;
+			else
+				currentStyle = isConnected ?
+					connectionStyles.connectedStyle : connectionStyles.unconnectedStyle;
 		}
 	}
 }

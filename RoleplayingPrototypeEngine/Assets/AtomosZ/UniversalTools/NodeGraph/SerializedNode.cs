@@ -22,5 +22,19 @@ namespace AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas
 		public Vector2 position;
 
 		public T data;
+
+
+		public Connection GetOutputConnectionByGUID(string linkedOutputGUID)
+		{
+			foreach (var conn in connectionOutputs)
+			{
+				if (conn.GUID == linkedOutputGUID)
+				{
+					return conn;
+				}
+			}
+
+			return null;
+		}
 	}
 }

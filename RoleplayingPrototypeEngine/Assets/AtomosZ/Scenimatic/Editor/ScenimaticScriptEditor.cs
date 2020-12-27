@@ -138,8 +138,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
 
-			if (scenimaticGraph == null)
-				scenimaticGraph = new ScenimaticScriptGraph();
+			scenimaticGraph = new ScenimaticScriptGraph();
 			if (window == null)
 				CreateWindows();
 			window.position = new Rect(script.savedScreenPos, script.savedScreenSize);
@@ -206,15 +205,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 					if (GUILayout.Button("Load Scene"))
 					{
-						string path = EditorUtility.OpenFilePanelWithFilters(
-							"Choose new OhBehave file",
-							userScenimaticFolder,
-							new string[] { "Scenimatic Json file", ScenimaticFileExtension });
-
-						if (!string.IsNullOrEmpty(path))
-						{
-							OpenScript(path);// this stuff should be done in update to prevent annoying error messages
-						}
+						LoadScene();
 					}
 
 					if (GUILayout.Button("New Scene"))
@@ -265,7 +256,21 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 
 			//if (GUI.changed) // adding this check means there is a delay when hovering over connection points.
-				Repaint();
+			Repaint();
+		}
+
+
+		private void LoadScene()
+		{
+			string path = EditorUtility.OpenFilePanelWithFilters(
+							"Choose new OhBehave file",
+							userScenimaticFolder,
+							new string[] { "Scenimatic Json file", ScenimaticFileExtension });
+
+			if (!string.IsNullOrEmpty(path))
+			{
+				OpenScript(path);// this stuff should be done in update to prevent annoying error messages
+			}
 		}
 
 
@@ -331,6 +336,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					{
 						GUID = System.Guid.NewGuid().ToString(),
 						type = ConnectionType.ControlFlow,
+						data = "ControlFlow-In",
 					}
 				},
 				connectionOutputs = new List<Connection>()
@@ -339,6 +345,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					{
 						GUID = System.Guid.NewGuid().ToString(),
 						type = ConnectionType.ControlFlow,
+						data = "ControlFlow-Out",
 					}
 				},
 				data = new ScenimaticBranch()

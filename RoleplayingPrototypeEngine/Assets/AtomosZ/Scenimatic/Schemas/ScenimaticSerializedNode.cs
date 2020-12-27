@@ -3,8 +3,5 @@
 namespace AtomosZ.RPG.Scenimatic.Schemas
 {
 	[System.Serializable]
-	public class ScenimaticSerializedNode : SerializedNode<ScenimaticBranch>
-	{
-
-	}
+	public class ScenimaticSerializedNode : SerializedNode<ScenimaticBranch> { }
 }

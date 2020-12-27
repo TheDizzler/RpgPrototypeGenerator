@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 
 namespace AtomosZ.RPG.Scenimatic.Schemas
 {
@@ -50,8 +52,13 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 
 		//  Query variables
 		public List<string> options;
-		public string outputVariableName;
+		public string linkedOutputGUID;
 
+		/// <summary>
+		/// This is for convenience only. This does not get serialized.
+		/// </summary>
+		[NonSerialized]
+		public Connection connection;
 
 
 		public static ScenimaticEvent CreateEmpytEvent()
@@ -93,7 +100,6 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 			eventType = ScenimaticEventType.Query;
 			options = choices;
 			haltsQueueUntilFinished = true;
-			outputVariableName = "(int) temp_name";
 		}
 	}
 }
