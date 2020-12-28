@@ -59,7 +59,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 
 			if (rectStyle == null)
+			{
 				rectStyle = new GUIStyle(EditorStyles.helpBox) { };
+			}
+
 			if (deferredCommandQueue == null)
 				deferredCommandQueue = new Queue<DeferredCommand>();
 
@@ -84,7 +87,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						serializedBranch.connectionInputs.Count - 1, GUILayout.MaxWidth(30));
 					if (size != serializedBranch.connectionInputs.Count - 1)
 					{
-						while (size > serializedBranch.connectionInputs.Count - 1)
+						int newSize = serializedBranch.connectionInputs.Count - 1;
+						while (size > newSize)
 						{
 							Connection newConn = new Connection()
 							{
@@ -93,107 +97,43 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 							};
 
 							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+							++newSize;
 						}
-						while (size < serializedBranch.connectionInputs.Count - 1)
+
+						while (size < newSize)
 						{
-							Connection remove = 
-								serializedBranch.connectionInputs[
-									serializedBranch.connectionInputs.Count - 1];
-							nodeGraph.RemoveConnection(remove);
-							branchData.RemoveConnectionPoint(
-								remove, ConnectionPointDirection.In);
+							Connection remove =
+								serializedBranch.connectionInputs[newSize--];
+							DeleteInput(remove);
 						}
 					}
+
+					if (serializedBranch.connectionInputs.Count > 1)
+						GUILayout.Label("Insert a variable into dialog text by writing: %"
+							+ serializedBranch.connectionInputs[1].data + "%.");
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 
+				Color defaultColor = GUI.backgroundColor;
 				EditorGUILayout.BeginHorizontal();
 				{
 					for (int i = 0; i < serializedBranch.connectionInputs.Count; ++i)
 					{
-
-						Connection conn = serializedBranch.connectionInputs[i];
-						if (conn.type != ConnectionType.ControlFlow) // ignore ControlFlows
-						{
-							EditorGUILayout.BeginVertical(rectStyle);
-							{
-								EditorGUILayout.BeginHorizontal();
-								GUILayout.Label("Type:");
-								ConnectionTypeMini type = (ConnectionTypeMini)conn.type;
-								conn.type = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
-								EditorGUILayout.EndHorizontal();
-								EditorGUILayout.BeginHorizontal();
-								GUILayout.Label("Name:");
-								conn.data = EditorGUILayout.TextField(conn.data, inputFieldOptions);
-								EditorGUILayout.EndHorizontal();
-							}
-							EditorGUILayout.EndVertical();
-						}
+						DrawInputBox(serializedBranch.connectionInputs[i]);
 					}
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 
+				GUI.backgroundColor = defaultColor;
 			}
 			EditorGUILayout.EndVertical();
 
 
 			while (deferredCommandQueue.Count != 0)
 			{
-				DeferredCommand command = deferredCommandQueue.Dequeue();
-				switch (command.commandType)
-				{
-					case DeferredCommand.DeferredCommandType.MoveUp:
-					{
-						int index = branch.events.IndexOf(command.eventData);
-						branch.events.Remove(command.eventData);
-						branch.events.Insert(index - 1, command.eventData);
-						break;
-					}
-
-					case DeferredCommand.DeferredCommandType.MoveDown:
-					{
-						int index = branch.events.IndexOf(command.eventData);
-						branch.events.Remove(command.eventData);
-						branch.events.Insert(index + 1, command.eventData);
-						break;
-					}
-
-					case DeferredCommand.DeferredCommandType.DeleteEvent:
-						if (command.eventData.eventType == ScenimaticEventType.Query)
-						{
-							nodeGraph.RemoveConnection(command.eventData.connection);
-							branchData.RemoveConnectionPoint(
-								command.eventData.connection, ConnectionPointDirection.Out);
-
-							if (!branch.events.Remove(command.eventData))
-								Debug.LogWarning(
-									"Could not find ConnectionPoint " 
-										+ command.eventData.linkedOutputGUID
-										+ " in ScenimaticBranch");
-						}
-
-						branch.events.Remove(command.eventData);
-						break;
-
-					case DeferredCommand.DeferredCommandType.CreateQueryEvent:
-						var newConn = new Connection()
-						{
-							GUID = System.Guid.NewGuid().ToString(),
-							type = ConnectionType.Int,
-							data = "variable name (int)",
-						};
-
-						branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
-						command.eventData.linkedOutputGUID = newConn.GUID;
-						command.eventData.connection = newConn;
-						break;
-
-					default:
-						Debug.LogError("No actions for deferred command type " + command.commandType);
-						break;
-				}
+				ExecuteNextDeferredCommand();
 			}
 
 			scrollPos = EditorGUILayout.BeginScrollView(scrollPos, rectStyle);
@@ -207,6 +147,62 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
+
+		private void DrawInputBox(Connection conn)
+		{
+			if (conn.type != ConnectionType.ControlFlow) // ignore ControlFlows
+			{
+				switch (conn.type)
+				{
+					case ConnectionType.Int:
+						GUI.backgroundColor = Color.blue;
+						break;
+					case ConnectionType.Float:
+						GUI.backgroundColor = Color.cyan;
+						break;
+					case ConnectionType.String:
+						GUI.backgroundColor = Color.magenta;
+						break;
+				}
+
+				Rect clickArea = EditorGUILayout.BeginVertical(rectStyle);
+				{
+					EditorGUILayout.BeginHorizontal();
+					GUILayout.Label("Type:");
+					ConnectionTypeMini type = (ConnectionTypeMini)conn.type;
+					conn.type = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
+					EditorGUILayout.EndHorizontal();
+					EditorGUILayout.BeginHorizontal();
+					GUILayout.Label("Name:");
+					conn.data = EditorGUILayout.TextField(conn.data, inputFieldOptions);
+					EditorGUILayout.EndHorizontal();
+
+					if (Event.current.type == EventType.ContextClick
+						&& clickArea.Contains(Event.current.mousePosition))
+					{
+						GenericMenu menu = new GenericMenu();
+						menu.AddItem(new GUIContent("Delete Input"), false,
+							() => DeleteInput(conn));
+						menu.ShowAsContext();
+
+						Event.current.Use();
+					}
+				}
+				EditorGUILayout.EndVertical();
+			}
+		}
+
+		private void DeleteInput(Connection conn)
+		{
+			if (conn.connectedToGUIDs.Count != 0)
+			{
+				Debug.LogWarning("An input with connections is being deleted.");
+			}
+			deferredCommandQueue.Enqueue(
+				new DeferredCommand(conn, DeferredCommandType.DeleteInput));
+		}
+
+
 		private ScenimaticEvent ParseEvent(ScenimaticEvent eventData)
 		{
 			ScenimaticEventType eventType = eventData.eventType;
@@ -217,29 +213,31 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				// move up/down buttons
 				EditorGUILayout.BeginVertical(GUILayout.Width(10));
 				{
-					if (GUILayout.Button("^"))
+					if (GUILayout.Button(new GUIContent("^", "Move this event up"))) // replace with image
 					{
 						if (branch.events.IndexOf(eventData) != 0)
 							deferredCommandQueue.Enqueue(
-								new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveUp));
+								new DeferredCommand(eventData, DeferredCommandType.MoveUp));
 					}
 
-					if (GUILayout.Button("v"))
+					if (GUILayout.Button(new GUIContent("v", "Move this event down"))) // replace with image
 					{
 						if (branch.events.IndexOf(eventData) != branch.events.Count - 1)
 							deferredCommandQueue.Enqueue(
-								new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.MoveDown));
+								new DeferredCommand(eventData, DeferredCommandType.MoveDown));
 					}
 				}
 				EditorGUILayout.EndVertical();
 
-				eventType = (ScenimaticEventType)EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
+				eventType = (ScenimaticEventType)
+					EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
 
 				if (eventType != eventData.eventType)
 				{
 					if (eventData.eventType != ScenimaticEventType.Unknown)
 					{
-						Debug.LogWarning("Event type changed. Loss of data likely. Need warning popup here.");
+						Debug.LogWarning("Event type changed. "
+							+ "Loss of data likely. Need warning popup here.");
 					}
 
 					switch (eventType)
@@ -251,7 +249,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 							eventData = CreateQueryEvent(new List<string>() { "A", "B" });
 							deferredCommandQueue.Enqueue(
 								new DeferredCommand(eventData,
-								DeferredCommand.DeferredCommandType.CreateQueryEvent));
+									DeferredCommandType.CreateQueryEvent));
 							break;
 					}
 				}
@@ -271,7 +269,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			EditorGUILayout.EndHorizontal();
 
-			if (Event.current.type == EventType.ContextClick && clickArea.Contains(Event.current.mousePosition))
+			if (Event.current.type == EventType.ContextClick
+				&& clickArea.Contains(Event.current.mousePosition))
 			{
 				GenericMenu menu = new GenericMenu();
 				menu.AddItem(new GUIContent("Delete Event"), false, () => DeleteEvent(eventData));
@@ -345,7 +344,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
-			eventData.text = EditorGUILayout.TextField(eventData.text);
+			eventData.text = EditorGUILayout.TextArea(eventData.text);
 		}
 
 		private void NotImplementedEvent()
@@ -355,26 +354,98 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private void DeleteEvent(ScenimaticEvent eventData)
 		{
-			deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommand.DeferredCommandType.DeleteEvent));
+			deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommandType.DeleteEvent));
 		}
 
 
+		private void ExecuteNextDeferredCommand()
+		{
+			DeferredCommand command = deferredCommandQueue.Dequeue();
+			switch (command.commandType)
+			{
+				case DeferredCommandType.MoveUp:
+				{
+					int index = branch.events.IndexOf(command.eventData);
+					branch.events.Remove(command.eventData);
+					branch.events.Insert(index - 1, command.eventData);
+					break;
+				}
+
+				case DeferredCommandType.MoveDown:
+				{
+					int index = branch.events.IndexOf(command.eventData);
+					branch.events.Remove(command.eventData);
+					branch.events.Insert(index + 1, command.eventData);
+					break;
+				}
+
+				case DeferredCommandType.DeleteInput:
+					nodeGraph.RemoveConnection(command.connection);
+					branchData.RemoveConnectionPoint(
+						command.connection, ConnectionPointDirection.In);
+					break;
+				case DeferredCommandType.DeleteEvent:
+					if (command.eventData.eventType == ScenimaticEventType.Query)
+					{
+						nodeGraph.RemoveConnection(command.eventData.connection);
+						branchData.RemoveConnectionPoint(
+							command.eventData.connection, ConnectionPointDirection.Out);
+
+						if (!branch.events.Remove(command.eventData))
+							Debug.LogWarning(
+								"Could not find ConnectionPoint "
+									+ command.eventData.linkedOutputGUID
+									+ " in ScenimaticBranch");
+					}
+
+					branch.events.Remove(command.eventData);
+					break;
+
+				case DeferredCommandType.CreateQueryEvent:
+					var newConn = new Connection()
+					{
+						GUID = System.Guid.NewGuid().ToString(),
+						type = ConnectionType.Int,
+						data = "variable name (int)",
+					};
+
+					branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+					command.eventData.linkedOutputGUID = newConn.GUID;
+					command.eventData.connection = newConn;
+					break;
+
+				default:
+					Debug.LogError("No actions for deferred command type " + command.commandType);
+					break;
+			}
+		}
+
+		public enum DeferredCommandType
+		{
+			MoveUp, MoveDown,
+			DeleteInput,
+			DeleteEvent,
+			CreateQueryEvent,
+		};
+
 		private class DeferredCommand
 		{
-			public enum DeferredCommandType
-			{
-				MoveUp, MoveDown,
-				DeleteEvent,
-				CreateQueryEvent,
-			};
+
 
 			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
+			public Connection connection;
 
 
 			public DeferredCommand(ScenimaticEvent eventData, DeferredCommandType commandType)
 			{
 				this.eventData = eventData;
+				this.commandType = commandType;
+			}
+
+			public DeferredCommand(Connection conn, DeferredCommandType commandType)
+			{
+				this.connection = conn;
 				this.commandType = commandType;
 			}
 		}
