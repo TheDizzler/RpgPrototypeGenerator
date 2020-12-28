@@ -33,16 +33,19 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		/// </summary>
 		public List<ConnectionPoint<T>> connectedTo = new List<ConnectionPoint<T>>();
 
-		public float wireThickness;
+
 		public bool isCreatingNewConnection;
 
 		public Connection connection;
 
 		private ConnectionPointStyle connectionStyles;
 		private GUIStyle currentStyle;
+		private Color wireColor;
+		private float wireThickness;
 		private bool isHovering;
 		private bool isConnected = false;
 		private bool isValidConnection;
+
 
 		public ConnectionPoint(NodeWindow<T> node,
 			ConnectionPointDirection direction, ConnectionPointData dataType, Connection connection)
@@ -60,6 +63,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			connectionStyles = dataType.connectionPointStyle;
 			currentStyle = connectionStyles.unconnectedStyle;
+			wireColor = connectionStyles.wireColor;
 			rect = new Rect(0, 0,
 				currentStyle.normal.background.width,
 				currentStyle.normal.background.height);
@@ -143,7 +147,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			GUI.Label(rect, "", isValidConnection ? currentStyle : ConnectionPointData.invalidStyle);
 		}
 
-
 		public bool AllowsMultipleConnections()
 		{
 			return (connectionDirection == ConnectionPointDirection.In && data.allowsMultipleInputs)
@@ -152,9 +155,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void DrawConnections()
 		{
+			Handles.color = wireColor;
 			foreach (var other in connectedTo)
 				Handles.DrawAAPolyLine(wireThickness, rect.center, other.rect.center);
 		}
+
+
+		public void DrawConnectionTo(Vector2 mousePosition)
+		{
+			Handles.color = wireColor;
+			Handles.DrawAAPolyLine(wireThickness, rect.center, mousePosition);
+		}
+
 
 
 		public void ReplaceOld(ConnectionPoint<T> connectionPoint)
@@ -272,7 +284,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		private void SetCurrentStyle()
 		{
-			if (isHovering)
+			if (isCreatingNewConnection)
+				currentStyle = connectionStyles.connectedHoverStyle;
+			else if (isHovering)
 				currentStyle = isConnected ?
 					connectionStyles.connectedHoverStyle : connectionStyles.unconnectedHoverStyle;
 			else

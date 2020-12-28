@@ -144,8 +144,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			if (startConnection != null)
 			{// we want to draw the line on-top of everything else
-				Handles.DrawAAPolyLine(startConnection.wireThickness,
-					startConnection.rect.center, current.mousePosition);
+				startConnection.DrawConnectionTo(current.mousePosition);
 
 				GUI.changed = true;
 				if (current.button == 1 && current.type == EventType.MouseDown)

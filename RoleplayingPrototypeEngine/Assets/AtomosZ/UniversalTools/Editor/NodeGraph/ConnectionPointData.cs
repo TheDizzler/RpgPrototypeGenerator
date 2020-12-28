@@ -33,6 +33,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int unconnected hover.png"),
 						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected.png"),
 						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected hover.png"),
+						wireColor = Color.blue,
 					},
 					wireThickness = 6,
 					allowsMultipleInputs = false,
@@ -56,6 +57,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected hover.png"),
 						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected.png"),
 						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected hover.png"),
+						wireColor = Color.white,
 					},
 					wireThickness = 8,
 					allowsMultipleInputs = true,
@@ -85,6 +87,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			public GUIStyle connectedHoverStyle;
 			public GUIStyle unconnectedStyle;
 			public GUIStyle unconnectedHoverStyle;
+			public Color wireColor;
 		}
 	}
 }
