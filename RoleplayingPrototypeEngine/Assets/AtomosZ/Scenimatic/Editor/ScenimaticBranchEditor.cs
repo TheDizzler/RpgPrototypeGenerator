@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
+using UnityEditor.U2D;
 using UnityEngine;
 using static AtomosZ.RPG.Scenimatic.Schemas.ScenimaticEvent;
 
@@ -109,7 +111,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					}
 
 					if (serializedBranch.connectionInputs.Count > 1)
-						GUILayout.Label("Insert a variable into dialog text by writing: %"
+						GUILayout.Label("Insert a variable into dialog text "
+							+ "by writing the variable name in '%'. Ex: %"
 							+ serializedBranch.connectionInputs[1].data + "%.");
 				}
 				GUILayout.FlexibleSpace();
@@ -342,9 +345,48 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			// this is purposefully left un-Ended!
 		}
 
+
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
 			eventData.text = EditorGUILayout.TextArea(eventData.text);
+			if (eventData.sprite == null)
+			{
+				eventData.sprite = nodeGraph.spriteAtlas.GetSprite(eventData.image);
+			}
+
+			Sprite newSprite = (Sprite)EditorGUILayout.ObjectField("", // this space won't go away :/
+				eventData.sprite, typeof(Sprite), false, GUILayout.MaxWidth(65)); // so's shrinks it I does
+
+			if (newSprite != eventData.sprite && newSprite != null)
+			{
+				if (nodeGraph.spriteAtlas.GetPackables().Contains(newSprite))
+				{
+					eventData.sprite = newSprite;
+					eventData.image = newSprite.name;
+					Debug.Log("has");
+				}
+				else
+				{
+					eventData.sprite = newSprite;
+					// prompt to add sprite to sprite atlas
+					if (EditorUtility.DisplayDialog("Add to SpriteAtlas?",
+						"This sprite is not in the selected Sprite Atlas."
+						+ "\nAdd it to " + nodeGraph.spriteAtlas.name + "?"
+						+ "\n(If no is selected, the image will not be saved.)",
+						"Yes", "No"))
+					{
+						eventData.image = newSprite.name;
+						SpriteAtlasExtensions.Add(nodeGraph.spriteAtlas, new Object[] { eventData.sprite });
+
+						AssetDatabase.SaveAssets(); // unfortunately these don't seem to have the desired effect
+						AssetDatabase.Refresh(); // that is, an automatic push of the "Pack Preview" button
+					}
+					else
+					{
+
+					}
+				}
+			}
 		}
 
 		private void NotImplementedEvent()

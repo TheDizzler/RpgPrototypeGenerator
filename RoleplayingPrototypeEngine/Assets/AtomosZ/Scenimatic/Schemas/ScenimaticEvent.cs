@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using UnityEngine;
 
 namespace AtomosZ.RPG.Scenimatic.Schemas
 {
@@ -54,11 +55,17 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 		public List<string> options;
 		public string linkedOutputGUID;
 
+		// Non-Serialized members.
 		/// <summary>
 		/// This is for convenience only. This does not get serialized.
 		/// </summary>
 		[NonSerialized]
 		public Connection connection;
+		/// <summary>
+		/// This is for convenience only. This does not get serialized.
+		/// </summary>
+		[NonSerialized]
+		public Sprite sprite;
 
 
 		public static ScenimaticEvent CreateEmpytEvent()

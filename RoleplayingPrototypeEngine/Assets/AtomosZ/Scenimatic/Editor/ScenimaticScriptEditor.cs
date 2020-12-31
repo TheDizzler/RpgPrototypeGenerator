@@ -152,6 +152,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			scenimaticGraph.Initialize(script);
 
+
+
 			if (zoomer == null)
 			{
 				zoomer = new ZoomWindow();
@@ -221,6 +223,16 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					}
 				}
 				EditorGUILayout.EndHorizontal();
+
+				scenimaticGraph.spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField(
+					"SpriteAtlas", scenimaticGraph.spriteAtlas,
+					typeof(SpriteAtlas), false);
+				if (scenimaticGraph.spriteAtlas != null)
+				{
+					scenimaticGraph.script.spriteAtlas = scenimaticGraph.spriteAtlas.name;
+				}
+				else
+					scenimaticGraph.script.spriteAtlas = "";
 			}
 			EditorGUILayout.EndVertical();
 
@@ -293,10 +305,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			script.branches = new List<ScenimaticSerializedNode>();
 			script.branches.Add(CreateNewBranch(Vector2.zero));
 
-
-			if (scenimaticGraph == null)
-				scenimaticGraph = new ScenimaticScriptGraph();
-
+			scenimaticGraph = new ScenimaticScriptGraph();
 			scenimaticGraph.Initialize(script);
 
 			AssetDatabase.SaveAssets();

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
@@ -13,6 +15,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 	{
 		public ZoomerSettings zoomerSettings;
 		public ScenimaticScript script;
+		public SpriteAtlas spriteAtlas;
 
 		private ScenimaticBranchEditor branchEditor;
 		private List<EventBranchObjectData> branchNodes;
@@ -39,6 +42,23 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			zoomerSettings = new ZoomerSettings();
 			zoomerSettings.zoomOrigin = script.zoomOrigin;
 			zoomerSettings.zoomScale = script.zoomScale > ZoomWindow.MIN_ZOOM ? script.zoomScale : 1;
+
+			if (!string.IsNullOrEmpty(script.spriteAtlas))
+			{
+				string[] matches = AssetDatabase.FindAssets(script.spriteAtlas);
+				foreach (var match in matches)
+				{
+					string path = AssetDatabase.GUIDToAssetPath(match);
+
+					if (Path.GetExtension(path) != ".spriteatlas")
+						Debug.Log("not a spriteatlas");
+					else
+					{
+						spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path);
+						break;
+					}
+				}
+			}
 
 			ConnectionPoint<ScenimaticBranch>.nodeGraph = this;
 
