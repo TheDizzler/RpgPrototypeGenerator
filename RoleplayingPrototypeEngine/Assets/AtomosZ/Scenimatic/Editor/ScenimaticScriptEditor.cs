@@ -6,12 +6,20 @@ using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	public class ScenimaticScriptEditor : EditorWindow
 	{
-		private const float ZOOM_BORDER = 10;
+		private const float ZOOM_BORDER = 5;
+		private const float RESERVED_AREA_BELOW_ZOOM_HEIGHT = 28;
+		/// <summary>
+		/// Approx. height of tab (title bar). This is needed because for
+		/// GUILayout.BeginArea(), y = 0 is at 0 of the WINDOW not the contents
+		/// of the TAB window.
+		/// </summary>
+		private const float TAB_HEIGHT = 21;
 
 		private readonly string ScenimaticFileExtension = "SceneJson";
 
@@ -31,7 +39,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public ScenimaticScriptGraph scenimaticGraph;
 		private ZoomWindow zoomer;
 		private Rect zoomRect;
-		private float areaBelowZoomHeight = 20;
 		private string sceneFileName;
 
 
@@ -184,10 +191,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				}
 			}
 
-			EditorGUILayout.BeginVertical();
+			Rect headerRect = EditorGUILayout.BeginVertical(rectStyle);
 			{
 				// header toolbar
-				EditorGUILayout.BeginHorizontal(rectStyle);
+				EditorGUILayout.BeginHorizontal();
 				{
 					if (scenimaticGraph == null)
 					{
@@ -230,31 +237,32 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			zoomer.HandleEvents(Event.current);
 
-			Rect lastRect = GUILayoutUtility.GetLastRect();
 			if (Event.current.type == EventType.Repaint)
 			{
 				zoomRect.position = new Vector2(
 					ZOOM_BORDER,
-					lastRect.yMax + lastRect.height + ZOOM_BORDER);
+					headerRect.yMax + TAB_HEIGHT + ZOOM_BORDER);
 				zoomRect.size = new Vector2(
 					window.position.width - ZOOM_BORDER * 2,
-					window.position.height - (lastRect.yMax + ZOOM_BORDER * 2 + areaBelowZoomHeight));
+					window.position.height - (headerRect.height + ZOOM_BORDER * 2 + RESERVED_AREA_BELOW_ZOOM_HEIGHT));
 			}
-
 
 			zoomer.Begin(zoomRect);
 			{
 				scenimaticGraph.OnGui(Event.current, zoomer);
 			}
 			zoomer.End(new Rect(
-				0, (zoomRect.yMax - zoomRect.position.y) + areaBelowZoomHeight * 1.5f,
+				0, zoomRect.yMax - headerRect.height,
 				window.position.width, window.position.height));
 
-			if (GUILayout.Button("New Dialog Branch"))
+			headerRect = EditorGUILayout.BeginVertical(rectStyle);
 			{
-				scenimaticGraph.AddBranch(CreateNewBranch(Vector2.zero));
+				if (GUILayout.Button("New Dialog Branch"))
+				{
+					scenimaticGraph.AddBranch(CreateNewBranch(Vector2.zero));
+				}
 			}
-
+			EditorGUILayout.EndVertical();
 			//if (GUI.changed) // adding this check means there is a delay when hovering over connection points.
 			Repaint();
 		}
