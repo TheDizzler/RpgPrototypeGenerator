@@ -77,10 +77,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		public void Begin(Rect zoomRect)
 		{
-			// Ends group that Unity implicity begins for every editor window
 			zoomAreaRect = zoomRect;
+			// Ends group that Unity implicity begins for every editor window.
+			// This is opened again in End().
 			GUI.EndGroup();
-
+			
 
 			Vector2 offset = GetContentOffset();
 			if (useBGTexture)
