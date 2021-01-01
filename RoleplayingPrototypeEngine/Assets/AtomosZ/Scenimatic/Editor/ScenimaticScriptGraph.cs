@@ -3,7 +3,9 @@ using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
+using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Nodes;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -18,9 +20,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public SpriteAtlas spriteAtlas;
 
 		private ScenimaticBranchEditor branchEditor;
+		private InputNodeData inputNode;
 		private List<EventBranchObjectData> branchNodes;
 
-		private EventBranchObjectData selectedNode;
+		private GraphEntityData selectedNode;
 
 		private List<ConnectionPoint> refreshConnections;
 		private Dictionary<string, ConnectionPoint> connectionPoints;
@@ -62,7 +65,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			ConnectionPoint.nodeGraph = this;
 
-			inputNode = newScript.inputNode;
+			inputNode = new InputNodeData(this, newScript.inputNode);
 			branchNodes = new List<EventBranchObjectData>();
 			for (int i = 0; i < script.branches.Count; ++i)
 			{
@@ -150,6 +153,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			Vector2 zoomerOffset = zoomer.GetContentOffset();
 
 			save = false;
+
+			inputNode.Offset(zoomerOffset);
+			if (inputNode.ProcessEvents(current))
+				save = true;
+			inputNode.DrawConnectionWires();
+
 			foreach (var node in branchNodes)
 			{
 				node.Offset(zoomerOffset);
@@ -160,6 +169,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				node.DrawConnectionWires();
 			}
 
+			inputNode.OnGUI();
 			foreach (var node in branchNodes)
 				node.OnGUI();
 
@@ -208,7 +218,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public void SelectNode(EventBranchObjectData nodeData)
+		public void SelectNode(GraphEntityData nodeData)
 		{
 			if (IsNodeSelected() && selectedNode != nodeData)
 			{

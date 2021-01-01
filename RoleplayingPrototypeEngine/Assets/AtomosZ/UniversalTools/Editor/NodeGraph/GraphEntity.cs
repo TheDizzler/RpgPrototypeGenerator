@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
+using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using UnityEditor;
+using UnityEngine;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 {
@@ -23,7 +27,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		protected bool isSelected;
 		protected bool isValid;
 		protected double timeClicked = double.MinValue;
-		protected NodeStyle nodeStyle;
+		protected GraphEntityStyle nodeStyle;
 
 
 		public GraphEntity(GraphEntityData data)
@@ -65,11 +69,73 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			return rect;
 		}
 
+		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
+		public abstract void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction);
 		public abstract string GetName();
 		public abstract bool ProcessEvents(Event e);
 		public abstract void OnGUI();
+		public abstract void DrawConnectionWires();
 		protected abstract void Selected();
 		protected abstract void Deselected();
+
+
+
+
+
+		protected virtual void TitleBarLeftClickUp(Event e)
+		{
+			isDragged = false;
+		}
+
+
+		protected virtual void TitleBarLeftClickDown(Event e)
+		{
+			if (EditorApplication.timeSinceStartup - timeClicked <= DoubleClickTime)
+			{
+				timeClicked = double.MinValue;
+				isDragged = false;
+
+				Debug.Log("Double clicked");
+			}
+			else
+			{
+				timeClicked = EditorApplication.timeSinceStartup;
+				isDragged = true;
+				Select();
+			}
+
+			e.Use();
+		}
+
+		protected virtual void LeftClickDown(Event e)
+		{
+			isDragged = false;
+			Select();
+			e.Use();
+		}
+
+		protected virtual void RightClickDown(Event e)
+		{
+			Debug.Log("Window right clicked");
+			e.Use();
+		}
+
+		protected virtual void RightClickUp(Event e)
+		{
+			e.Use();
+		}
+
+		protected Rect TitleLabelRect()
+		{
+			Rect rect = GetRect();
+			rect.height = EditorGUIUtility.singleLineHeight + TITLEBAR_OFFSET;
+			return rect;
+		}
+
+		protected void Drag(Vector2 delta)
+		{
+			entityData.MoveWindowPosition(delta);
+		}
 	}
 
 
@@ -82,11 +148,41 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		/// <summary>
 		/// Stylings associated with this node.
 		/// </summary>
-		public NodeStyle nodeStyle;
+		public GraphEntityStyle nodeStyle;
 		public Rect windowRect;
+		public GraphEntity window;
 
 		[System.NonSerialized]
 		public Vector2 offset;
+
+
+
+		/// <summary>
+		/// Returns true if save needed.
+		/// </summary>
+		/// <param name="current"></param>
+		/// <returns></returns>
+		public bool ProcessEvents(Event current)
+		{
+			if (window == null)
+			{
+				CreateWindow();
+			}
+
+			return window.ProcessEvents(current);
+		}
+
+
+		public void OnGUI()
+		{
+			if (window == null)
+			{
+				Debug.LogError("No window!");
+				return;
+			}
+
+			window.OnGUI();
+		}
 
 
 		public void Offset(Vector2 contentOffset)
@@ -98,6 +194,21 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			windowRect.position += delta;
 		}
+
+		public GraphEntity GetWindow()
+		{
+			if (window == null)
+			{
+				CreateWindow();
+			}
+
+			return window;
+		}
+
+
+
+		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
+		public abstract void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction);
 
 		protected abstract void CreateWindow();
 	}

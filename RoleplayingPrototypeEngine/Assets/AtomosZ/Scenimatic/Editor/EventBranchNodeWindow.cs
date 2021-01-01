@@ -76,12 +76,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public override void DrawConnectionWires()
-		{
-			base.DrawConnectionWires();
-		}
-
-
 		public override void OnGUI()
 		{
 			Color defaultColor = GUI.backgroundColor;
@@ -131,7 +125,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		protected override void Selected()
 		{
-			scenimaticScriptView.SelectNode((EventBranchObjectData)nodeData);
+			scenimaticScriptView.SelectNode(entityData);
 		}
 
 		protected override void Deselected()
@@ -149,7 +143,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			GUID = branchData.GUID;
 			inputConnections = branchData.connectionInputs;
 			outputConnections = branchData.connectionOutputs;
-			nodeStyle = ScenimaticScriptEditor.branchNodeStyle;
+			nodeStyle = ScenimaticScriptEditor.branchWindowStyle;
 
 			windowRect = new Rect(branchData.position, nodeStyle.size);
 		}

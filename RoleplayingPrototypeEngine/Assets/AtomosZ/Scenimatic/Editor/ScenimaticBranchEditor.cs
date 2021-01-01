@@ -2,6 +2,7 @@
 using System.Linq;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
+using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEditor.U2D;
@@ -29,7 +30,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
-		private EventBranchObjectData branchData;
+		private GraphEntityData branchData;
 		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
@@ -43,22 +44,25 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public void LoadBranch(EventBranchObjectData branchData)
+		public void LoadBranch(GraphEntityData branchData)
 		{
 			this.branchData = branchData;
-			serializedBranch = (ScenimaticSerializedNode)branchData.serializedNode;
-			branch = serializedBranch.data;
+			if (branchData is EventBranchObjectData)
+			{
+				serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
+				branch = serializedBranch.data;
+			}
+			else
+			{
+				serializedBranch = null;
+				branch = null;
+			}
 			Repaint();
 		}
 
 
 		void OnGUI()
 		{
-			if (branch == null)
-			{
-				GUILayout.Label(new GUIContent("No branch loaded"));
-				return;
-			}
 
 			if (rectStyle == null)
 			{
@@ -68,6 +72,29 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			if (deferredCommandQueue == null)
 				deferredCommandQueue = new Queue<DeferredCommand>();
 
+			if (serializedBranch != null)
+			{
+				BranchEventView();
+			}
+			else if (branchData != null)
+			{
+				GUILayout.Label(new GUIContent("Event Start!"));
+			}
+			else
+			{
+				GUILayout.Label(new GUIContent("No branch loaded"));
+			}
+
+
+			while (deferredCommandQueue.Count != 0)
+			{
+				ExecuteNextDeferredCommand();
+			}
+		}
+
+
+		private void BranchEventView()
+		{
 			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				branch.branchName = GUILayout.TextField(branch.branchName);
@@ -134,11 +161,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorGUILayout.EndVertical();
 
 
-			while (deferredCommandQueue.Count != 0)
-			{
-				ExecuteNextDeferredCommand();
-			}
-
 			scrollPos = EditorGUILayout.BeginScrollView(scrollPos, rectStyle);
 			{
 				for (int i = 0; i < branch.events.Count; ++i)
@@ -148,7 +170,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			EditorGUILayout.EndScrollView();
 		}
-
 
 
 		private void DrawInputBox(Connection conn)

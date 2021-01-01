@@ -3,6 +3,7 @@ using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
+using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private const float TAB_HEIGHT = 21;
 
 		
-		public static NodeStyle branchNodeStyle;
+		public static GraphEntityStyle branchWindowStyle;
 
 		/// <summary>
 		/// save this to editor prefs
@@ -89,8 +90,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 
 			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
-			branchNodeStyle = new NodeStyle();
-			branchNodeStyle.Init(new Vector2(250, 100));
+			branchWindowStyle = new GraphEntityStyle();
+			branchWindowStyle.Init(new Vector2(250, 100));
 
 			return true;
 		}
@@ -131,6 +132,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			// this saves changes whenever scripts are reloaded.
 			SaveScene(); // maybe save to a temp file?
 		}
+
+		void OnDestroy()
+		{
+			if (!EditorWindow.HasOpenInstances<ScenimaticBranchEditor>())
+				EditorWindow.GetWindow<ScenimaticBranchEditor>().Close();
+		}
+
 
 		/// <summary>
 		/// WARNING: This assumes the path has already been validated to exist.
