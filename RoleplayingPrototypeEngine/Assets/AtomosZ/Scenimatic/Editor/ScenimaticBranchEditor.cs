@@ -349,7 +349,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
 			eventData.text = EditorGUILayout.TextArea(eventData.text);
-			if (eventData.sprite == null)
+			if (eventData.sprite == null && nodeGraph.spriteAtlas != null)
 			{
 				eventData.sprite = nodeGraph.spriteAtlas.GetSprite(eventData.image);
 			}

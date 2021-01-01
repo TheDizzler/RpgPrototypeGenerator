@@ -2,11 +2,12 @@
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
-	public interface INodeGraph<T>
+	public interface INodeGraph
 	{
-		bool IsValidConnection(ConnectionPoint<T> hoveredPoint);
-		void StartPointSelected(ConnectionPoint<T> selectedConnection);
-		void EndPointSelected(ConnectionPoint<T> endPoint);
-		void RefreshConnection(ConnectionPoint<T> connectionPoint);
+		void DeselectNode();
+		bool IsValidConnection(ConnectionPoint hoveredPoint);
+		void StartPointSelected(ConnectionPoint selectedConnection);
+		void EndPointSelected(ConnectionPoint endPoint);
+		void RefreshConnection(ConnectionPoint connectionPoint);
 	}
 }

@@ -9,44 +9,22 @@ using UnityEngine;
 namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 {
 	/// <summary>
-	/// A generic draggable window box that appears in an editor window (usually a ZoomWindow).
-	/// Can contain data and tools.
+	/// A generic draggable window box with inputs and outputs.
 	/// </summary>
-	public abstract class NodeWindow<T>
+	public abstract class NodeWindow<T> : GraphEntity
 	{
-		protected const float TITLEBAR_OFFSET = 15;
-		protected const float DoubleClickTime = .3f;
-
 		public NodeObjectData<T> nodeData;
 
-
-		protected List<ConnectionPoint<T>> inConnectionPoints;
-		protected List<ConnectionPoint<T>> outConnectionPoints;
-
-		protected string nodeName;
-		protected GUIStyle currentStyle;
-		protected GUIStyle titleBarStyle;
-		protected Color defaultBGColor;
-		protected Color selectedBGColor;
-		protected bool isDragged;
-		protected bool isSelected;
-
-		protected bool isValid;
-		private double timeClicked = double.MinValue;
+		protected List<ConnectionPoint> inConnectionPoints;
+		protected List<ConnectionPoint> outConnectionPoints;
 
 
-		public NodeWindow(NodeObjectData<T> nodeData)
+		public NodeWindow(NodeObjectData<T> nodeData) : base(nodeData)
 		{
 			this.nodeData = nodeData;
-			currentStyle = nodeData.nodeStyle.defaultStyle;
 
-			titleBarStyle = nodeData.nodeStyle.defaultLabelStyle;
-
-			defaultBGColor = nodeData.defaultBGColor;
-			selectedBGColor = nodeData.selectedBGColor;
-
-			inConnectionPoints = new List<ConnectionPoint<T>>();
-			outConnectionPoints = new List<ConnectionPoint<T>>();
+			inConnectionPoints = new List<ConnectionPoint>();
+			outConnectionPoints = new List<ConnectionPoint>();
 			inConnectionPoints.Add(null); // reserved for Control Flow In
 			outConnectionPoints.Add(null); // reserved for Control Flow Out
 
@@ -56,12 +34,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 				{
 					case ConnectionType.ControlFlow:
 						inConnectionPoints[0] =
-							new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+							new ConnectionPoint(this, ConnectionPointDirection.In,
 								ConnectionPointData.GetControlFlowTypeData(), connection);
 						break;
 					case ConnectionType.Int:
 						inConnectionPoints.Add(
-							new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+							new ConnectionPoint(this, ConnectionPointDirection.In,
 								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
@@ -78,12 +56,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 				{
 					case ConnectionType.ControlFlow:
 						outConnectionPoints[0] =
-							new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
 								ConnectionPointData.GetControlFlowTypeData(), connection);
 						break;
 					case ConnectionType.Int:
 						outConnectionPoints.Add(
-							new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
 								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
@@ -99,13 +77,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			if (direction == ConnectionPointDirection.In)
 			{
 				inConnectionPoints.Add(
-					new ConnectionPoint<T>(this, ConnectionPointDirection.In,
+					new ConnectionPoint(this, ConnectionPointDirection.In,
 						ConnectionPointData.GetIntTypeData(), newConn));
 			}
 			else
 			{
 				outConnectionPoints.Add(
-					new ConnectionPoint<T>(this, ConnectionPointDirection.Out,
+					new ConnectionPoint(this, ConnectionPointDirection.Out,
 						ConnectionPointData.GetIntTypeData(), newConn));
 			}
 		}
@@ -114,7 +92,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			if (direction == ConnectionPointDirection.In)
 			{
-				ConnectionPoint<T> del = null;
+				ConnectionPoint del = null;
 				for (int i = 0; i < inConnectionPoints.Count; ++i)
 				{
 					if (inConnectionPoints[i].GUID == conn.GUID)
@@ -130,7 +108,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			}
 			else
 			{
-				ConnectionPoint<T> del = null;
+				ConnectionPoint del = null;
 				for (int i = 0; i < outConnectionPoints.Count; ++i)
 				{
 					if (outConnectionPoints[i].GUID == conn.GUID)
@@ -152,37 +130,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 				conn.DrawConnections();
 		}
 
-		public abstract string GetName();
-		public abstract bool ProcessEvents(Event e);
-		public abstract void OnGUI();
-		protected abstract void Selected();
-		protected abstract void Deselected();
 
-
-		public void Select()
-		{
-			GUI.changed = true;
-			isSelected = true;
-			titleBarStyle = nodeData.nodeStyle.selectedLabelStyle;
-			currentStyle = nodeData.nodeStyle.selectedStyle;
-			Selected();
-		}
-
-		public void Deselect()
-		{
-			GUI.changed = true;
-			isSelected = false;
-			isDragged = false;
-			currentStyle = nodeData.nodeStyle.defaultStyle;
-			titleBarStyle = nodeData.nodeStyle.defaultLabelStyle;
-		}
-
-		public Rect GetRect()
-		{
-			Rect rect = nodeData.windowRect;
-			rect.position -= nodeData.offset;
-			return rect;
-		}
 
 
 		protected virtual void TitleBarLeftClickUp(Event e)
@@ -245,26 +193,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 	/// <summary>
 	/// The data\tools that we want displayed in our Node Window.
 	/// </summary>
-	public abstract class NodeObjectData<T>
+	public abstract class NodeObjectData<T> : GraphEntityData
 	{
-		/// <summary>
-		/// This must match the GUID of matching serialized data that constructs this node.
-		/// </summary>
-		public string GUID;
 		public List<Connection> inputConnections;
 		public List<Connection> outputConnections;
 
-		/// <summary>
-		/// Stylings associated with this node.
-		/// </summary>
-		public NodeStyle nodeStyle;
-		public Rect windowRect;
-
-		[NonSerialized]
-		public Vector2 offset;
-
-		public Color defaultBGColor;
-		public Color selectedBGColor;
 
 		public SerializedNode<T> serializedNode;
 		protected NodeWindow<T> window;
@@ -326,24 +259,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			window.RemoveConnectionPoint(connection, direction);
 		}
 
-		public virtual void MoveWindowPosition(Vector2 delta)
+		public override void MoveWindowPosition(Vector2 delta)
 		{
-			windowRect.position += delta;
+			base.MoveWindowPosition(delta);
 			serializedNode.position = windowRect.position;
 		}
-
-		public void Offset(Vector2 contentOffset)
-		{
-			offset = contentOffset;
-		}
-
-
-		protected abstract void CreateWindow();
 	}
 
 
 	public class NodeStyle
 	{
+		public Color defaultBGColor;
+		public Color selectedBGColor;
 		public GUIStyle defaultStyle, selectedStyle;
 		public GUIStyle defaultLabelStyle, selectedLabelStyle;
 		public Vector2 size;
@@ -359,6 +286,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		private void CreateStyles()
 		{
+			defaultBGColor = Color.white;
+			selectedBGColor = Color.green;
+
 			defaultStyle = new GUIStyle(EditorStyles.helpBox);
 			defaultStyle.normal.textColor = new Color(0, 0, 0, 0);
 			defaultStyle.alignment = TextAnchor.UpperCenter;

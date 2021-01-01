@@ -11,7 +11,7 @@ using UnityEngine.U2D;
 namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	[System.Serializable]
-	public class ScenimaticScriptGraph : INodeGraph<ScenimaticBranch>
+	public class ScenimaticScriptGraph : INodeGraph
 	{
 		public ZoomerSettings zoomerSettings;
 		public ScenimaticScript script;
@@ -22,10 +22,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private EventBranchObjectData selectedNode;
 
-		private List<ConnectionPoint<ScenimaticBranch>> refreshConnections;
-		private Dictionary<string, ConnectionPoint<ScenimaticBranch>> connectionPoints;
-		private ConnectionPoint<ScenimaticBranch> startConnection;
-		private ConnectionPoint<ScenimaticBranch> endConnection;
+		private List<ConnectionPoint> refreshConnections;
+		private Dictionary<string, ConnectionPoint> connectionPoints;
+		private ConnectionPoint startConnection;
+		private ConnectionPoint endConnection;
 		private Vector2 savedMousePos;
 		private bool save;
 
@@ -33,8 +33,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void Initialize(ScenimaticScript newScript)
 		{
-			refreshConnections = new List<ConnectionPoint<ScenimaticBranch>>();
-			connectionPoints = new Dictionary<string, ConnectionPoint<ScenimaticBranch>>();
+			refreshConnections = new List<ConnectionPoint>();
+			connectionPoints = new Dictionary<string, ConnectionPoint>();
 			script = newScript;
 
 			CreateBranchWindow();
@@ -60,8 +60,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				}
 			}
 
-			ConnectionPoint<ScenimaticBranch>.nodeGraph = this;
+			ConnectionPoint.nodeGraph = this;
 
+			inputNode = newScript.inputNode;
 			branchNodes = new List<EventBranchObjectData>();
 			for (int i = 0; i < script.branches.Count; ++i)
 			{
@@ -103,7 +104,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public void RefreshConnection(ConnectionPoint<ScenimaticBranch> connectionPoint)
+		public void RefreshConnection(ConnectionPoint connectionPoint)
 		{
 			refreshConnections.Add(connectionPoint);
 			if (connectionPoints.ContainsKey(connectionPoint.GUID))
@@ -234,7 +235,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 
-		public bool IsValidConnection(ConnectionPoint<ScenimaticBranch> hoveredPoint)
+		public bool IsValidConnection(ConnectionPoint hoveredPoint)
 		{
 			if (startConnection == null || hoveredPoint == startConnection)
 				return true; // no points have been selected or this is the first selected point
@@ -243,7 +244,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				&& hoveredPoint.nodeWindow != startConnection.nodeWindow);
 		}
 
-		public void StartPointSelected(ConnectionPoint<ScenimaticBranch> selectedConnection)
+		public void StartPointSelected(ConnectionPoint selectedConnection)
 		{
 			if (startConnection != null)
 			{
@@ -254,7 +255,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			startConnection = selectedConnection;
 		}
 
-		public void EndPointSelected(ConnectionPoint<ScenimaticBranch> endPoint)
+		public void EndPointSelected(ConnectionPoint endPoint)
 		{
 			if (startConnection == null)
 			{// probably mouse up over node after mouse down elsewhere

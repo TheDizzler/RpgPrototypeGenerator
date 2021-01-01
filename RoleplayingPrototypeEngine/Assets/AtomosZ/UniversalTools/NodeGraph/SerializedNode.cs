@@ -21,6 +21,12 @@ namespace AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas
 		/// </summary>
 		public Vector2 position;
 
+		/// <summary>
+		/// This is how we get around JsonUtility not being able to deal with inheritance.
+		/// It may be easier in the long run just to write own json serialization instead of
+		/// using basic, but incredibly handy, JsonUtility.FromJson() and JsonUtility.ToJson().
+		/// Also this creates a ton of ugly generic classes.
+		/// </summary>
 		public T data;
 
 

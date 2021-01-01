@@ -14,11 +14,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 	/// A connection point should have no knowledge of the points connected to it,
 	/// only the window it is attached to.
 	/// </summary>
-	public class ConnectionPoint<T>
+	public class ConnectionPoint
 	{
 		private const int connectionMargin = 32;
 
-		public static INodeGraph<T> nodeGraph;
+		public static INodeGraph nodeGraph;
 
 		public string GUID;
 		public Rect rect;
@@ -26,12 +26,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public ConnectionPointDirection connectionDirection;
 		public ConnectionType connectionType;
 		public ConnectionPointData data;
-		public NodeWindow<T> nodeWindow;
+		public GraphEntity nodeWindow;
 		/// <summary>
 		/// MUST be the same type as owner.
 		/// Some connections allow for multiple inputs/outputs.
 		/// </summary>
-		public List<ConnectionPoint<T>> connectedTo = new List<ConnectionPoint<T>>();
+		public List<ConnectionPoint> connectedTo = new List<ConnectionPoint>();
 
 
 		public bool isCreatingNewConnection;
@@ -47,7 +47,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		private bool isValidConnection;
 
 
-		public ConnectionPoint(NodeWindow<T> node,
+		public ConnectionPoint(GraphEntity node,
 			ConnectionPointDirection direction, ConnectionPointData dataType, Connection connection)
 		{
 			if (nodeGraph == null)
@@ -169,7 +169,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 
 
-		public void ReplaceOld(ConnectionPoint<T> connectionPoint)
+		public void ReplaceOld(ConnectionPoint connectionPoint)
 		{
 			for (int i = 0; i < connectedTo.Count; ++i)
 			{
@@ -194,7 +194,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 		}
 
-		public void RemoveConnectionTo(ConnectionPoint<T> otherConnection)
+		public void RemoveConnectionTo(ConnectionPoint otherConnection)
 		{
 			connectedTo.Remove(otherConnection);
 			if (connectionDirection == ConnectionPointDirection.Out)
@@ -219,7 +219,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			SetCurrentStyle();
 		}
 
-		public void ConnectTo(ConnectionPoint<T> otherConnectionPoint)
+		public void ConnectTo(ConnectionPoint otherConnectionPoint)
 		{
 			if (!AllowsMultipleConnections() && connectedTo.Count > 0)
 			{
@@ -231,7 +231,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			SetCurrentStyle();
 		}
 
-		public void MakeNewConnectionTo(ConnectionPoint<T> otherConnectionPoint)
+		public void MakeNewConnectionTo(ConnectionPoint otherConnectionPoint)
 		{
 			if (connectedTo.Contains(otherConnectionPoint))
 				throw new System.Exception("trying to add connection that already exists");
@@ -275,7 +275,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			e.Use();
 		}
 
-		private static void RemoveConnectionBetween(ConnectionPoint<T> connectionPoint1, ConnectionPoint<T> connectionPoint2)
+		private static void RemoveConnectionBetween(ConnectionPoint connectionPoint1, ConnectionPoint connectionPoint2)
 		{
 			connectionPoint1.RemoveConnectionTo(connectionPoint2);
 			connectionPoint2.RemoveConnectionTo(connectionPoint1);

@@ -1,7 +1,5 @@
-﻿using System;
-using AtomosZ.RPG.Scenimatic.Schemas;
+﻿using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
 
@@ -152,8 +150,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			inputConnections = branchData.connectionInputs;
 			outputConnections = branchData.connectionOutputs;
 			nodeStyle = ScenimaticScriptEditor.branchNodeStyle;
-			defaultBGColor = Color.white;
-			selectedBGColor = Color.green;
 
 			windowRect = new Rect(branchData.position, nodeStyle.size);
 		}
