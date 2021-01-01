@@ -1,6 +1,9 @@
-﻿using AtomosZ.RPG.Scenimatic;
+﻿using System.IO;
+using AtomosZ.RPG.Scenimatic;
+using AtomosZ.RPG.Scenimatic.EditorTools;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace AtomosZ.RPG.UI.EditorTools
 {
@@ -14,7 +17,32 @@ namespace AtomosZ.RPG.UI.EditorTools
 
 			if (GUILayout.Button("Load Event"))
 			{
-				((ScenimaticManager)target).LoadEvent(((ScenimaticManager)target).testEvent);
+				string path = ((ScenimaticManager)target).eventFile;
+				if (string.IsNullOrEmpty(path))
+				{
+					path = EditorUtility.OpenFilePanelWithFilters(
+						"Choose a Scenimatic Script",
+						ScenimaticScriptEditor.userScenimaticFolder,
+						new string[] { "Scenimatic Json file", ScenimaticScriptEditor.ScenimaticFileExtension });
+					if (!string.IsNullOrEmpty(path))
+					{
+						Debug.Log(path);
+						int index = path.IndexOf("Assets");
+						if (index < 0)
+						{
+							Debug.LogWarning("File must be in project path");
+						}
+						else
+						{
+							((ScenimaticManager)target).eventFile = path.Substring(index + 7);
+							((ScenimaticManager)target).LoadEvent(path);
+						}
+					}
+				}
+				else
+				{
+					((ScenimaticManager)target).LoadEvent(Application.dataPath + "/" + path);
+				}
 			}
 
 			int numEvents = ((ScenimaticManager)target).GetEventCount();

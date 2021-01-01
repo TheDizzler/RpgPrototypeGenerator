@@ -12,6 +12,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 {
 	public class ScenimaticScriptEditor : EditorWindow
 	{
+		public static readonly string ScenimaticFileExtension = "SceneJson";
+
 		private const float ZOOM_BORDER = 5;
 		private const float RESERVED_AREA_BELOW_ZOOM_HEIGHT = 28;
 		/// <summary>
@@ -21,14 +23,17 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		/// </summary>
 		private const float TAB_HEIGHT = 21;
 
-		private readonly string ScenimaticFileExtension = "SceneJson";
-
+		
 		public static NodeStyle branchNodeStyle;
+
+		/// <summary>
+		/// save this to editor prefs
+		/// </summary>
+		public static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
+
 
 		private static GUIStyle rectStyle;
 
-		// save this to editor prefs
-		private static string userScenimaticFolder = "Assets/StreamingAssets/Scenimatic/";
 		private static string projectPrefsPrefix;
 		private static string lastOpenScriptKey;
 
@@ -283,7 +288,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private void LoadScene()
 		{
 			string path = EditorUtility.OpenFilePanelWithFilters(
-							"Choose new OhBehave file",
+							"Choose a Scenimatic Script",
 							userScenimaticFolder,
 							new string[] { "Scenimatic Json file", ScenimaticFileExtension });
 

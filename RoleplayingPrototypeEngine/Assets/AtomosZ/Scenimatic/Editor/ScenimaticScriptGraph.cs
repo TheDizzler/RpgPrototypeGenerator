@@ -51,7 +51,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					string path = AssetDatabase.GUIDToAssetPath(match);
 
 					if (Path.GetExtension(path) != ".spriteatlas")
-						Debug.Log("not a spriteatlas");
+						Debug.Log(path + " not a spriteatlas");
 					else
 					{
 						spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path);

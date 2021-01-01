@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.RPG.Scenimatic.UI.Panels;
 using UnityEngine;
@@ -12,38 +13,26 @@ namespace AtomosZ.RPG.Scenimatic
 	/// </summary>
 	public class ScenimaticManager : MonoBehaviour
 	{
-		public TextAsset testEvent;
 		public DialogPanel dialogPanel;
+		public string eventFile;
 
 		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
 		private string eventText;
 
 
 
-		public void LoadEvent(TextAsset eventTextAsset)
+		public void LoadEvent(string text)
 		{
-			eventText = eventTextAsset.text;
-			List<string> lines = new List<string>(eventText.Split('\r'));
-			foreach (var line in lines)
-			{
-				string trimmedLine = line.TrimStart();
-				Debug.Log(trimmedLine);
-				int secondArgIndex = trimmedLine.IndexOf(' ');
-				string eventTag = trimmedLine.Substring(0, secondArgIndex);
-				switch (eventTag)
-				{
-					case "dialog":
-						string minusTag = trimmedLine.Substring(secondArgIndex + 1);
-						string imageName = minusTag.Substring(0, minusTag.IndexOf(' '));
-						string dialogText = minusTag.Substring(minusTag.IndexOf(' ') + 1);
-						ScenimaticEvent dialog = ScenimaticEvent.CreateDialogEvent(dialogText, imageName);
-						eventQueue.Enqueue(dialog);
-						break;
-					default:
-						Debug.Log("Unknown event tag: " + eventTag);
-						break;
-				}
-			}
+			this.eventText = text;
+			StreamReader reader = new StreamReader(eventText);
+			string fileString = reader.ReadToEnd();
+			reader.Close();
+
+			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
+			Debug.Log("Loaded event " + script.sceneName);
+			Debug.Log("Using script atlas " + script.spriteAtlas);
+			ScenimaticBranch startBranch = script.branches[0].data;
+			Debug.Log("First branch: " + startBranch.branchName + " of " + script.branches.Count);
 		}
 
 
