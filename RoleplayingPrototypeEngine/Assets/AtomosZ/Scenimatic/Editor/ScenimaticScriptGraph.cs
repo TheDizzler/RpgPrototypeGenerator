@@ -100,7 +100,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			foreach (var conn in connectionPoints[connection.GUID].connectedTo)
 			{
 				refreshConnections.Add(conn);
-				conn.RemoveConnectionTo(connection.GUID);
+				conn.RemoveConnectionTo(connectionPoints[connection.GUID]);
 			}
 
 			connectionPoints.Remove(connection.GUID);

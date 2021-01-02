@@ -25,9 +25,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			outConnectionPoints = new List<ConnectionPoint>();
 			outConnectionPoints.Add(null); // reserved for Control Flow Out
 
-			for (int i = 0; i < inputNodeData.outputConnections.Count; ++i)
+			for (int i = 0; i < inputNodeData.connections.Count; ++i)
 			{
-				var connection = inputNodeData.outputConnections[i];
+				var connection = inputNodeData.connections[i];
 				switch (connection.type)
 				{
 					case ConnectionType.ControlFlow:
@@ -89,8 +89,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		public override bool ProcessEvents(Event e)
 		{
 			bool saveNeeded = false;
-			for (int i = 0; i < inConnectionPoints.Count; ++i)
-				inConnectionPoints[i].ProcessEvents(e, i);
 			for (int i = 0; i < outConnectionPoints.Count; ++i)
 				outConnectionPoints[i].ProcessEvents(e, i);
 
@@ -159,12 +157,31 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
-			throw new System.NotImplementedException();
+			if (direction == ConnectionPointDirection.Out)
+			{
+				outConnectionPoints.Add(
+					new ConnectionPoint(this, ConnectionPointDirection.Out,
+						ConnectionPointData.GetIntTypeData(), newConn));
+			}
 		}
 
 		public override void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction)
 		{
-			throw new System.NotImplementedException();
+			{
+				ConnectionPoint del = null;
+				for (int i = 0; i < outConnectionPoints.Count; ++i)
+				{
+					if (outConnectionPoints[i].GUID == conn.GUID)
+					{
+						del = outConnectionPoints[i];
+						break;
+					}
+				}
+				if (del == null)
+					Debug.LogError("Connection was not found trying to remove " + conn.GUID);
+				else
+					outConnectionPoints.Remove(del);
+			}
 		}
 
 	}
@@ -172,14 +189,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 	public class InputNodeData : GraphEntityData
 	{
-		public List<Connection> inputConnections;
-		public List<Connection> outputConnections;
-
-		private INodeGraph nodeGraph;
+		public List<Connection> connections;
 		/// <summary>
 		/// The serialized data.
 		/// </summary>
-		private InputNode serializedNode;
+		public InputNode serializedNode;
+
+		private INodeGraph nodeGraph;
+
 
 
 		public InputNodeData(INodeGraph graph, InputNode serializedData)
@@ -187,10 +204,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			nodeGraph = graph;
 			serializedNode = serializedData;
 			GUID = serializedData.GUID;
-			inputConnections = serializedData.connectionInputs;
-			outputConnections = serializedData.connectionOutputs;
+			connections = serializedData.connections;
 			nodeStyle = new GraphEntityStyle();
-			nodeStyle.Init(new Vector2(250, 100));
+			nodeStyle.Init(new Vector2(250, 100), Color.blue, Color.cyan);
 
 			windowRect = new Rect(serializedData.position, nodeStyle.size);
 		}
@@ -205,24 +221,26 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			window.DrawConnectionWires();
 		}
 
-
+		/// <summary>
+		/// Direction is irrelevant in InputNodes as the input (from code) is routed directly to the output connection.
+		/// </summary>
+		/// <param name="newConn"></param>
+		/// <param name="direction">Always ConnectionPointDirection.Out</param>
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
-			// add to input/output here as well?
-			if (direction == ConnectionPointDirection.In)
-				inputConnections.Add(newConn);
-			else
-				outputConnections.Add(newConn);
-			window.AddNewConnectionPoint(newConn, direction);
+			connections.Add(newConn);
+			window.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 		}
 
+		/// <summary>
+		/// Direction is irrelevant in InputNodes as the input (from code) is routed directly to the output connection.
+		/// </summary>
+		/// <param name="newConn"></param>
+		/// <param name="direction">Always ConnectionPointDirection.Out</param>
 		public override void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction)
 		{
-			if (direction == ConnectionPointDirection.In)
-				inputConnections.Remove(connection);
-			else
-				outputConnections.Remove(connection);
-			window.RemoveConnectionPoint(connection, direction);
+			connections.Remove(connection);
+			window.RemoveConnectionPoint(connection, ConnectionPointDirection.Out);
 		}
 
 		public override void MoveWindowPosition(Vector2 delta)

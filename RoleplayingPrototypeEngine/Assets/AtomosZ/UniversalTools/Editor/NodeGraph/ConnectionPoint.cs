@@ -182,18 +182,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		}
 
 
-		public void RemoveConnectionTo(string guid)
-		{
-			for (int i = 0; i < connectedTo.Count; ++i)
-			{
-				if (connectedTo[i].GUID == guid)
-				{
-					connectedTo[i] = null;
-					return;
-				}
-			}
-		}
-
 		public void RemoveConnectionTo(ConnectionPoint otherConnection)
 		{
 			connectedTo.Remove(otherConnection);

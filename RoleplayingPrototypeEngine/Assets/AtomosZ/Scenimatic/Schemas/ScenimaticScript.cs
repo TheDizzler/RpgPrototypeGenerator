@@ -32,7 +32,7 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 			{
 				GUID = System.Guid.NewGuid().ToString(),
 				position = Vector2.zero,
-				connectionOutputs = new List<Connection>()
+				connections = new List<Connection>()
 				{
 					new Connection()
 					{

@@ -145,7 +145,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
-			// add to input/output here as well?
 			if (direction == ConnectionPointDirection.In)
 				inputConnections.Add(newConn);
 			else

@@ -4,6 +4,7 @@ using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Nodes;
 using UnityEditor;
 using UnityEditor.U2D;
 using UnityEngine;
@@ -31,6 +32,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
 		private GraphEntityData branchData;
+		private InputNode serializedInput;
 		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
@@ -49,6 +51,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			this.branchData = branchData;
 			if (branchData is EventBranchObjectData)
 			{
+				serializedInput = null;
 				serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
 				branch = serializedBranch.data;
 			}
@@ -56,6 +59,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				serializedBranch = null;
 				branch = null;
+				serializedInput = ((InputNodeData)branchData).serializedNode;
 			}
 			Repaint();
 		}
@@ -78,7 +82,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			else if (branchData != null)
 			{
-				GUILayout.Label(new GUIContent("Event Start!"));
+				InputView();
 			}
 			else
 			{
@@ -90,6 +94,58 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				ExecuteNextDeferredCommand();
 			}
+		}
+
+
+		private void InputView()
+		{
+			GUILayout.BeginVertical(rectStyle);
+			{
+				EditorGUILayout.BeginHorizontal();
+				{
+					GUILayout.Label(new GUIContent("Inputs:", "These are passed into the event through code."));
+					int size = EditorGUILayout.DelayedIntField(
+						serializedInput.connections.Count - 1, GUILayout.MaxWidth(30));
+					if (size != serializedInput.connections.Count - 1)
+					{
+						int newSize = serializedInput.connections.Count - 1;
+						while (size > newSize)
+						{
+							Connection newConn = new Connection()
+							{
+								type = ConnectionType.Int,
+								GUID = System.Guid.NewGuid().ToString(),
+								data = "variable name (int)",
+							};
+
+							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+							++newSize;
+						}
+
+						while (size < newSize)
+						{
+							Connection remove = serializedInput.connections[newSize--];
+							DeleteInput(remove);
+						}
+					}
+				}
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
+
+				Color defaultColor = GUI.backgroundColor;
+				EditorGUILayout.BeginHorizontal();
+				{
+					for (int i = 0; i < serializedInput.connections.Count; ++i)
+					{
+						DrawInputBox(serializedInput.connections[i]);
+					}
+				}
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
+
+				GUI.backgroundColor = defaultColor;
+			}
+			EditorGUILayout.EndVertical();
 		}
 
 
@@ -133,7 +189,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						{
 							Connection remove =
 								serializedBranch.connectionInputs[newSize--];
-							DeleteInput(remove);
+							if (!DeleteInput(remove))
+								break;
 						}
 					}
 
@@ -216,14 +273,27 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 		}
 
-		private void DeleteInput(Connection conn)
+		/// <summary>
+		/// Returns false if user declines to delete existing connection.
+		/// </summary>
+		/// <param name="conn"></param>
+		/// <returns></returns>
+		private bool DeleteInput(Connection conn)
 		{
 			if (conn.connectedToGUIDs.Count != 0)
 			{
 				Debug.LogWarning("An input with connections is being deleted.");
+				if (!EditorUtility.DisplayDialog("Delete this Input?",
+						"An input with connections is being deleted."
+						+ "\nAre you sure?",
+						"Yes", "No"))
+					return false;
 			}
+
 			deferredCommandQueue.Enqueue(
-				new DeferredCommand(conn, DeferredCommandType.DeleteInput));
+				new DeferredCommand(conn, DeferredCommandType.DeleteInput, ConnectionType.ControlFlow));
+
+			return true;
 		}
 
 
@@ -260,7 +330,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					if (EditorUtility.DisplayDialog("Event Type Changing!",
 						"WARNING: You area attempting to change the event type"
-						+ " which will destroy this current events data. Proceed?",
+							+ " which will destroy this current events data. Proceed?",
 						"Change Event Type", "Oops"))
 					{
 						switch (eventType)
@@ -271,8 +341,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 							case ScenimaticEventType.Query:
 								eventData = CreateQueryEvent(new List<string>() { "A", "B" });
 								deferredCommandQueue.Enqueue(
-									new DeferredCommand(eventData,
-										DeferredCommandType.CreateQueryEvent));
+									new DeferredCommand(
+										eventData, DeferredCommandType.CreateOutputConnection));
 								break;
 						}
 					}
@@ -402,10 +472,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						AssetDatabase.SaveAssets(); // unfortunately these don't seem to have the desired effect
 						AssetDatabase.Refresh(); // that is, an automatic push of the "Pack Preview" button
 					}
-					else
-					{
-
-					}
 				}
 			}
 		}
@@ -447,6 +513,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					branchData.RemoveConnectionPoint(
 						command.connection, ConnectionPointDirection.In);
 					break;
+
 				case DeferredCommandType.DeleteEvent:
 					if (command.eventData.eventType == ScenimaticEventType.Query)
 					{
@@ -462,17 +529,21 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					}
 
 					branch.events.Remove(command.eventData);
+
+					AssetDatabase.SaveAssets();
+					AssetDatabase.Refresh();
 					break;
 
-				case DeferredCommandType.CreateQueryEvent:
+				case DeferredCommandType.CreateOutputConnection:
 					var newConn = new Connection()
 					{
 						GUID = System.Guid.NewGuid().ToString(),
-						type = ConnectionType.Int,
-						data = "variable name (int)",
+						type = command.connectionType,
+						data = "variable name (" + command.commandType.ToString() + ")",
 					};
 
 					branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+					// an Input node does not have event data, so this will be null
 					command.eventData.linkedOutputGUID = newConn.GUID;
 					command.eventData.connection = newConn;
 					break;
@@ -488,7 +559,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			MoveUp, MoveDown,
 			DeleteInput,
 			DeleteEvent,
-			CreateQueryEvent,
+			CreateOutputConnection,
 		};
 
 		private class DeferredCommand
@@ -496,6 +567,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
 			public Connection connection;
+			public ConnectionType connectionType;
 
 
 			public DeferredCommand(ScenimaticEvent eventData, DeferredCommandType commandType)
@@ -504,10 +576,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				this.commandType = commandType;
 			}
 
-			public DeferredCommand(Connection conn, DeferredCommandType commandType)
+			public DeferredCommand(Connection conn, DeferredCommandType commandType, ConnectionType connType)
 			{
 				this.connection = conn;
 				this.commandType = commandType;
+				connectionType = connType;
 			}
 		}
 	}

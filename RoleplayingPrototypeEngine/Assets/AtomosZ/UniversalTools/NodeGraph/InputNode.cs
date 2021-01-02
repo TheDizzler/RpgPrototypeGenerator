@@ -16,8 +16,7 @@ namespace AtomosZ.UniversalTools.NodeGraph.Nodes
 		/// <summary>
 		/// Data sent from game code.
 		/// </summary>
-		public List<Connection> connectionInputs;
-		public List<Connection> connectionOutputs;
+		public List<Connection> connections;
 
 		/// <summary>
 		/// Position in graph.
@@ -27,7 +26,7 @@ namespace AtomosZ.UniversalTools.NodeGraph.Nodes
 
 		public Connection GetOutputConnectionByGUID(string linkedOutputGUID)
 		{
-			foreach (var conn in connectionOutputs)
+			foreach (var conn in connections)
 			{
 				if (conn.GUID == linkedOutputGUID)
 				{
