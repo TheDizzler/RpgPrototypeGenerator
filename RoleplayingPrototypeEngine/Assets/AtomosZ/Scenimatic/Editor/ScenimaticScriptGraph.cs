@@ -97,6 +97,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			script.branches.Add(newBranch);
 		}
 
+		public bool IsConnected(Connection connection)
+		{
+			return connectionPoints[connection.GUID].connectedTo.Count != 0;
+		}
 
 		public void RemoveConnection(Connection connection)
 		{
@@ -309,6 +313,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			branchEditor.nodeGraph = this;
 		}
+
 
 		private void CreateStandAloneContextMenu()
 		{

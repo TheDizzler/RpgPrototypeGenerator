@@ -67,7 +67,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		void OnGUI()
 		{
-
 			if (rectStyle == null)
 			{
 				rectStyle = new GUIStyle(EditorStyles.helpBox) { };
@@ -111,13 +110,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						int newSize = serializedInput.connections.Count - 1;
 						while (size > newSize)
 						{
-							Connection newConn = new Connection()
-							{
-								type = ConnectionType.Int,
-								GUID = System.Guid.NewGuid().ToString(),
-								data = "variable name (int)",
-							};
-
+							Connection newConn = CreateNewConnection(ConnectionType.Int);
 							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 							++newSize;
 						}
@@ -125,7 +118,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						while (size < newSize)
 						{
 							Connection remove = serializedInput.connections[newSize--];
-							DeleteInput(remove);
+							if (!DeleteInput(remove))
+								break;
 						}
 					}
 				}
@@ -148,6 +142,15 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorGUILayout.EndVertical();
 		}
 
+		private static Connection CreateNewConnection(ConnectionType connectionType)
+		{
+			return new Connection()
+			{
+				type = connectionType,
+				GUID = System.Guid.NewGuid().ToString(),
+				data = "variable id (" + connectionType + ")",
+			};
+		}
 
 		private void BranchEventView()
 		{
@@ -175,20 +178,14 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						int newSize = serializedBranch.connectionInputs.Count - 1;
 						while (size > newSize)
 						{
-							Connection newConn = new Connection()
-							{
-								type = ConnectionType.Int,
-								GUID = System.Guid.NewGuid().ToString(),
-							};
-
+							Connection newConn = CreateNewConnection(ConnectionType.Int);
 							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
 							++newSize;
 						}
 
 						while (size < newSize)
 						{
-							Connection remove =
-								serializedBranch.connectionInputs[newSize--];
+							Connection remove = serializedBranch.connectionInputs[newSize--];
 							if (!DeleteInput(remove))
 								break;
 						}
@@ -280,7 +277,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		/// <returns></returns>
 		private bool DeleteInput(Connection conn)
 		{
-			if (conn.connectedToGUIDs.Count != 0)
+			if (nodeGraph.IsConnected(conn))
 			{
 				Debug.LogWarning("An input with connections is being deleted.");
 				if (!EditorUtility.DisplayDialog("Delete this Input?",
@@ -535,12 +532,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					break;
 
 				case DeferredCommandType.CreateOutputConnection:
-					var newConn = new Connection()
-					{
-						GUID = System.Guid.NewGuid().ToString(),
-						type = command.connectionType,
-						data = "variable name (" + command.commandType.ToString() + ")",
-					};
+					var newConn = CreateNewConnection(ConnectionType.Int);
 
 					branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 					// an Input node does not have event data, so this will be null
