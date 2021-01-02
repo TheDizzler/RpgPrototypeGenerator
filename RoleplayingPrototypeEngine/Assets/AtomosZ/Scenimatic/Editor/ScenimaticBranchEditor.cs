@@ -256,25 +256,25 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				eventType = (ScenimaticEventType)
 					EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
 
-				if (eventType != eventData.eventType)
+				if (eventType != eventData.eventType && eventData.eventType != ScenimaticEventType.Unknown)
 				{
-					if (eventData.eventType != ScenimaticEventType.Unknown)
+					if (EditorUtility.DisplayDialog("Event Type Changing!",
+						"WARNING: You area attempting to change the event type"
+						+ " which will destroy this current events data. Proceed?",
+						"Change Event Type", "Oops"))
 					{
-						Debug.LogWarning("Event type changed. "
-							+ "Loss of data likely. Need warning popup here.");
-					}
-
-					switch (eventType)
-					{
-						case ScenimaticEventType.Dialog:
-							eventData = CreateDialogEvent("Dialog Text here", "Image name here");
-							break;
-						case ScenimaticEventType.Query:
-							eventData = CreateQueryEvent(new List<string>() { "A", "B" });
-							deferredCommandQueue.Enqueue(
-								new DeferredCommand(eventData,
-									DeferredCommandType.CreateQueryEvent));
-							break;
+						switch (eventType)
+						{
+							case ScenimaticEventType.Dialog:
+								eventData = CreateDialogEvent("Dialog Text here", "Image name here");
+								break;
+							case ScenimaticEventType.Query:
+								eventData = CreateQueryEvent(new List<string>() { "A", "B" });
+								deferredCommandQueue.Enqueue(
+									new DeferredCommand(eventData,
+										DeferredCommandType.CreateQueryEvent));
+								break;
+						}
 					}
 				}
 
@@ -493,8 +493,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private class DeferredCommand
 		{
-
-
 			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
 			public Connection connection;
