@@ -90,7 +90,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
 			branchWindowStyle = new GraphEntityStyle();
-			branchWindowStyle.Init(new Vector2(250, 100), Color.green, Color.cyan);
+			branchWindowStyle.Init(new Vector2(250, 100), Color.white, Color.green, Color.green, Color.cyan);
 
 			return true;
 		}

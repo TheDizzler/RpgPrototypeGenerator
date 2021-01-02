@@ -14,17 +14,16 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Styles
 		private Texture2D texture2D;
 
 
-		public void Init(Vector2 rectSize, Color defaultTitleBarColor, Color selectedTitleBarColor)
+		public void Init(Vector2 rectSize, Color defaultBGColor, Color selectedBGColor, Color defaultTitleBarColor, Color selectedTitleBarColor)
 		{
+			this.defaultBGColor = defaultBGColor;
+			this.selectedBGColor = selectedBGColor;
 			CreateStyles(defaultTitleBarColor, selectedTitleBarColor);
 			size = rectSize;
 		}
 
 		private void CreateStyles(Color defaultTitleBarColor, Color selectedTitleBarColor)
 		{
-			defaultBGColor = Color.white;
-			selectedBGColor = Color.green;
-
 			defaultStyle = new GUIStyle(EditorStyles.helpBox);
 			defaultStyle.normal.textColor = new Color(0, 0, 0, 0);
 			defaultStyle.alignment = TextAnchor.UpperCenter;

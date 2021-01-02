@@ -211,7 +211,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			GUID = serializedData.GUID;
 			connections = serializedData.connections;
 			nodeStyle = new GraphEntityStyle();
-			nodeStyle.Init(new Vector2(250, 100), Color.blue, Color.cyan);
+			nodeStyle.Init(new Vector2(250, 100), Color.cyan, Color.blue, Color.blue, Color.white);
 
 			windowRect = new Rect(serializedData.position, nodeStyle.size);
 		}
