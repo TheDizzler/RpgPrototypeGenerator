@@ -63,7 +63,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			connectionStyles = dataType.connectionPointStyle;
 			currentStyle = connectionStyles.unconnectedStyle;
-			wireColor = connectionStyles.wireColor;
+			wireColor = connectionStyles.connectionColor;
 			rect = new Rect(0, 0,
 				currentStyle.normal.background.width,
 				currentStyle.normal.background.height);
@@ -144,7 +144,17 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void OnGUI()
 		{
-			GUI.Label(rect, "", isValidConnection ? currentStyle : ConnectionPointData.invalidStyle);
+			if (!isValidConnection)
+			{
+				GUI.Label(rect, "", ConnectionPointData.invalidStyle);
+			}
+			else
+			{
+				Color defaultColor = GUI.color;
+				GUI.color = wireColor;
+				GUI.Label(rect, "", currentStyle);
+				GUI.color = defaultColor;
+			}
 		}
 
 		public bool AllowsMultipleConnections()

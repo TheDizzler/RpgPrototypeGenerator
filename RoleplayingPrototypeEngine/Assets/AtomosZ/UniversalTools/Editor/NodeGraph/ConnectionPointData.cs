@@ -18,7 +18,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public float wireThickness;
 		public bool allowsMultipleInputs = false;
 		public bool allowsMultipleOutputs = false;
-
+		private static ConnectionPointData floatType;
+		private static ConnectionPointData stringType;
 
 		public static ConnectionPointData GetIntTypeData()
 		{
@@ -29,11 +30,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 					type = ConnectionType.Int,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint Int unconnected.png"),
-						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int unconnected hover.png"),
-						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected.png"),
-						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint Int connected hover.png"),
-						wireColor = Color.blue,
+						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
+						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
+						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
+						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						connectionColor = Color.blue,
 					},
 					wireThickness = 6,
 					allowsMultipleInputs = false,
@@ -42,6 +43,54 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 
 			return intType;
+		}
+
+		public static ConnectionPointData GetStringTypeData()
+		{
+			if (stringType == null)
+			{
+				stringType = new ConnectionPointData()
+				{
+					type = ConnectionType.String,
+					connectionPointStyle = new ConnectionPointStyle()
+					{
+						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
+						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
+						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
+						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						connectionColor = Color.magenta,
+					},
+					wireThickness = 6,
+					allowsMultipleInputs = false,
+					allowsMultipleOutputs = true,
+				};
+			}
+
+			return stringType;
+		}
+
+		public static ConnectionPointData GetFloatTypeData()
+		{
+			if (floatType == null)
+			{
+				floatType = new ConnectionPointData()
+				{
+					type = ConnectionType.String,
+					connectionPointStyle = new ConnectionPointStyle()
+					{
+						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
+						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
+						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
+						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						connectionColor = Color.cyan,
+					},
+					wireThickness = 6,
+					allowsMultipleInputs = false,
+					allowsMultipleOutputs = true,
+				};
+			}
+
+			return floatType;
 		}
 
 		public static ConnectionPointData GetControlFlowTypeData()
@@ -57,9 +106,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected hover.png"),
 						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected.png"),
 						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected hover.png"),
-						wireColor = Color.white,
+						connectionColor = Color.white,
 					},
-					wireThickness = 8,
+					wireThickness = 10,
 					allowsMultipleInputs = true,
 					allowsMultipleOutputs = false,
 				};
@@ -87,7 +136,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			public GUIStyle connectedHoverStyle;
 			public GUIStyle unconnectedStyle;
 			public GUIStyle unconnectedHoverStyle;
-			public Color wireColor;
+			public Color connectionColor;
 		}
 	}
 }

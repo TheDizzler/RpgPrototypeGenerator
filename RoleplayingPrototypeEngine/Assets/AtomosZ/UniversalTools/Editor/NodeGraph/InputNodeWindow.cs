@@ -12,8 +12,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 	{
 		private InputNode inputNode;
 
-		protected List<ConnectionPoint> inConnectionPoints;
-		protected List<ConnectionPoint> outConnectionPoints;
+		protected List<ConnectionPoint> connectionPoints;
 
 		private INodeGraph nodeGraph;
 
@@ -21,9 +20,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		public InputNodeWindow(INodeGraph graph, InputNodeData inputNodeData) : base(inputNodeData)
 		{
 			nodeGraph = graph;
-			inConnectionPoints = new List<ConnectionPoint>();
-			outConnectionPoints = new List<ConnectionPoint>();
-			outConnectionPoints.Add(null); // reserved for Control Flow Out
+			connectionPoints = new List<ConnectionPoint>();
+			connectionPoints.Add(null); // reserved for Control Flow Out
 
 			for (int i = 0; i < inputNodeData.connections.Count; ++i)
 			{
@@ -31,18 +29,25 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 				switch (connection.type)
 				{
 					case ConnectionType.ControlFlow:
-						outConnectionPoints[0] =
+						connectionPoints[0] =
 							new ConnectionPoint(this, ConnectionPointDirection.Out,
 								ConnectionPointData.GetControlFlowTypeData(), connection);
 						break;
 					case ConnectionType.Int:
-						outConnectionPoints.Add(
+						connectionPoints.Add(
 							new ConnectionPoint(this, ConnectionPointDirection.Out,
 								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
+						connectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetFloatTypeData(), connection));
+						break;
 					case ConnectionType.String:
-						throw new System.Exception("Connection type not yet implemented");
+						connectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetStringTypeData(), connection));
+						break;
 				}
 			}
 		}
@@ -81,7 +86,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 			GUI.backgroundColor = defaultColor;
 
-			foreach (var conn in outConnectionPoints)
+			foreach (var conn in connectionPoints)
 				conn.OnGUI();
 		}
 
@@ -89,8 +94,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		public override bool ProcessEvents(Event e)
 		{
 			bool saveNeeded = false;
-			for (int i = 0; i < outConnectionPoints.Count; ++i)
-				outConnectionPoints[i].ProcessEvents(e, i);
+			for (int i = 0; i < connectionPoints.Count; ++i)
+				connectionPoints[i].ProcessEvents(e, i);
 
 			switch (e.type)
 			{
@@ -139,7 +144,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		public override void DrawConnectionWires()
 		{
-			foreach (var conn in outConnectionPoints)
+			foreach (var conn in connectionPoints)
 				conn.DrawConnections();
 		}
 
@@ -159,7 +164,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			if (direction == ConnectionPointDirection.Out)
 			{
-				outConnectionPoints.Add(
+				connectionPoints.Add(
 					new ConnectionPoint(this, ConnectionPointDirection.Out,
 						ConnectionPointData.GetIntTypeData(), newConn));
 			}
@@ -169,18 +174,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			{
 				ConnectionPoint del = null;
-				for (int i = 0; i < outConnectionPoints.Count; ++i)
+				for (int i = 0; i < connectionPoints.Count; ++i)
 				{
-					if (outConnectionPoints[i].GUID == conn.GUID)
+					if (connectionPoints[i].GUID == conn.GUID)
 					{
-						del = outConnectionPoints[i];
+						del = connectionPoints[i];
 						break;
 					}
 				}
 				if (del == null)
 					Debug.LogError("Connection was not found trying to remove " + conn.GUID);
 				else
-					outConnectionPoints.Remove(del);
+					connectionPoints.Remove(del);
 			}
 		}
 

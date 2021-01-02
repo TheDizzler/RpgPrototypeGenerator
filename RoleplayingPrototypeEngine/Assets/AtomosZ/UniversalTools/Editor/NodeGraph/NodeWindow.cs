@@ -43,8 +43,15 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
+						inConnectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.In,
+								ConnectionPointData.GetFloatTypeData(), connection));
+						break;
 					case ConnectionType.String:
-						throw new Exception("Connection type not yet implemented");
+						inConnectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.In,
+								ConnectionPointData.GetStringTypeData(), connection));
+						break;
 				}
 			}
 
@@ -65,8 +72,15 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 								ConnectionPointData.GetIntTypeData(), connection));
 						break;
 					case ConnectionType.Float:
+						outConnectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetFloatTypeData(), connection));
+						break;
 					case ConnectionType.String:
-						throw new Exception("Connection type not yet implemented");
+						outConnectionPoints.Add(
+							new ConnectionPoint(this, ConnectionPointDirection.Out,
+								ConnectionPointData.GetStringTypeData(), connection));
+						break;
 				}
 			}
 		}
