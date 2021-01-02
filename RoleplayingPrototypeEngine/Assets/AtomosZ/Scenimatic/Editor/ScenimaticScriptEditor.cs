@@ -2,7 +2,6 @@
 using System.IO;
 using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
-using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
@@ -24,7 +23,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		/// </summary>
 		private const float TAB_HEIGHT = 21;
 
-		
+
 		public static GraphEntityStyle branchWindowStyle;
 
 		/// <summary>
@@ -91,7 +90,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			rectStyle = new GUIStyle(EditorStyles.helpBox) { };
 			branchWindowStyle = new GraphEntityStyle();
-			branchWindowStyle.Init(new Vector2(250, 100));
+			branchWindowStyle.Init(new Vector2(250, 100), Color.green, Color.cyan);
 
 			return true;
 		}
@@ -127,6 +126,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 		}
 
+
 		void OnDisable()
 		{
 			// this saves changes whenever scripts are reloaded.
@@ -135,8 +135,10 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		void OnDestroy()
 		{
-			if (!EditorWindow.HasOpenInstances<ScenimaticBranchEditor>())
-				EditorWindow.GetWindow<ScenimaticBranchEditor>().Close();
+			if (scenimaticGraph != null)
+			{
+				scenimaticGraph.Close();
+			}
 		}
 
 
@@ -316,7 +318,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			ScenimaticScript script = new ScenimaticScript("New Scene");
 			script.branches = new List<ScenimaticSerializedNode>();
-			script.branches.Add(CreateNewBranch(Vector2.zero));
+			script.branches.Add(CreateNewBranch(new Vector2(0, 200)));
 
 			scenimaticGraph = new ScenimaticScriptGraph();
 			scenimaticGraph.Initialize(script);
@@ -339,6 +341,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					sceneFileName = Path.GetFileNameWithoutExtension(path);
 					// check if new path is different from userScenimaticFolder
 				}
+				else
+					return;
 			}
 
 			scenimaticGraph.script.savedScreenPos = window.position.position;

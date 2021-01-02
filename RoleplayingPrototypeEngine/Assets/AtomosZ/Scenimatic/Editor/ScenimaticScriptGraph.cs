@@ -5,7 +5,6 @@ using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
-using AtomosZ.UniversalTools.NodeGraph.Nodes;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -74,7 +73,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				branchNodes.Add(node);
 			}
 
-			branchEditor.LoadBranch(branchNodes[0]);
+			branchEditor.LoadBranch(inputNode);
 		}
 
 
@@ -85,6 +84,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			return script;
 		}
 
+		public void Close()
+		{
+			if (branchEditor != null)
+				branchEditor.Close();
+		}
 
 		public void AddBranch(ScenimaticSerializedNode newBranch)
 		{
@@ -92,7 +96,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			branchNodes.Add(node);
 			script.branches.Add(newBranch);
 		}
-
 
 
 		public void RemoveConnection(Connection connection)
