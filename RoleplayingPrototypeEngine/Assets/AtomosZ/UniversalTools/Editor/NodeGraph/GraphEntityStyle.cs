@@ -14,13 +14,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Styles
 		private Texture2D texture2D;
 
 
-		public void Init(Vector2 rectSize)
+		public void Init(Vector2 rectSize, Color defaultTitleBarColor, Color selectedTitleBarColor)
 		{
-			CreateStyles();
+			CreateStyles(defaultTitleBarColor, selectedTitleBarColor);
 			size = rectSize;
 		}
 
-		private void CreateStyles()
+		private void CreateStyles(Color defaultTitleBarColor, Color selectedTitleBarColor)
 		{
 			defaultBGColor = Color.white;
 			selectedBGColor = Color.green;
@@ -38,7 +38,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Styles
 			var fillColorArray = tex.GetPixels32();
 			for (var i = 0; i < fillColorArray.Length; ++i)
 			{
-				fillColorArray[i] = Color.cyan;
+				fillColorArray[i] = selectedTitleBarColor;
 			}
 
 			tex.SetPixels32(fillColorArray);
@@ -50,7 +50,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Styles
 			selectedLabelStyle = new GUIStyle();
 			for (var i = 0; i < fillColorArray.Length; ++i)
 			{
-				fillColorArray[i] = Color.green;
+				fillColorArray[i] = defaultTitleBarColor;
 			}
 
 			tex.SetPixels32(fillColorArray);
