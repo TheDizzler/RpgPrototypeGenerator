@@ -27,6 +27,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public ConnectionType connectionType;
 		public ConnectionPointData data;
 		public GraphEntity nodeWindow;
+		public bool isCreatingNewConnection;
+		public Connection connection;
+		public Color connectionColor;
 		/// <summary>
 		/// MUST be the same type as owner.
 		/// Some connections allow for multiple inputs/outputs.
@@ -34,13 +37,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public List<ConnectionPoint> connectedTo = new List<ConnectionPoint>();
 
 
-		public bool isCreatingNewConnection;
-
-		public Connection connection;
+		
 
 		private ConnectionPointStyle connectionStyles;
 		private GUIStyle currentStyle;
-		private Color wireColor;
 		private float wireThickness;
 		private bool isHovering;
 		private bool isConnected = false;
@@ -63,7 +63,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			connectionStyles = dataType.connectionPointStyle;
 			currentStyle = connectionStyles.unconnectedStyle;
-			wireColor = connectionStyles.connectionColor;
+			connectionColor = connectionStyles.connectionColor;
 			rect = new Rect(0, 0,
 				currentStyle.normal.background.width,
 				currentStyle.normal.background.height);
@@ -152,7 +152,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			else
 			{
 				Color defaultColor = GUI.color;
-				GUI.color = wireColor;
+				GUI.color = connectionColor;
 				GUI.Label(rect, "", currentStyle);
 				GUI.color = defaultColor;
 			}
@@ -168,7 +168,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void DrawConnections()
 		{
-			Handles.color = wireColor;
+			Handles.color = connectionColor;
 			foreach (var other in connectedTo)
 				Handles.DrawAAPolyLine(wireThickness, rect.center, other.rect.center);
 		}
@@ -176,7 +176,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void DrawConnectionTo(Vector2 mousePosition)
 		{
-			Handles.color = wireColor;
+			Handles.color = connectionColor;
 			Handles.DrawAAPolyLine(wireThickness, rect.center, mousePosition);
 		}
 

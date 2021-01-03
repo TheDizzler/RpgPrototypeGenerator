@@ -11,15 +11,15 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		private static ConnectionPointData controlFlowType = null;
 		private static ConnectionPointData intType = null;
-
+		private static ConnectionPointData floatType = null;
+		private static ConnectionPointData stringType = null;
 
 		public ConnectionType type;
 		public ConnectionPointStyle connectionPointStyle;
 		public float wireThickness;
 		public bool allowsMultipleInputs = false;
 		public bool allowsMultipleOutputs = false;
-		private static ConnectionPointData floatType;
-		private static ConnectionPointData stringType;
+
 
 		public static ConnectionPointData GetIntTypeData()
 		{
@@ -75,7 +75,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			{
 				floatType = new ConnectionPointData()
 				{
-					type = ConnectionType.String,
+					type = ConnectionType.Float,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
 						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),

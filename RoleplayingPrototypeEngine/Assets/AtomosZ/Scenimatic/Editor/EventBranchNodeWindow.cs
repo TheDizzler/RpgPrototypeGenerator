@@ -35,7 +35,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			switch (e.type)
 			{
 				case EventType.MouseDown:
-					if (TitleLabelRect().Contains(e.mousePosition))
+					if (GetTitleLabelRect().Contains(e.mousePosition))
 					{ // title bar clicked
 						if (e.button == 0)
 							TitleBarLeftClickDown(e);
@@ -50,7 +50,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					break;
 
 				case EventType.MouseUp:
-					if (TitleLabelRect().Contains(e.mousePosition))
+					if (GetTitleLabelRect().Contains(e.mousePosition))
 					{ // title bar clicked
 						if (e.button == 0)
 							TitleBarLeftClickUp(e);

@@ -70,6 +70,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			return rect;
 		}
 
+		public Rect GetTitleLabelRect()
+		{
+			Rect rect = GetRect();
+			rect.height = EditorGUIUtility.singleLineHeight + TITLEBAR_OFFSET;
+			return rect;
+		}
+
+
 		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
 		public abstract void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction);
 		public abstract string GetName();
@@ -78,9 +86,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		public abstract void DrawConnectionWires();
 		protected abstract void Selected();
 		protected abstract void Deselected();
-
-
-
 
 
 		protected virtual void TitleBarLeftClickUp(Event e)
@@ -124,13 +129,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		protected virtual void RightClickUp(Event e)
 		{
 			e.Use();
-		}
-
-		protected Rect TitleLabelRect()
-		{
-			Rect rect = GetRect();
-			rect.height = EditorGUIUtility.singleLineHeight + TITLEBAR_OFFSET;
-			return rect;
 		}
 
 		protected void Drag(Vector2 delta)

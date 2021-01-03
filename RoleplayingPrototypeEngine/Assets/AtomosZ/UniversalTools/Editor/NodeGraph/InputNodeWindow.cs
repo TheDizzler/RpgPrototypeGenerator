@@ -68,7 +68,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			switch (e.type)
 			{
 				case EventType.MouseDown:
-					if (TitleLabelRect().Contains(e.mousePosition))
+					if (GetTitleLabelRect().Contains(e.mousePosition))
 					{ // title bar clicked
 						if (e.button == 0)
 							TitleBarLeftClickDown(e);
@@ -83,7 +83,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 					break;
 
 				case EventType.MouseUp:
-					if (TitleLabelRect().Contains(e.mousePosition))
+					if (GetTitleLabelRect().Contains(e.mousePosition))
 					{ // title bar clicked
 						if (e.button == 0)
 							TitleBarLeftClickUp(e);

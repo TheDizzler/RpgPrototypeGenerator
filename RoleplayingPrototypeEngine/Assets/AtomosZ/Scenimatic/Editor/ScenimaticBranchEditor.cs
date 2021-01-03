@@ -148,7 +148,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				type = connectionType,
 				GUID = System.Guid.NewGuid().ToString(),
-				data = "variable id (" + connectionType + ")",
+				data = "temp" + connectionType.ToString(),
 			};
 		}
 
@@ -323,12 +323,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				eventType = (ScenimaticEventType)
 					EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
 
-				if (eventType != eventData.eventType && eventData.eventType != ScenimaticEventType.Unknown)
+				if (eventType != eventData.eventType)
 				{
-					if (EditorUtility.DisplayDialog("Event Type Changing!",
-						"WARNING: You area attempting to change the event type"
-							+ " which will destroy this current events data. Proceed?",
-						"Change Event Type", "Oops"))
+					if (eventData.eventType == ScenimaticEventType.Unknown
+						|| EditorUtility.DisplayDialog("Event Type Changing!",
+							"WARNING: You area attempting to change the event type"
+								+ " which will destroy this current events data. Proceed?",
+							"Change Event Type", "Oops"))
 					{
 						switch (eventType)
 						{
@@ -340,6 +341,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(
 										eventData, DeferredCommandType.CreateOutputConnection));
+								break;
+							default:
+								Debug.LogWarning(eventType + " not yet implemented");
 								break;
 						}
 					}
