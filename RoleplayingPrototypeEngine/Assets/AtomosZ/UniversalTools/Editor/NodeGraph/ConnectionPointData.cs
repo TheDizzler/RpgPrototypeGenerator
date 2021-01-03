@@ -21,6 +21,23 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public bool allowsMultipleOutputs = false;
 
 
+		public static ConnectionPointData GetControlPointData(ConnectionType type)
+		{
+			switch (type)
+			{
+				case ConnectionType.ControlFlow:
+					return GetControlFlowTypeData();
+				case ConnectionType.Int:
+					return GetIntTypeData();
+				case ConnectionType.Float:
+					return GetFloatTypeData();
+				case ConnectionType.String:
+					return GetStringTypeData();
+				default:
+					throw new System.Exception("Unexpected ConnectionType " + type);
+			}
+		}
+
 		public static ConnectionPointData GetIntTypeData()
 		{
 			if (intType == null)
@@ -68,6 +85,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			return stringType;
 		}
+
 
 		public static ConnectionPointData GetFloatTypeData()
 		{

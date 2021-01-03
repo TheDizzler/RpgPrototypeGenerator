@@ -25,63 +25,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 			inConnectionPoints = new List<ConnectionPoint>();
 			outConnectionPoints = new List<ConnectionPoint>();
-			inConnectionPoints.Add(null); // reserved for Control Flow In
-			outConnectionPoints.Add(null); // reserved for Control Flow Out
+			//inConnectionPoints.Add(null); // reserved for Control Flow In
+			//outConnectionPoints.Add(null); // reserved for Control Flow Out
 
 			foreach (var connection in nodeData.inputConnections)
 			{
-				switch (connection.type)
-				{
-					case ConnectionType.ControlFlow:
-						inConnectionPoints[0] =
-							new ConnectionPoint(this, ConnectionPointDirection.In,
-								ConnectionPointData.GetControlFlowTypeData(), connection);
-						break;
-					case ConnectionType.Int:
-						inConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.In,
-								ConnectionPointData.GetIntTypeData(), connection));
-						break;
-					case ConnectionType.Float:
-						inConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.In,
-								ConnectionPointData.GetFloatTypeData(), connection));
-						break;
-					case ConnectionType.String:
-						inConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.In,
-								ConnectionPointData.GetStringTypeData(), connection));
-						break;
-				}
+				inConnectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.In, connection));
 			}
 
 
-			for (int i = 0; i < nodeData.outputConnections.Count; ++i)
+			foreach (var connection in nodeData.outputConnections)
 			{
-				var connection = nodeData.outputConnections[i];
-				switch (connection.type)
-				{
-					case ConnectionType.ControlFlow:
-						outConnectionPoints[0] =
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetControlFlowTypeData(), connection);
-						break;
-					case ConnectionType.Int:
-						outConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetIntTypeData(), connection));
-						break;
-					case ConnectionType.Float:
-						outConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetFloatTypeData(), connection));
-						break;
-					case ConnectionType.String:
-						outConnectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetStringTypeData(), connection));
-						break;
-				}
+				outConnectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.Out, connection));
 			}
 		}
 
@@ -91,14 +46,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			if (direction == ConnectionPointDirection.In)
 			{
 				inConnectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.In,
-						ConnectionPointData.GetIntTypeData(), newConn));
+					new ConnectionPoint(this, ConnectionPointDirection.In, newConn));
 			}
 			else
 			{
 				outConnectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.Out,
-						ConnectionPointData.GetIntTypeData(), newConn));
+					new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
 			}
 		}
 

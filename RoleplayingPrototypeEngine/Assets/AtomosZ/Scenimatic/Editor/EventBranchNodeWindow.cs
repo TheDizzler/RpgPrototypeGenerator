@@ -125,13 +125,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			foreach (var conn in inConnectionPoints)
 			{
 				connRect = conn.OnGUI();
-				if (conn.connectionType == ConnectionType.ControlFlow)
+				if (conn.data.type == ConnectionType.ControlFlow)
 					continue;
 
 				connRect.width = rectHalfWidth;
 				connRect.x += 22;
-				connectionLabelStyle.normal.textColor = conn.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.data.type.ToString()), connectionLabelStyle);
 			}
 
 			connectionLabelStyle.alignment = TextAnchor.MiddleRight;
@@ -139,13 +139,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			foreach (var conn in outConnectionPoints)
 			{
 				connRect = conn.OnGUI();
-				if (conn.connectionType == ConnectionType.ControlFlow)
+				if (conn.data.type == ConnectionType.ControlFlow)
 					continue;
 
 				connRect.width = rectHalfWidth;
 				connRect.x -= rectHalfWidth;
-				connectionLabelStyle.normal.textColor = conn.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.data.type.ToString()), connectionLabelStyle);
 			}
 
 

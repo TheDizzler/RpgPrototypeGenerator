@@ -21,34 +21,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		{
 			nodeGraph = graph;
 			connectionPoints = new List<ConnectionPoint>();
-			connectionPoints.Add(null); // reserved for Control Flow Out
 
 			for (int i = 0; i < inputNodeData.connections.Count; ++i)
 			{
 				var connection = inputNodeData.connections[i];
-				switch (connection.type)
-				{
-					case ConnectionType.ControlFlow:
-						connectionPoints[0] =
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetControlFlowTypeData(), connection);
-						break;
-					case ConnectionType.Int:
-						connectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetIntTypeData(), connection));
-						break;
-					case ConnectionType.Float:
-						connectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetFloatTypeData(), connection));
-						break;
-					case ConnectionType.String:
-						connectionPoints.Add(
-							new ConnectionPoint(this, ConnectionPointDirection.Out,
-								ConnectionPointData.GetStringTypeData(), connection));
-						break;
-				}
+				connectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.Out, connection));
 			}
 		}
 
@@ -144,13 +121,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			foreach (var conn in connectionPoints)
 			{
 				connRect = conn.OnGUI();
-				if (conn.connectionType == ConnectionType.ControlFlow)
+				if (conn.data.type == ConnectionType.ControlFlow)
 					continue;
 
 				connRect.width = rectHalfWidth;
 				connRect.x -= rectHalfWidth;
-				connectionLabelStyle.normal.textColor = conn.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.data.type.ToString()), connectionLabelStyle);
 			}
 
 
@@ -188,28 +165,25 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			if (direction == ConnectionPointDirection.Out)
 			{
 				connectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.Out,
-						ConnectionPointData.GetIntTypeData(), newConn));
+					new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
 			}
 		}
 
 		public override void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction)
 		{
+			ConnectionPoint del = null;
+			for (int i = 0; i < connectionPoints.Count; ++i)
 			{
-				ConnectionPoint del = null;
-				for (int i = 0; i < connectionPoints.Count; ++i)
+				if (connectionPoints[i].GUID == conn.GUID)
 				{
-					if (connectionPoints[i].GUID == conn.GUID)
-					{
-						del = connectionPoints[i];
-						break;
-					}
+					del = connectionPoints[i];
+					break;
 				}
-				if (del == null)
-					Debug.LogError("Connection was not found trying to remove " + conn.GUID);
-				else
-					connectionPoints.Remove(del);
 			}
+			if (del == null)
+				Debug.LogError("Connection was not found trying to remove " + conn.GUID);
+			else
+				connectionPoints.Remove(del);
 		}
 
 	}

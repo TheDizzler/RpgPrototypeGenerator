@@ -3,7 +3,6 @@ using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
-using static AtomosZ.UniversalEditorTools.NodeGraph.Connections.ConnectionPointData;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 {
@@ -22,33 +21,25 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public string GUID;
 		public Rect rect;
-
 		public ConnectionPointDirection connectionDirection;
-		public ConnectionType connectionType;
 		public ConnectionPointData data;
 		public GraphEntity nodeWindow;
 		public bool isCreatingNewConnection;
 		public Connection connection;
-		public Color connectionColor;
 		/// <summary>
 		/// MUST be the same type as owner.
 		/// Some connections allow for multiple inputs/outputs.
 		/// </summary>
 		public List<ConnectionPoint> connectedTo = new List<ConnectionPoint>();
 
-
-		
-
-		private ConnectionPointStyle connectionStyles;
 		private GUIStyle currentStyle;
-		private float wireThickness;
 		private bool isHovering;
 		private bool isConnected = false;
 		private bool isValidConnection;
 
 
 		public ConnectionPoint(GraphEntity node,
-			ConnectionPointDirection direction, ConnectionPointData dataType, Connection connection)
+			ConnectionPointDirection direction, Connection connection)
 		{
 			if (nodeGraph == null)
 				throw new System.Exception("ConnectionPoint.nodeGraph MUST be set!");
@@ -57,13 +48,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 			nodeWindow = node;
 			connectionDirection = direction;
-			data = dataType;
-			connectionType = dataType.type;
-			wireThickness = dataType.wireThickness;
 
-			connectionStyles = dataType.connectionPointStyle;
-			currentStyle = connectionStyles.unconnectedStyle;
-			connectionColor = connectionStyles.connectionColor;
+			data = ConnectionPointData.GetControlPointData(connection.type);
+
+			currentStyle = data.connectionPointStyle.unconnectedStyle;
+
 			rect = new Rect(0, 0,
 				currentStyle.normal.background.width,
 				currentStyle.normal.background.height);
@@ -86,7 +75,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			Rect windowRect = nodeWindow.GetRect();
 			float titleBarHeight = nodeWindow.GetTitleLabelRect().height;
 			rect.y = windowRect.y + (connectionOrder * connectionMargin) - (rect.height - titleBarHeight) * .5f;
-			
+
 			switch (connectionDirection)
 			{
 				case ConnectionPointDirection.In:
@@ -152,7 +141,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			else
 			{
 				Color defaultColor = GUI.color;
-				GUI.color = connectionColor;
+				GUI.color = data.connectionPointStyle.connectionColor;
 				GUI.Label(rect, "", currentStyle);
 				GUI.color = defaultColor;
 			}
@@ -168,16 +157,16 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 
 		public void DrawConnections()
 		{
-			Handles.color = connectionColor;
+			Handles.color = data.connectionPointStyle.connectionColor;
 			foreach (var other in connectedTo)
-				Handles.DrawAAPolyLine(wireThickness, rect.center, other.rect.center);
+				Handles.DrawAAPolyLine(data.wireThickness, rect.center, other.rect.center);
 		}
 
 
 		public void DrawConnectionTo(Vector2 mousePosition)
 		{
-			Handles.color = connectionColor;
-			Handles.DrawAAPolyLine(wireThickness, rect.center, mousePosition);
+			Handles.color = data.connectionPointStyle.connectionColor;
+			Handles.DrawAAPolyLine(data.wireThickness, rect.center, mousePosition);
 		}
 
 
@@ -198,8 +187,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public void RemoveConnectionTo(ConnectionPoint otherConnection)
 		{
 			connectedTo.Remove(otherConnection);
-			if (connectionDirection == ConnectionPointDirection.Out)
-				connection.connectedToGUIDs.Remove(otherConnection.GUID);
+			connection.connectedToGUIDs.Remove(otherConnection.GUID);
 
 			isConnected = connectedTo.Count > 0;
 			SetCurrentStyle();
@@ -211,8 +199,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			foreach (var other in connectedTo)
 			{
 				other.RemoveConnectionTo(this);
-				if (connectionDirection == ConnectionPointDirection.Out)
-					connection.connectedToGUIDs.Remove(other.GUID);
+				connection.connectedToGUIDs.Remove(other.GUID);
 			}
 
 			connectedTo.Clear();
@@ -286,13 +273,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		private void SetCurrentStyle()
 		{
 			if (isCreatingNewConnection)
-				currentStyle = connectionStyles.connectedHoverStyle;
+				currentStyle = data.connectionPointStyle.connectedHoverStyle;
 			else if (isHovering)
 				currentStyle = isConnected ?
-					connectionStyles.connectedHoverStyle : connectionStyles.unconnectedHoverStyle;
+					data.connectionPointStyle.connectedHoverStyle : data.connectionPointStyle.unconnectedHoverStyle;
 			else
 				currentStyle = isConnected ?
-					connectionStyles.connectedStyle : connectionStyles.unconnectedStyle;
+					data.connectionPointStyle.connectedStyle : data.connectionPointStyle.unconnectedStyle;
 		}
 	}
 }

@@ -256,7 +256,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			if (startConnection == null || hoveredPoint == startConnection)
 				return true; // no points have been selected or this is the first selected point
-			return (hoveredPoint.connectionType == startConnection.connectionType
+			return (hoveredPoint.data.type == startConnection.data.type
 				&& hoveredPoint.connectionDirection != startConnection.connectionDirection
 				&& hoveredPoint.nodeWindow != startConnection.nodeWindow);
 		}
@@ -272,6 +272,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			startConnection = selectedConnection;
 		}
 
+
 		public void EndPointSelected(ConnectionPoint endPoint)
 		{
 			if (startConnection == null)
@@ -279,7 +280,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				return;
 			}
 
-			if (endPoint.connectionType == startConnection.connectionType
+			if (endPoint.data.type == startConnection.data.type
 				&& endPoint.connectionDirection != startConnection.connectionDirection
 				&& endPoint.nodeWindow != startConnection.nodeWindow)
 			{
