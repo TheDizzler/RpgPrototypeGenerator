@@ -1,5 +1,6 @@
 ﻿using AtomosZ.RPG.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
+using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEditor;
 using UnityEngine;
 
@@ -117,11 +118,48 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			GUI.backgroundColor = defaultColor;
 
+			connectionLabelStyle.alignment = TextAnchor.MiddleLeft;
+			float rectHalfWidth = GetRect().width * .5f;
+			Rect connRect = new Rect();
+
 			foreach (var conn in inConnectionPoints)
-				conn.OnGUI();
+			{
+				connRect = conn.OnGUI();
+				if (conn.connectionType == ConnectionType.ControlFlow)
+					continue;
+
+				connRect.width = rectHalfWidth;
+				connRect.x += 22;
+				connectionLabelStyle.normal.textColor = conn.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+			}
+
+			connectionLabelStyle.alignment = TextAnchor.MiddleRight;
+
 			foreach (var conn in outConnectionPoints)
-				conn.OnGUI();
+			{
+				connRect = conn.OnGUI();
+				if (conn.connectionType == ConnectionType.ControlFlow)
+					continue;
+
+				connRect.width = rectHalfWidth;
+				connRect.x -= rectHalfWidth;
+				connectionLabelStyle.normal.textColor = conn.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+			}
+
+
+			var largest = inConnectionPoints.Count > outConnectionPoints.Count ? inConnectionPoints : outConnectionPoints;
+			if (largest.Count > 1 && largest[largest.Count - 1].rect.yMax > (nodeStyle.size.y + entityData.offset.y))
+			{
+				entityData.windowRect.yMax = largest[largest.Count - 1].rect.yMax + entityData.offset.y;
+			}
+			else // Set rect to min height
+			{
+				entityData.windowRect.yMax = entityData.windowRect.position.y + nodeStyle.size.y;
+			}
 		}
+
 
 		protected override void Selected()
 		{

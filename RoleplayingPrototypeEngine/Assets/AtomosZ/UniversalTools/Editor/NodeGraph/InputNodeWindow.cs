@@ -58,38 +58,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			return nodeName;
 		}
 
-		public override void OnGUI()
-		{
-			Color defaultColor = GUI.backgroundColor;
-
-			if (isSelected)
-			{
-				GUI.backgroundColor = selectedBGColor;
-			}
-			else
-				GUI.backgroundColor = defaultBGColor;
-
-			GUILayout.BeginArea(GetRect(), currentStyle);
-			{
-				GUILayout.BeginVertical(EditorStyles.helpBox);
-				{
-					// Title bar
-					GUILayout.BeginHorizontal(EditorStyles.helpBox);
-					{
-						GUILayout.Label(new GUIContent("Event Start"), titleBarStyle);
-					}
-					GUILayout.EndHorizontal();
-				}
-				GUILayout.EndVertical();
-			}
-			GUILayout.EndArea();
-
-			GUI.backgroundColor = defaultColor;
-
-			foreach (var conn in connectionPoints)
-				conn.OnGUI();
-		}
-
 
 		public override bool ProcessEvents(Event e)
 		{
@@ -139,6 +107,61 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			}
 
 			return saveNeeded;
+		}
+
+		public override void OnGUI()
+		{
+			Color defaultColor = GUI.backgroundColor;
+
+			if (isSelected)
+			{
+				GUI.backgroundColor = selectedBGColor;
+			}
+			else
+				GUI.backgroundColor = defaultBGColor;
+
+			GUILayout.BeginArea(GetRect(), currentStyle);
+			{
+				GUILayout.BeginVertical(EditorStyles.helpBox);
+				{
+					// Title bar
+					GUILayout.BeginHorizontal(EditorStyles.helpBox);
+					{
+						GUILayout.Label(new GUIContent("Event Start"), titleBarStyle);
+					}
+					GUILayout.EndHorizontal();
+				}
+				GUILayout.EndVertical();
+			}
+			GUILayout.EndArea();
+
+			GUI.backgroundColor = defaultColor;
+
+			float rectHalfWidth = GetRect().width * .5f;
+			Rect connRect = new Rect();
+			connectionLabelStyle.alignment = TextAnchor.MiddleRight;
+
+			foreach (var conn in connectionPoints)
+			{
+				connRect = conn.OnGUI();
+				if (conn.connectionType == ConnectionType.ControlFlow)
+					continue;
+
+				connRect.width = rectHalfWidth;
+				connRect.x -= rectHalfWidth;
+				connectionLabelStyle.normal.textColor = conn.connectionColor;
+				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.connectionType.ToString()), connectionLabelStyle);
+			}
+
+
+			if (connectionPoints.Count > 1 && connectionPoints[connectionPoints.Count - 1].rect.yMax > (nodeStyle.size.y + entityData.offset.y))
+			{
+				entityData.windowRect.yMax = connectionPoints[connectionPoints.Count - 1].rect.yMax + entityData.offset.y;
+			}
+			else // Set rect to min height
+			{
+				entityData.windowRect.yMax = entityData.windowRect.position.y + nodeStyle.size.y;
+			}
 		}
 
 
@@ -211,7 +234,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			GUID = serializedData.GUID;
 			connections = serializedData.connections;
 			nodeStyle = new GraphEntityStyle();
-			nodeStyle.Init(new Vector2(250, 100), Color.cyan, Color.blue, Color.blue, Color.white);
+			nodeStyle.Init(new Vector2(250, 50), Color.cyan, Color.blue, Color.blue, Color.white);
 
 			windowRect = new Rect(serializedData.position, nodeStyle.size);
 		}

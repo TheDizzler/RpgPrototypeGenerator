@@ -84,16 +84,17 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		public void ProcessEvents(Event e, int connectionOrder)
 		{
 			Rect windowRect = nodeWindow.GetRect();
-			rect.x = windowRect.x + (connectionOrder * connectionMargin) - rect.width * .5f;
-
+			float titleBarHeight = nodeWindow.GetTitleLabelRect().height;
+			rect.y = windowRect.y + (connectionOrder * connectionMargin) - (rect.height - titleBarHeight) * .5f;
+			
 			switch (connectionDirection)
 			{
 				case ConnectionPointDirection.In:
-					rect.y = windowRect.y - rect.height / 2;
+					rect.x = windowRect.x - rect.width * .5f;
 					break;
 
 				case ConnectionPointDirection.Out:
-					rect.y = windowRect.y - rect.height / 2 + windowRect.height;
+					rect.x = windowRect.x - rect.width * .5f + windowRect.width;
 					break;
 			}
 
@@ -142,7 +143,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 		}
 
-		public void OnGUI()
+		public Rect OnGUI()
 		{
 			if (!isValidConnection)
 			{
@@ -155,6 +156,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				GUI.Label(rect, "", currentStyle);
 				GUI.color = defaultColor;
 			}
+
+			return rect;
 		}
 
 		public bool AllowsMultipleConnections()

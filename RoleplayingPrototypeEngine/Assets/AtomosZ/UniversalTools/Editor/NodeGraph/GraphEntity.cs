@@ -21,6 +21,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 		protected GUIStyle currentStyle;
 		protected GUIStyle titleBarStyle;
+		protected GUIStyle connectionLabelStyle = new GUIStyle(EditorStyles.label);
 		protected Color defaultBGColor;
 		protected Color selectedBGColor;
 		protected bool isDragged;
