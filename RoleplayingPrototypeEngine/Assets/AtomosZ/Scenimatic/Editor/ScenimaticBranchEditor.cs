@@ -248,8 +248,27 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Type:");
 					ConnectionTypeMini type = (ConnectionTypeMini)conn.type;
-					conn.type = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
+					ConnectionType newType = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
+					if (newType != conn.type)
+					{
+						if (!nodeGraph.IsConnected(conn))
+						{
+							conn.type = newType;
+							nodeGraph.RefreshConnection(conn);
+						}
+						else if (EditorUtility.DisplayDialog("Change this input type?",
+							"An input with connections is being changed."
+							+ " If you continue connections will be lost."
+							+ "\nAre you sure?",
+							"Yes", "No"))
+						{
+							nodeGraph.Disconnect(conn);
+							conn.type = newType;
+							nodeGraph.RefreshConnection(conn);
+						}
+					}
 					EditorGUILayout.EndHorizontal();
+
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Name:");
 					conn.data = EditorGUILayout.TextField(conn.data, inputFieldOptions);
@@ -279,7 +298,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			if (nodeGraph.IsConnected(conn))
 			{
-				Debug.LogWarning("An input with connections is being deleted.");
 				if (!EditorUtility.DisplayDialog("Delete this Input?",
 						"An input with connections is being deleted."
 						+ "\nAre you sure?",
@@ -510,7 +528,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				}
 
 				case DeferredCommandType.DeleteInput:
-					nodeGraph.RemoveConnection(command.connection);
+					nodeGraph.RemoveConnectionPoint(command.connection);
 					branchData.RemoveConnectionPoint(
 						command.connection, ConnectionPointDirection.In);
 					break;
@@ -518,7 +536,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				case DeferredCommandType.DeleteEvent:
 					if (command.eventData.eventType == ScenimaticEventType.Query)
 					{
-						nodeGraph.RemoveConnection(command.eventData.connection);
+						nodeGraph.RemoveConnectionPoint(command.eventData.connection);
 						branchData.RemoveConnectionPoint(
 							command.eventData.connection, ConnectionPointDirection.Out);
 

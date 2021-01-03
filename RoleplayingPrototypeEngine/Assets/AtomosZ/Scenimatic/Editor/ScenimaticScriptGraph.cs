@@ -102,7 +102,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			return connectionPoints[connection.GUID].connectedTo.Count != 0;
 		}
 
-		public void RemoveConnection(Connection connection)
+		public void RemoveConnectionPoint(Connection connection)
 		{
 			foreach (var conn in connectionPoints[connection.GUID].connectedTo)
 			{
@@ -111,6 +111,24 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 
 			connectionPoints.Remove(connection.GUID);
+		}
+
+
+		public void Disconnect(Connection conn)
+		{
+			var connPoint = connectionPoints[conn.GUID];
+			foreach (var other in connPoint.connectedTo)
+			{
+				refreshConnections.Add(other);
+				other.RemoveConnectionTo(connPoint);
+			}
+
+			connPoint.RemoveAllConnections();
+		}
+
+		public void RefreshConnection(Connection conn)
+		{
+			connectionPoints[conn.GUID].data = ConnectionPointData.GetControlPointData(conn.type);
 		}
 
 

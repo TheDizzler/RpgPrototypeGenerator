@@ -38,6 +38,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		private bool isValidConnection;
 
 
+		public static void RemoveConnectionBetween(ConnectionPoint connectionPoint1, ConnectionPoint connectionPoint2)
+		{
+			connectionPoint1.RemoveConnectionTo(connectionPoint2);
+			connectionPoint2.RemoveConnectionTo(connectionPoint1);
+		}
+
+
 		public ConnectionPoint(GraphEntity node,
 			ConnectionPointDirection direction, Connection connection)
 		{
@@ -261,12 +268,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 			}
 
 			e.Use();
-		}
-
-		private static void RemoveConnectionBetween(ConnectionPoint connectionPoint1, ConnectionPoint connectionPoint2)
-		{
-			connectionPoint1.RemoveConnectionTo(connectionPoint2);
-			connectionPoint2.RemoveConnectionTo(connectionPoint1);
 		}
 
 
