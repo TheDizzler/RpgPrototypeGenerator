@@ -8,6 +8,7 @@ using AtomosZ.UniversalTools.NodeGraph.Nodes;
 using UnityEditor;
 using UnityEditor.U2D;
 using UnityEngine;
+using UnityEngine.U2D;
 using static AtomosZ.RPG.Scenimatic.Schemas.ScenimaticEvent;
 
 namespace AtomosZ.RPG.Scenimatic.EditorTools
@@ -469,11 +470,25 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 			if (newSprite != eventData.sprite && newSprite != null)
 			{
+				if (nodeGraph.spriteAtlas == null)
+				{
+					
+					string path = EditorUtility.OpenFilePanelWithFilters(
+						"No Sprite Atlas selected. A Sprite Atlas must be selected to continue.",
+						"", new string[] { "SpriteAtlas", "spriteatlas" });
+					if (string.IsNullOrEmpty(path))
+					{
+						Debug.LogError("Sprite Atlas not set. Sprite Atlas must be set to select images.");
+						return;
+					}
+
+					nodeGraph.spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path.Substring(path.IndexOf(@"Assets/")));
+				}
+
 				if (nodeGraph.spriteAtlas.GetPackables().Contains(newSprite))
 				{
 					eventData.sprite = newSprite;
 					eventData.image = newSprite.name;
-					Debug.Log("has");
 				}
 				else
 				{

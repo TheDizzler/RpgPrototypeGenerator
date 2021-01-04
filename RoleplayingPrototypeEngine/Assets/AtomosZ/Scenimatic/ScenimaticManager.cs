@@ -5,6 +5,7 @@ using AtomosZ.RPG.Scenimatic.UI.Panels;
 using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using AtomosZ.UniversalTools.NodeGraph.Nodes;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace AtomosZ.RPG.Scenimatic
 {
@@ -38,7 +39,7 @@ namespace AtomosZ.RPG.Scenimatic
 		/// </summary>
 		private Dictionary<string, ScenimaticBranch> guidBranches;
 		private Dictionary<string, Connection> guidConnectionOutputs;
-		
+
 
 		public void LoadEvent(string path)
 		{
@@ -53,6 +54,8 @@ namespace AtomosZ.RPG.Scenimatic
 			Debug.Log("Using script atlas " + script.spriteAtlas);
 			Debug.Log("First branch: " + script.branches[0].data.branchName + " of " + script.branches.Count);
 			eventInput = script.inputNode;
+			// this is not ideal. It will force users to have their sprite atlas in a resource folder.
+			dialogPanel.spriteAtlas = Resources.Load<SpriteAtlas>(script.spriteAtlas);
 
 			guidBranches = new Dictionary<string, ScenimaticBranch>();
 			guidConnectionOutputs = new Dictionary<string, Connection>();
@@ -116,6 +119,23 @@ namespace AtomosZ.RPG.Scenimatic
 
 			currentBranch = guidBranches[eventInput.connections[0].connectedToGUIDs[0]];
 			Debug.Log("First Branch: " + currentBranch.branchName);
+
+			foreach (var evnt in currentBranch.events)
+			{
+				var eventType = evnt.eventType;
+				switch (eventType)
+				{
+					case ScenimaticEvent.ScenimaticEventType.Dialog:
+						string imageName = evnt.image;
+						string dialogText = evnt.text;
+						ScenimaticEvent dialog = ScenimaticEvent.CreateDialogEvent(dialogText, imageName);
+						eventQueue.Enqueue(dialog);
+						break;
+					default:
+						Debug.Log("Unknown event type: " + eventType);
+						break;
+				}
+			}
 		}
 
 
