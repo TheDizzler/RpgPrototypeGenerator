@@ -38,7 +38,7 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 					{
 						GUID = System.Guid.NewGuid().ToString(),
 						type = ConnectionType.ControlFlow,
-						data = "ControlFlow-Out",
+						variableName = "ControlFlow-Out",
 					}
 				},
 			};

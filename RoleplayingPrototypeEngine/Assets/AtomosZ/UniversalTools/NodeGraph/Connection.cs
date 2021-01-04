@@ -19,10 +19,7 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 		/// </summary>
 		public string GUID;
 		public ConnectionType type;
-		/// <summary>
-		/// All data gets serialized as a string.
-		/// </summary>
-		public string data;
+		public string variableName;
 		/// <summary>
 		/// IDs of connections that data flows TO (i.e. branches in this list get control/data FROM this connection.)
 		/// Therefore, if this an input connection, this list should always be empty.

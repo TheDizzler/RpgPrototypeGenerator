@@ -148,7 +148,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				type = connectionType,
 				GUID = System.Guid.NewGuid().ToString(),
-				data = "temp" + connectionType.ToString(),
+				variableName = "tempName",
 			};
 		}
 
@@ -193,8 +193,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 					if (serializedBranch.connectionInputs.Count > 1)
 						GUILayout.Label("Insert a variable into dialog text "
-							+ "by writing the variable name in '%'. Ex: %"
-							+ serializedBranch.connectionInputs[1].data + "%.");
+							+ "by writing the variable name in curly braces. Ex: {"
+							+ serializedBranch.connectionInputs[1].variableName + "}.");
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
@@ -258,8 +258,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						}
 						else if (EditorUtility.DisplayDialog("Change this input type?",
 							"An input with connections is being changed."
-							+ " If you continue connections will be lost."
-							+ "\nAre you sure?",
+								+ " If you continue connections will be lost."
+								+ "\nAre you sure?",
 							"Yes", "No"))
 						{
 							nodeGraph.Disconnect(conn);
@@ -271,7 +271,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Name:");
-					conn.data = EditorGUILayout.TextField(conn.data, inputFieldOptions);
+					conn.variableName = EditorGUILayout.TextField(conn.variableName, inputFieldOptions);
 					EditorGUILayout.EndHorizontal();
 
 					if (Event.current.type == EventType.ContextClick
@@ -450,7 +450,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					}
 				}
 
-				eventData.connection.data = EditorGUILayout.DelayedTextField(eventData.connection.data);
+				eventData.connection.variableName = EditorGUILayout.DelayedTextField(eventData.connection.variableName);
 			}
 			// this is purposefully left un-Ended!
 		}

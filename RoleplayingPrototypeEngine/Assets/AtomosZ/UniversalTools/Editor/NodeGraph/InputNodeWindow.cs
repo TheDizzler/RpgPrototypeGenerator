@@ -127,7 +127,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 				connRect.width = rectHalfWidth;
 				connRect.x -= rectHalfWidth;
 				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.data, conn.data.type.ToString()), connectionLabelStyle);
+				GUI.Label(connRect, new GUIContent(conn.connection.variableName, conn.data.type.ToString()), connectionLabelStyle);
 			}
 
 
