@@ -19,10 +19,12 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 		// Editor window settings
 		public Vector2 savedScreenSize;
 		public Vector2 savedScreenPos;
+		public int lastSelectedNode = -1;
 
 		// Editor zoomer settings
 		public Vector2 zoomOrigin = Vector2.zero;
 		public float zoomScale = 1;
+		
 
 
 		public ScenimaticScript(string sceneName)

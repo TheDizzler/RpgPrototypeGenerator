@@ -20,7 +20,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private ScenimaticBranchEditor branchEditor;
 		private InputNodeData inputNode;
-		private List<EventBranchObjectData> branchNodes;
+		private List<GraphEntityData> branchNodes;
 
 		private GraphEntityData selectedNode;
 
@@ -65,7 +65,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			ConnectionPoint.nodeGraph = this;
 
 			inputNode = new InputNodeData(this, newScript.inputNode);
-			branchNodes = new List<EventBranchObjectData>();
+			branchNodes = new List<GraphEntityData>();
 			for (int i = 0; i < script.branches.Count; ++i)
 			{
 				ScenimaticSerializedNode branchData = script.branches[i];
@@ -73,7 +73,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				branchNodes.Add(node);
 			}
 
-			branchEditor.LoadBranch(inputNode);
+
+			if (script.lastSelectedNode < 0 || script.lastSelectedNode >= branchNodes.Count)
+				SelectNode(inputNode);
+			else
+				SelectNode(branchNodes[script.lastSelectedNode]);
 		}
 
 
@@ -253,6 +257,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			selectedNode = nodeData;
 			CreateBranchWindow();
 			branchEditor.LoadBranch(selectedNode);
+
+			script.lastSelectedNode = branchNodes.IndexOf(selectedNode);
 		}
 
 

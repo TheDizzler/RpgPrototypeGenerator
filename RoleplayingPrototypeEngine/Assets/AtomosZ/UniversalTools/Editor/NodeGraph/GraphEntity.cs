@@ -205,6 +205,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 		}
 
 
+		public void DrawConnectionWires()
+		{
+			window.DrawConnectionWires();
+		}
+
 
 		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
 		public abstract void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction);

@@ -190,10 +190,5 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			window = new EventBranchNodeWindow(this);
 		}
-
-		public void DrawConnectionWires()
-		{
-			window.DrawConnectionWires();
-		}
 	}
 }

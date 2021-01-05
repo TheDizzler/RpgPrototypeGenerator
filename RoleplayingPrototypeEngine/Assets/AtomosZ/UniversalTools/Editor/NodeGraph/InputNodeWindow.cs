@@ -218,10 +218,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 			window = new InputNodeWindow(nodeGraph, this);
 		}
 
-		public void DrawConnectionWires()
-		{
-			window.DrawConnectionWires();
-		}
 
 		/// <summary>
 		/// Direction is irrelevant in InputNodes as the input (from code) is routed directly to the output connection.
