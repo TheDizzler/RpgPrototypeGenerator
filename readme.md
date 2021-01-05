@@ -1,10 +1,17 @@
 ##TODO
+>- outputs don't update ui when event type changed from Query with ControlFlow
+>- have inputs take the name of the connecting input
+>- inputs check if they are connected
+>- text checks if replacement text exists
+>- add booleans as Input/Output connections
 >- make branches deletable
->- outputs don't update ui when query is deleted
->- outputs don't update ui when query output type is changed
 >- updating InputNode inputs should refresh ScenimaticManager editor
->- allow control flow outputs from queries
 >- connection points currently only hold reference to guids of connections if it's an output. This is fine for control flows but will need to be changed for variables
 >- OutputNode for passing player choices to game
 >- query choices manipulatable at runtime
+
+##Done
 >- ~save last selected branch~
+>- ~outputs don't update ui when query output type is changed~
+~>- outputs don't update ui when query is deleted~
+>- ~allow control flow outputs from queries~
