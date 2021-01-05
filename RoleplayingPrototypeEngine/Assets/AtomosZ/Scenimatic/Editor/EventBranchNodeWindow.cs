@@ -98,19 +98,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						GUILayout.Label(new GUIContent(branch.branchName), titleBarStyle);
 					}
 					GUILayout.EndHorizontal();
-
-					int count = branch.events.Count;
-
-					if (count > 0)
-					{
-						GUILayout.Label(new GUIContent(branch.events[0].eventType.ToString()));
-						if (count > 1)
-						{
-							if (count > 2)
-								GUILayout.Label(new GUIContent("..."));
-							GUILayout.Label(new GUIContent(branch.events[count - 1].eventType.ToString()));
-						}
-					}
 				}
 				GUILayout.EndVertical();
 			}
