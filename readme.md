@@ -1,5 +1,10 @@
 ##TODO
+#BugFixes
 >- outputs don't update ui when event type changed from Query with ControlFlow
+>- when changing Query output type, connections are still drawn
+
+
+#Functionality
 >- have inputs take the name of the connecting input
 >- inputs check if they are connected
 >- text checks if replacement text exists
@@ -13,5 +18,5 @@
 ##Done
 >- ~save last selected branch~
 >- ~outputs don't update ui when query output type is changed~
-~>- outputs don't update ui when query is deleted~
+>- ~outputs don't update ui when query is deleted~
 >- ~allow control flow outputs from queries~
