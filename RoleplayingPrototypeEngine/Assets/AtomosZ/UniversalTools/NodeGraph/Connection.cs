@@ -14,6 +14,9 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 	[System.Serializable]
 	public class Connection
 	{
+		public static readonly string ControlFlowInName = "ControlFlow-In";
+		public static readonly string ControlFlowOutName = "ControlFlow-Out";
+
 		/// <summary>
 		/// A personal identifier for a Connection point.
 		/// Only needs to be unique to the script it belongs to.
@@ -26,5 +29,6 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 		/// Therefore, if this an input connection, this list should always be empty.
 		/// </summary>
 		public List<string> connectedToGUIDs = new List<string>();
+		public bool hide = false;
 	}
 }

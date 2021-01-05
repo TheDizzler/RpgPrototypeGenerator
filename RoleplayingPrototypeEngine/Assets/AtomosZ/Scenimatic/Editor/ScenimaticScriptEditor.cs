@@ -368,7 +368,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					{
 						GUID = System.Guid.NewGuid().ToString(),
 						type = ConnectionType.ControlFlow,
-						variableName = "ControlFlow-In",
+						variableName = Connection.ControlFlowInName,
 					}
 				},
 				connectionOutputs = new List<Connection>()
@@ -377,7 +377,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					{
 						GUID = System.Guid.NewGuid().ToString(),
 						type = ConnectionType.ControlFlow,
-						variableName = "ControlFlow-Out",
+						variableName = Connection.ControlFlowOutName,
 					}
 				},
 				data = new ScenimaticBranch()

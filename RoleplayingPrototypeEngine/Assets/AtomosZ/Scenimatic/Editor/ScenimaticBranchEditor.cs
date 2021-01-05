@@ -50,6 +50,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		private GUILayoutOption[] inputFieldOptions = { GUILayout.MaxWidth(60), GUILayout.MinWidth(40), };
 
 
+
 		private void OnEnable()
 		{
 			window = this;
@@ -150,17 +151,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				GUI.backgroundColor = defaultColor;
 			}
 			EditorGUILayout.EndVertical();
-		}
-
-
-		private static Connection CreateNewConnection(ConnectionType connectionType)
-		{
-			return new Connection()
-			{
-				type = connectionType,
-				GUID = System.Guid.NewGuid().ToString(),
-				variableName = "tempName",
-			};
 		}
 
 
@@ -426,6 +416,22 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		private void QueryEventEdit(ScenimaticEvent eventData)
 		{
+			if (eventData.connections == null || eventData.connections.Count == 0)
+			{
+				if (eventData.outputGUIDs == null)
+					return;
+				List<Connection> connections = new List<Connection>();
+				foreach (string guid in eventData.outputGUIDs)
+				{
+					Connection conn = serializedBranch.GetOutputConnectionByGUID(guid);
+					if (conn == null)// this will be null the first time
+						return;
+					connections.Add(conn);
+				}
+
+				eventData.connections = connections;
+			}
+
 			EditorGUILayout.BeginVertical();
 			{
 				int size = eventData.options.Count;
@@ -436,7 +442,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 					if (size > 1 && size < MAX_QUERY_CHOICES && size != eventData.options.Count)
 					{
-						ConnectionType outputType = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID).type;
+						ConnectionType outputType = eventData.connections[0].type;
 						while (size > eventData.options.Count)
 						{
 							eventData.options.Add("");
@@ -474,7 +480,14 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 							EditorGUILayout.EndHorizontal();
 							EditorGUILayout.BeginHorizontal();
 						}
-						eventData.options[i] = EditorGUILayout.DelayedTextField(eventData.options[i]);
+
+						string newChoiceText = EditorGUILayout.DelayedTextField(eventData.options[i]);
+						eventData.options[i] = newChoiceText;
+
+						if (eventData.connections[0].type == ConnectionType.ControlFlow && eventData.connections.Count == eventData.options.Count)
+						{
+							eventData.connections[i].variableName = newChoiceText;
+						}
 					}
 				}
 				EditorGUILayout.EndHorizontal();
@@ -484,25 +497,9 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(375));
 			{
-				if (eventData.connections == null || eventData.connections.Count == 0)
-				{
-					if (eventData.outputGUIDs == null)
-						return;
-					List<Connection> connections = new List<Connection>();
-					foreach (string guid in eventData.outputGUIDs)
-					{
-						Connection conn = serializedBranch.GetOutputConnectionByGUID(guid);
-						if (conn == null)// this will be null the first time
-							return;
-						connections.Add(conn);
-					}
-
-					eventData.connections = connections;
-				}
-
 				EditorGUILayout.LabelField("Output as:", GUILayout.Width(70));
 
-				ConnectionType outputType = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID).type;
+				ConnectionType outputType = eventData.connections[0].type;
 				ConnectionType newConnType = (ConnectionType)EditorGUILayout.EnumPopup(
 					(SelectableQueryOutputConnectionType)outputType, GUILayout.Width(100));
 				if (newConnType != outputType)
@@ -528,7 +525,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					if (isChanging)
 					{
 						if (outputType == ConnectionType.ControlFlow)
-						{   // if output was ControlFlow, delete extra outputs
+						{   // if output was ControlFlow, delete extra outputs and unhide the default out ControlFlow
 							for (int i = eventData.outputGUIDs.Count - 1; i > 0; --i) // first one will still be used
 							{
 								deferredCommandQueue.Enqueue(
@@ -536,15 +533,19 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 										serializedBranch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
 										DeferredCommandType.DeleteControlFlowOutputConnection));
 							}
+
+							serializedBranch.connectionOutputs[0].hide = false;
 						}
 						else if (newConnType == ConnectionType.ControlFlow)
-						{   // if output is becoming ControlFlow, add extra outputs
+						{   // if output is becoming ControlFlow, add extra outputs and hide the default out ControlFlow
 							for (int i = 1; i < eventData.options.Count; ++i) // first one is already made
 							{
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(
 										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
 							}
+
+							serializedBranch.connectionOutputs[0].hide = true;
 						}
 
 						Connection conn = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID);
@@ -559,7 +560,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					eventData.connections[0].variableName = EditorGUILayout.DelayedTextField(eventData.connections[0].variableName);
 				}
 			}
-			// this is purposefully left un-Ended!
+			// !this Layout is purposefully left un-Ended! (it's ended after the function ends)
 		}
 
 
@@ -666,6 +667,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						if (!branch.events.Remove(command.eventData))
 							Debug.LogWarning(
 								"Could not find ConnectionPoint in ScenimaticBranch");
+
+						serializedBranch.connectionOutputs[0].hide = false; // just in case
 					}
 
 					branch.events.Remove(command.eventData);
@@ -710,6 +713,18 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					break;
 			}
 		}
+
+
+		private static Connection CreateNewConnection(ConnectionType connectionType)
+		{
+			return new Connection()
+			{
+				type = connectionType,
+				GUID = System.Guid.NewGuid().ToString(),
+				variableName = "tempName",
+			};
+		}
+
 
 		public enum DeferredCommandType
 		{

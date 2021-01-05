@@ -30,7 +30,8 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			for (int i = 0; i < inConnectionPoints.Count; ++i)
 				inConnectionPoints[i].ProcessEvents(e, i);
 			for (int i = 0; i < outConnectionPoints.Count; ++i)
-				outConnectionPoints[i].ProcessEvents(e, i);
+				if (!outConnectionPoints[i].connection.hide)
+					outConnectionPoints[i].ProcessEvents(e, i);
 
 			switch (e.type)
 			{
@@ -117,22 +118,31 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 				connRect.width = rectHalfWidth;
 				connRect.x += 22;
-				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.variableName, conn.data.type.ToString()), connectionLabelStyle);
+				connectionLabelStyle.normal.textColor = 
+					conn.data.connectionPointStyle.connectionColor;
+				GUI.Label(connRect, 
+					new GUIContent(conn.connection.variableName, conn.data.type.ToString()), 
+					connectionLabelStyle);
 			}
 
 			connectionLabelStyle.alignment = TextAnchor.MiddleRight;
 
 			foreach (var conn in outConnectionPoints)
 			{
+				if (conn.connection.hide)
+					continue;
 				connRect = conn.OnGUI();
-				if (conn.data.type == ConnectionType.ControlFlow)
+				if (conn.data.type == ConnectionType.ControlFlow 
+					&& conn.connection.variableName == Connection.ControlFlowOutName)
 					continue;
 
 				connRect.width = rectHalfWidth;
 				connRect.x -= rectHalfWidth;
-				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
-				GUI.Label(connRect, new GUIContent(conn.connection.variableName, conn.data.type.ToString()), connectionLabelStyle);
+				connectionLabelStyle.normal.textColor = 
+					conn.data.connectionPointStyle.connectionColor;
+				GUI.Label(connRect, 
+					new GUIContent(conn.connection.variableName, conn.data.type.ToString()), 
+					connectionLabelStyle);
 			}
 
 

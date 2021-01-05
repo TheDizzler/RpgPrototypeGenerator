@@ -25,8 +25,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
 
 			inConnectionPoints = new List<ConnectionPoint>();
 			outConnectionPoints = new List<ConnectionPoint>();
-			//inConnectionPoints.Add(null); // reserved for Control Flow In
-			//outConnectionPoints.Add(null); // reserved for Control Flow Out
 
 			foreach (var connection in nodeData.inputConnections)
 			{
