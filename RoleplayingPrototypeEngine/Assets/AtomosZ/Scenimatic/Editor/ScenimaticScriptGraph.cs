@@ -132,7 +132,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 		public void RefreshConnection(Connection conn)
 		{
-			connectionPoints[conn.GUID].data = ConnectionPointData.GetControlPointData(conn.type);
+			connectionPoints[conn.GUID].SetData(ConnectionPointData.GetControlPointData(conn.type));
 		}
 
 

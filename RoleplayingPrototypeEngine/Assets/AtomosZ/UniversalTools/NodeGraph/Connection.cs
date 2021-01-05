@@ -10,6 +10,7 @@ namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
 		String = 3,
 	}
 
+
 	[System.Serializable]
 	public class Connection
 	{

@@ -57,7 +57,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		{
 			if (!EditorWindow.HasOpenInstances<ScenimaticScriptEditor>())
 			{
-				Debug.LogWarning("Making new window");
 				window = GetWindow<ScenimaticScriptEditor>();
 				window.titleContent = new GUIContent("Scenimatic Editor");
 				window.minSize = new Vector2(400, 400);
@@ -65,7 +64,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 			else if (window == null)
 			{
-				Debug.LogWarning("Window is open but lost refernce...");
 				window = GetWindow<ScenimaticScriptEditor>();
 			}
 

@@ -18,13 +18,22 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 	/// </summary>
 	public class ScenimaticBranchEditor : EditorWindow
 	{
-		private enum ConnectionTypeMini
+		private enum SelectableInputConnectionType
 		{
 			Int = 1,
 			Float = 2,
 			String = 3,
 		}
 
+		private enum SelectableQueryOutputConnectionType
+		{
+			ControlFlow = 0,
+			Int = 1,
+			String = 3,
+		}
+
+
+		private const int MAX_QUERY_CHOICES = 10;
 
 		private static ScenimaticBranchEditor window;
 
@@ -143,6 +152,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorGUILayout.EndVertical();
 		}
 
+
 		private static Connection CreateNewConnection(ConnectionType connectionType)
 		{
 			return new Connection()
@@ -152,6 +162,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				variableName = "tempName",
 			};
 		}
+
 
 		private void BranchEventView()
 		{
@@ -248,25 +259,11 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				{
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Type:");
-					ConnectionTypeMini type = (ConnectionTypeMini)conn.type;
+					SelectableInputConnectionType type = (SelectableInputConnectionType)conn.type;
 					ConnectionType newType = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
 					if (newType != conn.type)
 					{
-						if (!nodeGraph.IsConnected(conn))
-						{
-							conn.type = newType;
-							nodeGraph.RefreshConnection(conn);
-						}
-						else if (EditorUtility.DisplayDialog("Change this input type?",
-							"An input with connections is being changed."
-								+ " If you continue connections will be lost."
-								+ "\nAre you sure?",
-							"Yes", "No"))
-						{
-							nodeGraph.Disconnect(conn);
-							conn.type = newType;
-							nodeGraph.RefreshConnection(conn);
-						}
+						ChangeConnectionTypeWarning(conn, newType);
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -291,6 +288,36 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		}
 
 		/// <summary>
+		/// Returns true if change was made.
+		/// </summary>
+		/// <param name="conn"></param>
+		/// <param name="newType"></param>
+		/// <returns></returns>
+		private bool ChangeConnectionTypeWarning(Connection conn, ConnectionType newType)
+		{
+			if (!nodeGraph.IsConnected(conn))
+			{
+				conn.type = newType;
+				nodeGraph.RefreshConnection(conn);
+				return true;
+			}
+			else if (EditorUtility.DisplayDialog("Change this input type?",
+				"An input with connections is being changed."
+					+ " If you continue connections will be lost."
+					+ "\nAre you sure?",
+				"Yes", "No"))
+			{
+				nodeGraph.Disconnect(conn);
+				conn.type = newType;
+				nodeGraph.RefreshConnection(conn);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		/// <summary>
 		/// Returns false if user declines to delete existing connection.
 		/// </summary>
 		/// <param name="conn"></param>
@@ -307,7 +334,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			}
 
 			deferredCommandQueue.Enqueue(
-				new DeferredCommand(conn, DeferredCommandType.DeleteInput, ConnectionType.ControlFlow));
+				new DeferredCommand(conn, DeferredCommandType.DeleteInput));
 
 			return true;
 		}
@@ -407,14 +434,30 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					GUILayout.Label("Choices:");
 					size = EditorGUILayout.DelayedIntField(size, GUILayout.MaxWidth(20));
 
-					if (size != eventData.options.Count)
+					if (size > 1 && size < MAX_QUERY_CHOICES && size != eventData.options.Count)
 					{
+						ConnectionType outputType = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID).type;
 						while (size > eventData.options.Count)
 						{
 							eventData.options.Add("");
+
+							if (outputType == ConnectionType.ControlFlow)
+							{ // add new output
+								deferredCommandQueue.Enqueue(
+									new DeferredCommand(
+										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
+							}
 						}
 						while (size < eventData.options.Count)
 						{
+							if (outputType == ConnectionType.ControlFlow)
+							{ // remove output
+								deferredCommandQueue.Enqueue(
+									new DeferredCommand(eventData,
+										eventData.connections[eventData.options.Count - 1],
+										DeferredCommandType.DeleteControlFlowOutputConnection));
+							}
+
 							eventData.options.RemoveAt(eventData.options.Count - 1);
 						}
 					}
@@ -424,7 +467,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 
 				EditorGUILayout.BeginHorizontal();
 				{
-					for (int i = 0; i < size; ++i)
+					for (int i = 0; i < eventData.options.Count; ++i)
 					{
 						if (i % 4 == 0)
 						{
@@ -439,19 +482,82 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			EditorGUILayout.EndVertical();
 
 			EditorGUILayout.EndHorizontal();
-			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(275));
+			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(375));
 			{
-				EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
-				if (eventData.connection == null)
+				if (eventData.connections == null || eventData.connections.Count == 0)
 				{
-					eventData.connection = serializedBranch.GetOutputConnectionByGUID(eventData.linkedOutputGUID);
-					if (eventData.connection == null)
-					{ // this will be null the first time
+					if (eventData.outputGUIDs == null)
 						return;
+					List<Connection> connections = new List<Connection>();
+					foreach (string guid in eventData.outputGUIDs)
+					{
+						Connection conn = serializedBranch.GetOutputConnectionByGUID(guid);
+						if (conn == null)// this will be null the first time
+							return;
+						connections.Add(conn);
+					}
+
+					eventData.connections = connections;
+				}
+
+				EditorGUILayout.LabelField("Output as:", GUILayout.Width(70));
+
+				ConnectionType outputType = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID).type;
+				ConnectionType newConnType = (ConnectionType)EditorGUILayout.EnumPopup(
+					(SelectableQueryOutputConnectionType)outputType, GUILayout.Width(100));
+				if (newConnType != outputType)
+				{
+					bool isChanging = true;
+					foreach (var conn in eventData.connections)
+					{ // check if anything still connected so we can warn the user
+						if (nodeGraph.IsConnected(conn))
+						{ // show warning
+							if (!EditorUtility.DisplayDialog("Change this output type?",
+								"An output with connections is being changed."
+									+ " If you continue, connections will be lost."
+									+ "\nAre you sure?",
+								"Yes", "No"))
+							{
+								isChanging = false;
+							}
+
+							break;
+						}
+					}
+
+					if (isChanging)
+					{
+						if (outputType == ConnectionType.ControlFlow)
+						{   // if output was ControlFlow, delete extra outputs
+							for (int i = eventData.outputGUIDs.Count - 1; i > 0; --i) // first one will still be used
+							{
+								deferredCommandQueue.Enqueue(
+									new DeferredCommand(eventData,
+										serializedBranch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
+										DeferredCommandType.DeleteControlFlowOutputConnection));
+							}
+						}
+						else if (newConnType == ConnectionType.ControlFlow)
+						{   // if output is becoming ControlFlow, add extra outputs
+							for (int i = 1; i < eventData.options.Count; ++i) // first one is already made
+							{
+								deferredCommandQueue.Enqueue(
+									new DeferredCommand(
+										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
+							}
+						}
+
+						Connection conn = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID);
+						conn.type = newConnType;
+						nodeGraph.RefreshConnection(conn);
 					}
 				}
 
-				eventData.connection.variableName = EditorGUILayout.DelayedTextField(eventData.connection.variableName);
+				if (outputType != ConnectionType.ControlFlow)
+				{
+					EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
+					eventData.connections[0].variableName = EditorGUILayout.DelayedTextField(eventData.connections[0].variableName);
+				}
 			}
 			// this is purposefully left un-Ended!
 		}
@@ -472,7 +578,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			{
 				if (nodeGraph.spriteAtlas == null)
 				{
-					
 					string path = EditorUtility.OpenFilePanelWithFilters(
 						"No Sprite Atlas selected. A Sprite Atlas must be selected to continue.",
 						"", new string[] { "SpriteAtlas", "spriteatlas" });
@@ -551,15 +656,16 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				case DeferredCommandType.DeleteEvent:
 					if (command.eventData.eventType == ScenimaticEventType.Query)
 					{
-						nodeGraph.RemoveConnectionPoint(command.eventData.connection);
-						branchData.RemoveConnectionPoint(
-							command.eventData.connection, ConnectionPointDirection.Out);
+						foreach (var conn in command.eventData.connections)
+						{
+							nodeGraph.RemoveConnectionPoint(conn);
+							branchData.RemoveConnectionPoint(
+								conn, ConnectionPointDirection.Out);
+						}
 
 						if (!branch.events.Remove(command.eventData))
 							Debug.LogWarning(
-								"Could not find ConnectionPoint "
-									+ command.eventData.linkedOutputGUID
-									+ " in ScenimaticBranch");
+								"Could not find ConnectionPoint in ScenimaticBranch");
 					}
 
 					branch.events.Remove(command.eventData);
@@ -569,12 +675,34 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					break;
 
 				case DeferredCommandType.CreateOutputConnection:
-					var newConn = CreateNewConnection(ConnectionType.Int);
+					if (command.eventData.outputGUIDs != null && command.eventData.outputGUIDs.Count > 1)
+						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
+					if (command.eventData.connections != null && command.eventData.connections.Count > 1)
+						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
 
+					var newConn = CreateNewConnection(ConnectionType.Int);
 					branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
-					// an Input node does not have event data, so this will be null
-					command.eventData.linkedOutputGUID = newConn.GUID;
-					command.eventData.connection = newConn;
+
+					command.eventData.outputGUIDs = new List<string>();
+					command.eventData.outputGUIDs.Add(newConn.GUID);
+					command.eventData.connections = new List<Connection>();
+					command.eventData.connections.Add(newConn);
+					break;
+
+				case DeferredCommandType.CreateControlFlowOutputConnection:
+					var newControlFlow = CreateNewConnection(ConnectionType.ControlFlow);
+					branchData.AddNewConnectionPoint(newControlFlow, ConnectionPointDirection.Out);
+					command.eventData.outputGUIDs.Add(newControlFlow.GUID);
+					command.eventData.connections.Add(newControlFlow);
+					break;
+
+				case DeferredCommandType.DeleteControlFlowOutputConnection:
+					nodeGraph.RemoveConnectionPoint(command.connection);
+					branchData.RemoveConnectionPoint(
+						 command.connection, ConnectionPointDirection.Out);
+					serializedBranch.connectionOutputs.Remove(command.connection);
+					command.eventData.outputGUIDs.Remove(command.connection.GUID);
+					command.eventData.connections.Remove(command.connection);
 					break;
 
 				default:
@@ -589,6 +717,14 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			DeleteInput,
 			DeleteEvent,
 			CreateOutputConnection,
+			/// <summary>
+			/// For creating extra control flows from a Query event.
+			/// </summary>
+			CreateControlFlowOutputConnection,
+			/// <summary>
+			/// For deleting control flows from a Query event.
+			/// </summary>
+			DeleteControlFlowOutputConnection,
 		};
 
 		private class DeferredCommand
@@ -596,7 +732,6 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 			public ScenimaticEvent eventData;
 			public DeferredCommandType commandType;
 			public Connection connection;
-			public ConnectionType connectionType;
 
 
 			public DeferredCommand(ScenimaticEvent eventData, DeferredCommandType commandType)
@@ -605,11 +740,17 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 				this.commandType = commandType;
 			}
 
-			public DeferredCommand(Connection conn, DeferredCommandType commandType, ConnectionType connType)
+			public DeferredCommand(Connection connection, DeferredCommandType commandType)
 			{
-				this.connection = conn;
+				this.connection = connection;
 				this.commandType = commandType;
-				connectionType = connType;
+			}
+
+			public DeferredCommand(ScenimaticEvent eventData, Connection connection, DeferredCommandType commandType)
+			{
+				this.eventData = eventData;
+				this.connection = connection;
+				this.commandType = commandType;
 			}
 		}
 	}

@@ -40,6 +40,7 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 			TextInput,
 		}
 
+
 		// variables for all Scenimatics
 		public ScenimaticEventType eventType = ScenimaticEventType.Unknown;
 		public bool haltsQueueUntilFinished = false;
@@ -50,22 +51,28 @@ namespace AtomosZ.RPG.Scenimatic.Schemas
 		/// </summary>
 		public string image = string.Empty;
 		public string text;
-
-		//  Query variables
-		public List<string> options;
-		public string linkedOutputGUID;
-
-		// Non-Serialized members.
+#if UNITY_EDITOR
 		/// <summary>
-		/// This is for convenience only. This does not get serialized.
-		/// </summary>
-		[NonSerialized]
-		public Connection connection;
-		/// <summary>
-		/// This is for convenience only. This does not get serialized.
+		/// !This is for EDITOR convenience only. This does not get serialized!
 		/// </summary>
 		[NonSerialized]
 		public Sprite sprite;
+#endif
+
+
+		//  Query variables
+		public List<string> options;
+		/// <summary>
+		/// The GUIDs associated with the options. If outputType is not ControlFlow, this is always length 1.
+		/// </summary>
+		public List<string> outputGUIDs;
+#if UNITY_EDITOR
+		/// <summary>
+		/// !This is for EDITOR convenience only. This does not get serialized!
+		/// </summary>
+		[NonSerialized]
+		public List<Connection> connections;
+#endif
 
 
 		public static ScenimaticEvent CreateEmpytEvent()

@@ -71,6 +71,15 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 		}
 
 
+		public void SetData(ConnectionPointData connectionPointData)
+		{
+			data = ConnectionPointData.GetControlPointData(connection.type);
+			SetCurrentStyle();
+			rect = new Rect(0, 0,
+				currentStyle.normal.background.width,
+				currentStyle.normal.background.height);
+		}
+
 		/// <summary>
 		/// Returns true if mouse event used.
 		/// Note: this does not set the event to used, as consuming the input will prevent
@@ -138,6 +147,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
 				isValidConnection = true;
 			}
 		}
+
 
 		public Rect OnGUI()
 		{
