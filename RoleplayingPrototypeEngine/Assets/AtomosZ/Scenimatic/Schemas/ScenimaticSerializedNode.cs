@@ -1,6 +1,6 @@
-﻿using AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas;
+﻿using AtomosZ.UniversalTools.NodeGraph.Schemas;
 
-namespace AtomosZ.RPG.Scenimatic.Schemas
+namespace AtomosZ.Scenimatic.Schemas
 {
 	[System.Serializable]
 	public class ScenimaticSerializedNode : SerializedNode<ScenimaticBranch> { }

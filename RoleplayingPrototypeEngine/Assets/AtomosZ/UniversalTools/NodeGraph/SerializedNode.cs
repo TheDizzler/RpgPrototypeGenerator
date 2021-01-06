@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
 using UnityEngine;
 
-namespace AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas
+namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 {
 	[System.Serializable]
 	public class SerializedNode<T>

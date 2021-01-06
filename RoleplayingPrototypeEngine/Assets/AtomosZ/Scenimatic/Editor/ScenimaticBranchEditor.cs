@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AtomosZ.RPG.Scenimatic.Schemas;
-using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
-using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
-using AtomosZ.UniversalTools.NodeGraph.Nodes;
+using AtomosZ.Scenimatic.Schemas;
+using AtomosZ.UniversalEditorTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
+using AtomosZ.UniversalTools.NodeGraph;
 using UnityEditor;
 using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.U2D;
-using static AtomosZ.RPG.Scenimatic.Schemas.ScenimaticEvent;
+using static AtomosZ.Scenimatic.Schemas.ScenimaticEvent;
 
-namespace AtomosZ.RPG.Scenimatic.EditorTools
+namespace AtomosZ.Scenimatic.EditorTools
 {
 	/// <summary>
 	/// Slave to ScenimaticScriptEditor.

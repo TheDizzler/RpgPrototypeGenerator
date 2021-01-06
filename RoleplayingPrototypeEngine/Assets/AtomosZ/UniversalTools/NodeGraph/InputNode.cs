@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 
-namespace AtomosZ.UniversalTools.NodeGraph.Nodes
+namespace AtomosZ.UniversalTools.NodeGraph
 {
 	[System.Serializable]
 	public class InputNode

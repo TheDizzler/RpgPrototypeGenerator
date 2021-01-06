@@ -1,10 +1,10 @@
-﻿using AtomosZ.RPG.Scenimatic.Schemas;
-using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+﻿using AtomosZ.Scenimatic.Schemas;
+using AtomosZ.UniversalEditorTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Scenimatic.EditorTools
+namespace AtomosZ.Scenimatic.EditorTools
 {
 	public class EventBranchNodeWindow : NodeWindow<ScenimaticBranch>
 	{

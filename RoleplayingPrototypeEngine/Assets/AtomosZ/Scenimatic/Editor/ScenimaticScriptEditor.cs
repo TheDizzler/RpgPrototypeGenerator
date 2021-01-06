@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using AtomosZ.RPG.Scenimatic.Schemas;
+using AtomosZ.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
 
-namespace AtomosZ.RPG.Scenimatic.EditorTools
+namespace AtomosZ.Scenimatic.EditorTools
 {
 	public class ScenimaticScriptEditor : EditorWindow
 	{

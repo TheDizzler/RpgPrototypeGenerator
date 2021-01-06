@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
 using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
-using AtomosZ.UniversalTools.NodeGraph.Nodes;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
+using AtomosZ.UniversalTools.NodeGraph;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public class InputNodeWindow : GraphEntity
 	{

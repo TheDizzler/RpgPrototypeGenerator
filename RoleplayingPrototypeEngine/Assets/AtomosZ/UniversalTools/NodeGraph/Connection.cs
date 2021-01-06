@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AtomosZ.UniversalTools.NodeGraph.Connections.Schemas
+namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 {
 	public enum ConnectionType
 	{

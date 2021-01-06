@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
-using AtomosZ.UniversalTools.NodeGraph.Nodes.Schemas;
-using UnityEditor;
+﻿using System.Collections.Generic;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	/// <summary>
 	/// A generic draggable window box with inputs and outputs.

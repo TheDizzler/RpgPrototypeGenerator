@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using AtomosZ.RPG.Scenimatic.Schemas;
-using AtomosZ.RPG.Scenimatic.UI.Panels;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
-using AtomosZ.UniversalTools.NodeGraph.Nodes;
+using AtomosZ.Scenimatic.Schemas;
+using AtomosZ.Scenimatic.UI.Panels;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
+using AtomosZ.UniversalTools.NodeGraph;
 using UnityEngine;
 using UnityEngine.U2D;
 
-namespace AtomosZ.RPG.Scenimatic
+namespace AtomosZ.Scenimatic
 {
 	/// <summary>
 	/// Responsibilities:

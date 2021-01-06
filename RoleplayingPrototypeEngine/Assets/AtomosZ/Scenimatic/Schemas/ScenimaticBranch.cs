@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AtomosZ.RPG.Scenimatic.Schemas
+namespace AtomosZ.Scenimatic.Schemas
 {
 	[System.Serializable]
 	public class ScenimaticBranch

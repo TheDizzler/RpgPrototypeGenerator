@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-namespace AtomosZ.RPG.Scenimatic.UI.Panels
+namespace AtomosZ.Scenimatic.UI.Panels
 {
 	/// <summary>
 	/// Duties of DialogPanel:

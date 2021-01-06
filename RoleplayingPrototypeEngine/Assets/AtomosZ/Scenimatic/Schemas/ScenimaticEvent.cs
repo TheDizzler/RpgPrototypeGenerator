@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Scenimatic.Schemas
+namespace AtomosZ.Scenimatic.Schemas
 {
 	[System.Serializable]
 	public class ScenimaticEvent

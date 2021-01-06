@@ -1,8 +1,8 @@
-﻿using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+﻿using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public class ConnectionPointData
 	{

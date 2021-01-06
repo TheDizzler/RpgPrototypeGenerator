@@ -1,10 +1,9 @@
-﻿using AtomosZ.UniversalEditorTools.NodeGraph.Connections;
-using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+﻿using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.NodeGraph.Nodes
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	/// <summary>
 	/// A generic draggable window box that appears in an editor window (usually a ZoomWindow).

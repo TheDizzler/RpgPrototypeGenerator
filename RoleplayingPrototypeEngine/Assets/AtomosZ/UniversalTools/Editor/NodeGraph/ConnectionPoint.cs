@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.UniversalEditorTools.NodeGraph.Nodes;
-using AtomosZ.UniversalTools.NodeGraph.Connections.Schemas;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
-namespace AtomosZ.UniversalEditorTools.NodeGraph.Connections
+namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public enum ConnectionPointDirection { In, Out }
 
