@@ -7,16 +7,14 @@ using UnityEngine;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
-	public class InputNodeWindow : GraphEntity
+	public class InputNodeEntity : GraphEntity
 	{
+		protected List<ConnectionPoint> connectionPoints;
 		private InputNode inputNode;
 
-		protected List<ConnectionPoint> connectionPoints;
 
 
-
-
-		public InputNodeWindow(InputNodeData inputNodeData, INodeGraph graph) : base(inputNodeData, graph)
+		public InputNodeEntity(InputNodeData inputNodeData, INodeGraph graph) : base(inputNodeData, graph)
 		{
 			connectionPoints = new List<ConnectionPoint>();
 
@@ -210,7 +208,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected override void CreateWindow()
 		{
-			window = new InputNodeWindow(this, nodeGraph);
+			window = new InputNodeEntity(this, nodeGraph);
 		}
 
 
