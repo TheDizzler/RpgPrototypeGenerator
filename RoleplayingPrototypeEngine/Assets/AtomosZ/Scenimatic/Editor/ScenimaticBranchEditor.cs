@@ -126,6 +126,13 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						DrawInputBox(serializedInput.connections[i]);
 					}
+
+					GUI.backgroundColor = defaultColor;
+					if (GUILayout.Button("+"))
+					{
+						Connection newConn = CreateNewConnection(ConnectionType.Int);
+						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+					}
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
@@ -172,11 +179,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						DrawInputBox(serializedBranch.connectionInputs[i]);
 					}
+
+					GUI.backgroundColor = defaultColor;
+					if (GUILayout.Button("+"))
+					{
+						Connection newConn = CreateNewConnection(ConnectionType.Int);
+						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+					}
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
-
-				GUI.backgroundColor = defaultColor;
 			}
 			EditorGUILayout.EndVertical();
 
@@ -210,9 +222,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				while (size < newSize)
 				{
 					Connection remove = connections[newSize--];
-					if (!DeleteInput(remove, confirmed))
-						break;
-					confirmed = true;
+					DeleteInput(remove, ref confirmed);
 				}
 			}
 		}
@@ -255,8 +265,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 						&& clickArea.Contains(Event.current.mousePosition))
 					{
 						GenericMenu menu = new GenericMenu();
+						bool ignore = false;
 						menu.AddItem(new GUIContent("Delete Input"), false,
-							() => DeleteInput(conn, false));
+							() => DeleteInput(conn, ref ignore));
 						menu.ShowAsContext();
 
 						Event.current.Use();
@@ -301,7 +312,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		/// </summary>
 		/// <param name="conn"></param>
 		/// <returns></returns>
-		private bool DeleteInput(Connection conn, bool skipConfirm)
+		private void DeleteInput(Connection conn, ref bool skipConfirm)
 		{
 			if (nodeGraph.IsConnected(conn))
 			{
@@ -309,13 +320,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 						"An input with connections is being deleted."
 							+ "\nAre you sure?",
 						"Yes", "No"))
-					return false;
+					return;
+				skipConfirm = true;
 			}
 
 			deferredCommandQueue.Enqueue(
 				new DeferredCommand(conn, DeferredCommandType.DeleteInput));
-
-			return true;
 		}
 
 
