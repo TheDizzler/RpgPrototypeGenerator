@@ -170,9 +170,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 				{
 					foreach (var connGUID in cp.connection.connectedToGUIDs)
 					{
-						var otherCP = connectionPoints[connGUID];
-						otherCP.ConnectTo(cp);
-						cp.ConnectTo(otherCP);
+						try
+						{
+							var otherCP = connectionPoints[connGUID];
+							otherCP.ConnectTo(cp);
+							cp.ConnectTo(otherCP);
+						}
+							catch (System.Exception)
+						{
+							Debug.Log("Could not find GUID " + connGUID);
+						}
 					}
 				}
 
