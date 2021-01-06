@@ -370,7 +370,25 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 						switch (eventType)
 						{
 							case ScenimaticEventType.Dialog:
-								eventData = CreateDialogEvent("Dialog Text here", "Image name here");
+								if (ConfirmChangeOutputType(eventData.connections))
+								{
+									if (eventData.eventType == ScenimaticEventType.Query)
+									{   // cleanup outputs, especially if it was a Control Flow
+										for (int i = eventData.outputGUIDs.Count - 1; i >= 0; --i)
+										{
+											deferredCommandQueue.Enqueue(
+												new DeferredCommand(eventData,
+													serializedBranch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
+													DeferredCommandType.DeleteControlFlowOutputConnection));
+										}
+
+										// turn default Out ControlFlow back on
+										serializedBranch.connectionOutputs[0].hide = false;
+									}
+
+									eventData = CreateDialogEvent("Dialog Text here", "Image name here");
+								}
+
 								break;
 							case ScenimaticEventType.Query:
 								eventData = CreateQueryEvent(new List<string>() { "A", "B" });
@@ -504,25 +522,7 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					(SelectableQueryOutputConnectionType)outputType, GUILayout.Width(100));
 				if (newConnType != outputType)
 				{
-					bool isChanging = true;
-					foreach (var conn in eventData.connections)
-					{ // check if anything still connected so we can warn the user
-						if (nodeGraph.IsConnected(conn))
-						{ // show warning
-							if (!EditorUtility.DisplayDialog("Change this output type?",
-								"An output with connections is being changed."
-									+ " If you continue, connections will be lost."
-									+ "\nAre you sure?",
-								"Yes", "No"))
-							{
-								isChanging = false;
-							}
-
-							break;
-						}
-					}
-
-					if (isChanging)
+					if (ConfirmChangeOutputType(eventData.connections))
 					{
 						if (outputType == ConnectionType.ControlFlow)
 						{   // if output was ControlFlow, delete extra outputs and unhide the default out ControlFlow
@@ -545,10 +545,12 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
 							}
 
+							nodeGraph.connectionPoints[serializedBranch.connectionOutputs[0].GUID].RemoveAllConnections();
 							serializedBranch.connectionOutputs[0].hide = true;
 						}
 
-						Connection conn = serializedBranch.GetOutputConnectionByGUID(eventData.connections[0].GUID);
+						nodeGraph.connectionPoints[eventData.connections[0].GUID].RemoveAllConnections();
+						Connection conn = eventData.connections[0];
 						conn.type = newConnType;
 						nodeGraph.RefreshConnection(conn);
 					}
@@ -712,6 +714,24 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 					Debug.LogError("No actions for deferred command type " + command.commandType);
 					break;
 			}
+		}
+
+
+		private bool ConfirmChangeOutputType(List<Connection> connections)
+		{
+			foreach (var conn in connections)
+			{ // check if anything still connected so we can warn the user
+				if (nodeGraph.IsConnected(conn))
+				{ // show warning
+					return EditorUtility.DisplayDialog("Change this output type?",
+						"An output with connections is being changed."
+							+ " If you continue, connections will be lost."
+							+ "\nAre you sure?",
+						"Yes", "No");
+				}
+			}
+
+			return true;
 		}
 
 

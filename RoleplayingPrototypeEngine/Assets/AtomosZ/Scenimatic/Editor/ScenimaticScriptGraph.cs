@@ -17,15 +17,13 @@ namespace AtomosZ.RPG.Scenimatic.EditorTools
 		public ZoomerSettings zoomerSettings;
 		public ScenimaticScript script;
 		public SpriteAtlas spriteAtlas;
+		public Dictionary<string, ConnectionPoint> connectionPoints;
 
 		private ScenimaticBranchEditor branchEditor;
 		private InputNodeData inputNode;
 		private List<GraphEntityData> branchNodes;
-
 		private GraphEntityData selectedNode;
-
 		private List<ConnectionPoint> refreshConnections;
-		private Dictionary<string, ConnectionPoint> connectionPoints;
 		private ConnectionPoint startConnection;
 		private ConnectionPoint endConnection;
 		private Vector2 savedMousePos;
