@@ -437,6 +437,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		private void CreateNewBranchConnectedTo(ConnectionPoint connected)
 		{
+			if (!connected.AllowsMultipleConnections())
+			{
+				connected.RemoveAllConnections();
+			}
+
 			var newNode = ScenimaticScriptEditor.CreateNewBranch(savedMousePos);
 			AddBranch(newNode);
 

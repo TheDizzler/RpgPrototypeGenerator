@@ -1,7 +1,7 @@
 ##TODO
 
 #BugFixes
->- when creating new branch from an output connection point, it does not check if it already has a connection
+
 
 
 #Functionality
