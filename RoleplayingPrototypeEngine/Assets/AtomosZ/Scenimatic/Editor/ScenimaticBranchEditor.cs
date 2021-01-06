@@ -2,13 +2,14 @@
 using System.Linq;
 using AtomosZ.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
-using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using AtomosZ.UniversalTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.U2D;
 using static AtomosZ.Scenimatic.Schemas.ScenimaticEvent;
+
 
 namespace AtomosZ.Scenimatic.EditorTools
 {
@@ -40,7 +41,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
-		private GraphEntityData branchData;
+		private GraphEntityData entityData;
 		private InputNode serializedInput;
 		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
@@ -58,7 +59,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		public void LoadBranch(GraphEntityData branchData)
 		{
-			this.branchData = branchData;
+			this.entityData = branchData;
 			if (branchData is EventBranchObjectData)
 			{
 				serializedInput = null;
@@ -89,7 +90,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				BranchEventView();
 			}
-			else if (branchData != null)
+			else if (entityData != null)
 			{
 				InputView();
 			}
@@ -113,25 +114,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					GUILayout.Label(new GUIContent("Inputs:", "These are passed into the event through code."));
-					int size = EditorGUILayout.DelayedIntField(
-						serializedInput.connections.Count - 1, GUILayout.MaxWidth(30));
-					if (size != serializedInput.connections.Count - 1)
-					{
-						int newSize = serializedInput.connections.Count - 1;
-						while (size > newSize)
-						{
-							Connection newConn = CreateNewConnection(ConnectionType.Int);
-							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
-							++newSize;
-						}
-
-						while (size < newSize)
-						{
-							Connection remove = serializedInput.connections[newSize--];
-							if (!DeleteInput(remove))
-								break;
-						}
-					}
+					ResizableInputBlock(serializedInput.connections, ConnectionPointDirection.Out);
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
@@ -172,25 +155,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					GUILayout.Label("Inputs:");
-					int size = EditorGUILayout.DelayedIntField(
-						serializedBranch.connectionInputs.Count - 1, GUILayout.MaxWidth(30));
-					if (size != serializedBranch.connectionInputs.Count - 1)
-					{
-						int newSize = serializedBranch.connectionInputs.Count - 1;
-						while (size > newSize)
-						{
-							Connection newConn = CreateNewConnection(ConnectionType.Int);
-							branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
-							++newSize;
-						}
-
-						while (size < newSize)
-						{
-							Connection remove = serializedBranch.connectionInputs[newSize--];
-							if (!DeleteInput(remove))
-								break;
-						}
-					}
+					ResizableInputBlock(serializedBranch.connectionInputs, ConnectionPointDirection.In);
 
 					if (serializedBranch.connectionInputs.Count > 1)
 						GUILayout.Label("Insert a variable into dialog text "
@@ -226,6 +191,31 @@ namespace AtomosZ.Scenimatic.EditorTools
 			EditorGUILayout.EndScrollView();
 		}
 
+
+		private void ResizableInputBlock(List<Connection> connections, ConnectionPointDirection direction)
+		{
+			int size = EditorGUILayout.DelayedIntField(
+				connections.Count - 1, GUILayout.MaxWidth(30));
+			if (size != connections.Count - 1)
+			{
+				int newSize = connections.Count - 1;
+				while (size > newSize)
+				{
+					Connection newConn = CreateNewConnection(ConnectionType.Int);
+					entityData.AddNewConnectionPoint(newConn, direction);
+					++newSize;
+				}
+
+				bool confirmed = false;
+				while (size < newSize)
+				{
+					Connection remove = connections[newSize--];
+					if (!DeleteInput(remove, confirmed))
+						break;
+					confirmed = true;
+				}
+			}
+		}
 
 		private void DrawInputBox(Connection conn)
 		{
@@ -266,7 +256,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						GenericMenu menu = new GenericMenu();
 						menu.AddItem(new GUIContent("Delete Input"), false,
-							() => DeleteInput(conn));
+							() => DeleteInput(conn, false));
 						menu.ShowAsContext();
 
 						Event.current.Use();
@@ -311,13 +301,13 @@ namespace AtomosZ.Scenimatic.EditorTools
 		/// </summary>
 		/// <param name="conn"></param>
 		/// <returns></returns>
-		private bool DeleteInput(Connection conn)
+		private bool DeleteInput(Connection conn, bool skipConfirm)
 		{
 			if (nodeGraph.IsConnected(conn))
 			{
-				if (!EditorUtility.DisplayDialog("Delete this Input?",
+				if (!skipConfirm && !EditorUtility.DisplayDialog("Delete this Input?",
 						"An input with connections is being deleted."
-						+ "\nAre you sure?",
+							+ "\nAre you sure?",
 						"Yes", "No"))
 					return false;
 			}
@@ -369,10 +359,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 						switch (eventType)
 						{
 							case ScenimaticEventType.Dialog:
-								if (ConfirmChangeOutputType(eventData.connections))
+								if (eventData.eventType == ScenimaticEventType.Query)
 								{
-									if (eventData.eventType == ScenimaticEventType.Query)
-									{   // cleanup outputs, especially if it was a Control Flow
+									if (ConfirmChangeOutputType(eventData.connections))
+									{
+										// cleanup outputs, especially if it was a Control Flow
 										for (int i = eventData.outputGUIDs.Count - 1; i >= 0; --i)
 										{
 											deferredCommandQueue.Enqueue(
@@ -384,9 +375,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 										// turn default Out ControlFlow back on
 										serializedBranch.connectionOutputs[0].hide = false;
 									}
-
-									eventData = CreateDialogEvent("Dialog Text here", "Image name here");
 								}
+
+								eventData = CreateDialogEvent("Dialog Text here", "Image name here");
 
 								break;
 							case ScenimaticEventType.Query:
@@ -651,7 +642,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 				case DeferredCommandType.DeleteInput:
 					nodeGraph.RemoveConnectionPoint(command.connection);
-					branchData.RemoveConnectionPoint(
+					entityData.RemoveConnectionPoint(
 						command.connection, ConnectionPointDirection.In);
 					break;
 
@@ -661,7 +652,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						foreach (var conn in command.eventData.connections)
 						{
 							nodeGraph.RemoveConnectionPoint(conn);
-							branchData.RemoveConnectionPoint(
+							entityData.RemoveConnectionPoint(
 								conn, ConnectionPointDirection.Out);
 						}
 
@@ -685,7 +676,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
 
 					var newConn = CreateNewConnection(ConnectionType.Int);
-					branchData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+					entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 
 					command.eventData.outputGUIDs = new List<string>();
 					command.eventData.outputGUIDs.Add(newConn.GUID);
@@ -695,14 +686,14 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 				case DeferredCommandType.CreateControlFlowOutputConnection:
 					var newControlFlow = CreateNewConnection(ConnectionType.ControlFlow);
-					branchData.AddNewConnectionPoint(newControlFlow, ConnectionPointDirection.Out);
+					entityData.AddNewConnectionPoint(newControlFlow, ConnectionPointDirection.Out);
 					command.eventData.outputGUIDs.Add(newControlFlow.GUID);
 					command.eventData.connections.Add(newControlFlow);
 					break;
 
 				case DeferredCommandType.DeleteControlFlowOutputConnection:
 					nodeGraph.RemoveConnectionPoint(command.connection);
-					branchData.RemoveConnectionPoint(
+					entityData.RemoveConnectionPoint(
 						 command.connection, ConnectionPointDirection.Out);
 					serializedBranch.connectionOutputs.Remove(command.connection);
 					command.eventData.outputGUIDs.Remove(command.connection.GUID);
