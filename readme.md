@@ -1,20 +1,17 @@
 ##TODO
 
 #BugFixes
-
+>- when creating new branch from an output connection point, it does not check if it already has a connection
 
 
 #Functionality
->- new branch context menu on drag release of connection wire
 >- add inputs (context menu) on drag release of output variables wires
 >- warnings when there are Out ControlFlows that are not connected to Input && Output
->- warnings when an input has no connection
+>- inputs check if they are connected and warning when no connection
 >- Save As function (change to drop down menu?)
->- have inputs take the name of the connecting input
->- inputs check if they are connected
+>- (consider) have inputs take the name of the connecting input
 >- text checks if replacement text exists
 >- add booleans as Input/Output connections
->- make branches deletable
 >- updating InputNode inputs should refresh ScenimaticManager editor
 >- connection points currently only hold reference to guids of connections if it's an output. This is fine for control flows but will need to be changed for variables
 >- OutputNode for passing player choices to game
@@ -23,6 +20,8 @@
 >- graph entities that resize horizontally dynamically
 
 ##Done
+>- ~make branches deletable~
+>- ~new branch context menu on drag release of connection wire~
 >- ~save last selected branch~
 >- ~outputs don't update ui when query output type is changed~
 >- ~outputs don't update ui when query is deleted~
