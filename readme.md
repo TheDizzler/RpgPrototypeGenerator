@@ -28,3 +28,4 @@
 >- ~allow control flow outputs from queries~
 >- ~outputs don't update ui when event type changed from Query with ControlFlow~
 >- ~when changing Query output type, connections are still drawn~
+>- ~when creating new branch from an output connection point, it does not check if it already has a connection~
