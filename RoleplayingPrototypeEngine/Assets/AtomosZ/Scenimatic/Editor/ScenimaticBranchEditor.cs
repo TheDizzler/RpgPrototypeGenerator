@@ -287,7 +287,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (!nodeGraph.IsConnected(conn))
 			{
 				conn.type = newType;
-				nodeGraph.RefreshConnection(conn);
+				nodeGraph.RefreshConnectionData(conn);
 				return true;
 			}
 			else if (EditorUtility.DisplayDialog("Change this input type?",
@@ -298,7 +298,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				nodeGraph.Disconnect(conn);
 				conn.type = newType;
-				nodeGraph.RefreshConnection(conn);
+				nodeGraph.RefreshConnectionData(conn);
 				return true;
 			}
 
@@ -551,7 +551,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						nodeGraph.connectionPoints[eventData.connections[0].GUID].RemoveAllConnections();
 						Connection conn = eventData.connections[0];
 						conn.type = newConnType;
-						nodeGraph.RefreshConnection(conn);
+						nodeGraph.RefreshConnectionData(conn);
 					}
 				}
 

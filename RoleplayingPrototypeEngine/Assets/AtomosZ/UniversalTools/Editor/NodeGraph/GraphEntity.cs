@@ -16,8 +16,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		protected const float TITLEBAR_OFFSET = 15;
 		protected const float DoubleClickTime = .3f;
 
+		protected INodeGraph nodeGraph;
 		protected string nodeName;
-
 		protected GUIStyle currentStyle;
 		protected GUIStyle titleBarStyle;
 		protected GUIStyle connectionLabelStyle = new GUIStyle(EditorStyles.label);
@@ -30,8 +30,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		protected GraphEntityStyle nodeStyle;
 
 
-		public GraphEntity(GraphEntityData data)
+		public GraphEntity(GraphEntityData data, INodeGraph graph)
 		{
+			nodeGraph = graph;
 			entityData = data;
 			nodeStyle = entityData.nodeStyle;
 			currentStyle = nodeStyle.defaultStyle;
@@ -149,11 +150,16 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		public GraphEntityStyle nodeStyle;
 		public Rect windowRect;
 		public GraphEntity window;
+		public INodeGraph nodeGraph;
 
 		[System.NonSerialized]
 		public Vector2 offset;
 
 
+		public GraphEntityData(INodeGraph graph)
+		{
+			nodeGraph = graph;
+		}
 
 		/// <summary>
 		/// Returns true if save needed.

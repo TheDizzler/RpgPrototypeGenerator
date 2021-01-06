@@ -9,13 +9,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 	public class EventBranchNodeWindow : NodeWindow<ScenimaticBranch>
 	{
 		private ScenimaticBranch branch;
-		private ScenimaticScriptGraph scenimaticScriptView;
 
 
-		public EventBranchNodeWindow(EventBranchObjectData nodeData) : base(nodeData)
+		public EventBranchNodeWindow(EventBranchObjectData nodeData, INodeGraph graph) : base(nodeData, graph)
 		{
 			branch = nodeData.serializedNode.data;
-			scenimaticScriptView = EditorWindow.GetWindow<ScenimaticScriptEditor>().scenimaticGraph;
 		}
 
 		public override string GetName()
@@ -40,6 +38,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{ // title bar clicked
 						if (e.button == 0)
 							TitleBarLeftClickDown(e);
+						else if (e.button == 1)
+							RightClickDown(e);
 					}
 					else if (GetRect().Contains(e.mousePosition))
 					{
@@ -160,19 +160,29 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		protected override void Selected()
 		{
-			scenimaticScriptView.SelectNode(entityData);
+			nodeGraph.SelectEntity(entityData);
 		}
 
 		protected override void Deselected()
 		{
-			scenimaticScriptView.DeselectNode();
+			nodeGraph.DeselectEntity();
+		}
+
+
+		protected override void RightClickDown(Event e)
+		{
+			e.Use();
+			var genericMenu = new GenericMenu();
+			genericMenu.AddItem(new GUIContent("Delete Branch"), false,
+				() => nodeGraph.DeleteEntity(entityData));
+			genericMenu.ShowAsContext();
 		}
 	}
 
 
 	public class EventBranchObjectData : NodeObjectData<ScenimaticBranch>
 	{
-		public EventBranchObjectData(ScenimaticSerializedNode branchData)
+		public EventBranchObjectData(ScenimaticSerializedNode branchData, INodeGraph graph) : base(graph)
 		{
 			this.serializedNode = branchData;
 			GUID = branchData.GUID;
@@ -185,7 +195,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		protected override void CreateWindow()
 		{
-			window = new EventBranchNodeWindow(this);
+			window = new EventBranchNodeWindow(this, nodeGraph);
 		}
 	}
 }

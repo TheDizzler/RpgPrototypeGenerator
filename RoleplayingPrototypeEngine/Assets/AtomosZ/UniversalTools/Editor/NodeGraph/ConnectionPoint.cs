@@ -66,7 +66,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			GUID = connection.GUID;
 			this.connection = connection;
 
-			nodeGraph.RefreshConnection(this);
+			nodeGraph.RefreshConnectionPoint(this);
 		}
 
 
@@ -225,9 +225,18 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		public void ConnectTo(ConnectionPoint otherConnectionPoint)
 		{
+			if (connectedTo.Contains(otherConnectionPoint))
+			{
+				Debug.LogWarning("Attempting to connect already connected connections."
+					+ "\nGUID: " + GUID + " other GUID: " + otherConnectionPoint.GUID);
+				return;
+			}
+
 			if (!AllowsMultipleConnections() && connectedTo.Count > 0)
 			{
-				Debug.LogError("This point may only have one connection!");
+				Debug.LogError("This point may only have one connection!"
+					+ "\nGUID: " + GUID + " other GUID: " + otherConnectionPoint.GUID);
+				return;
 			}
 
 			connectedTo.Add(otherConnectionPoint);

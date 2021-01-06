@@ -15,7 +15,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		protected List<ConnectionPoint> outConnectionPoints;
 
 
-		public NodeWindow(NodeObjectData<T> nodeData) : base(nodeData)
+		public NodeWindow(NodeObjectData<T> nodeData, INodeGraph graph) : base(nodeData, graph)
 		{
 			this.nodeData = nodeData;
 
@@ -103,6 +103,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		public SerializedNode<T> serializedNode;
 
 
+		public NodeObjectData(INodeGraph graph) : base(graph) { }
 
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{

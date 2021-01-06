@@ -13,12 +13,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected List<ConnectionPoint> connectionPoints;
 
-		private INodeGraph nodeGraph;
 
 
-		public InputNodeWindow(INodeGraph graph, InputNodeData inputNodeData) : base(inputNodeData)
+
+		public InputNodeWindow(InputNodeData inputNodeData, INodeGraph graph) : base(inputNodeData, graph)
 		{
-			nodeGraph = graph;
 			connectionPoints = new List<ConnectionPoint>();
 
 			for (int i = 0; i < inputNodeData.connections.Count; ++i)
@@ -151,12 +150,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected override void Deselected()
 		{
-			nodeGraph.DeselectNode();
+			nodeGraph.DeselectEntity();
 		}
 
 		protected override void Selected()
 		{
-			nodeGraph.SelectNode(entityData);
+			nodeGraph.SelectEntity(entityData);
 		}
 
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
@@ -196,13 +195,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		/// </summary>
 		public InputNode serializedNode;
 
-		private INodeGraph nodeGraph;
 
 
-
-		public InputNodeData(INodeGraph graph, InputNode serializedData)
+		public InputNodeData(INodeGraph graph, InputNode serializedData) : base(graph)
 		{
-			nodeGraph = graph;
 			serializedNode = serializedData;
 			GUID = serializedData.GUID;
 			connections = serializedData.connections;
@@ -214,7 +210,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected override void CreateWindow()
 		{
-			window = new InputNodeWindow(nodeGraph, this);
+			window = new InputNodeWindow(this, nodeGraph);
 		}
 
 

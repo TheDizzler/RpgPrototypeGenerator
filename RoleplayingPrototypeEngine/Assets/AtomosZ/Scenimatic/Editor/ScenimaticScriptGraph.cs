@@ -19,8 +19,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		private ScenimaticBranchEditor branchEditor;
 		private InputNodeData inputNode;
-		private List<GraphEntityData> branchNodes;
-		private GraphEntityData selectedNode;
+		private List<GraphEntityData> branchEntityDatas;
+		private GraphEntityData selectedEntity;
 		private List<ConnectionPoint> refreshConnections;
 		private ConnectionPoint startConnection;
 		private ConnectionPoint endConnection;
@@ -35,7 +35,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			connectionPoints = new Dictionary<string, ConnectionPoint>();
 			script = newScript;
 
-			CreateBranchWindow();
+			CreateBranchEditorWindow();
 
 			zoomerSettings = new ZoomerSettings();
 			zoomerSettings.zoomOrigin = script.zoomOrigin;
@@ -61,19 +61,19 @@ namespace AtomosZ.Scenimatic.EditorTools
 			ConnectionPoint.nodeGraph = this;
 
 			inputNode = new InputNodeData(this, newScript.inputNode);
-			branchNodes = new List<GraphEntityData>();
+			branchEntityDatas = new List<GraphEntityData>();
 			for (int i = 0; i < script.branches.Count; ++i)
 			{
 				ScenimaticSerializedNode branchData = script.branches[i];
-				EventBranchObjectData node = new EventBranchObjectData(branchData);
-				branchNodes.Add(node);
+				EventBranchObjectData node = new EventBranchObjectData(branchData, this);
+				branchEntityDatas.Add(node);
 			}
 
 
-			if (script.lastSelectedNode < 0 || script.lastSelectedNode >= branchNodes.Count)
-				SelectNode(inputNode);
+			if (script.lastSelectedNode < 0 || script.lastSelectedNode >= branchEntityDatas.Count)
+				SelectEntity(inputNode);
 			else
-				SelectNode(branchNodes[script.lastSelectedNode]);
+				SelectEntity(branchEntityDatas[script.lastSelectedNode]);
 		}
 
 
@@ -92,8 +92,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		public void AddBranch(ScenimaticSerializedNode newBranch)
 		{
-			EventBranchObjectData node = new EventBranchObjectData(newBranch);
-			branchNodes.Add(node);
+			EventBranchObjectData node = new EventBranchObjectData(newBranch, this);
+			branchEntityDatas.Add(node);
 			script.branches.Add(newBranch);
 		}
 
@@ -126,13 +126,17 @@ namespace AtomosZ.Scenimatic.EditorTools
 			connPoint.RemoveAllConnections();
 		}
 
-		public void RefreshConnection(Connection conn)
+		/// <summary>
+		/// Used when changing the ConnectionType of the connection.
+		/// </summary>
+		/// <param name="conn"></param>
+		public void RefreshConnectionData(Connection conn)
 		{
 			connectionPoints[conn.GUID].SetData(ConnectionPointData.GetControlPointData(conn.type));
 		}
 
 
-		public void RefreshConnection(ConnectionPoint connectionPoint)
+		public void RefreshConnectionPoint(ConnectionPoint connectionPoint)
 		{
 			refreshConnections.Add(connectionPoint);
 			if (connectionPoints.ContainsKey(connectionPoint.GUID))
@@ -184,7 +188,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				save = true;
 			inputNode.DrawConnectionWires();
 
-			foreach (var node in branchNodes)
+			foreach (var node in branchEntityDatas)
 			{
 				node.Offset(zoomerOffset);
 				if (node.ProcessEvents(current))
@@ -195,7 +199,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 
 			inputNode.OnGUI();
-			foreach (var node in branchNodes)
+			foreach (var node in branchEntityDatas)
 				node.OnGUI();
 
 			if (startConnection != null)
@@ -215,18 +219,24 @@ namespace AtomosZ.Scenimatic.EditorTools
 				}
 				else if (current.button == 0 && current.type == EventType.MouseUp)
 				{
-					// if this has not been consumed we can (?) assume that
+					// if this has not been consumed we can assume that
 					//	the mouse was not released over a connection point
-					savedMousePos = current.mousePosition + zoomerOffset;
-					startConnection.isCreatingNewConnection = false;
 
+					// check if the mouse was released over an entity. 
+					// if so, && it's a valid entity (ie output is not on same entity as input), open context menu to add new input/output
+					// if not && the connection type is ControlFlow, open context menu to make new branch
+					savedMousePos = current.mousePosition + zoomerOffset;
+
+					if (startConnection.connection.type == ConnectionType.ControlFlow)
+						CreateStandAloneContextMenu(startConnection);
+					startConnection.isCreatingNewConnection = false;
 					startConnection = null;
 				}
 			}
 			else if (current.button == 1
 				&& current.type == EventType.MouseUp
 				&& !zoomer.isScreenMoved)
-			{
+			{ // open context menu to make new branch
 				savedMousePos = current.mousePosition + zoomerOffset;
 				CreateStandAloneContextMenu();
 			}
@@ -243,32 +253,98 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		public void SelectNode(GraphEntityData nodeData)
+		public void DeleteEntity(GraphEntityData entityData)
 		{
-			if (IsNodeSelected() && selectedNode != nodeData)
+			// warn if branch has connections
+			ScenimaticSerializedNode serializedEntity = null;
+			foreach (var branch in script.branches)
 			{
-				selectedNode.GetWindow().Deselect();
+				if (branch.GUID == entityData.GUID)
+				{
+					serializedEntity = branch;
+					break;
+				}
 			}
 
-			selectedNode = nodeData;
-			CreateBranchWindow();
-			branchEditor.LoadBranch(selectedNode);
-
-			script.lastSelectedNode = branchNodes.IndexOf(selectedNode);
-		}
-
-
-		public void DeselectNode()
-		{
-			if (!IsNodeSelected())
+			if (serializedEntity == null)
+			{
+				Debug.LogError("Entity Deletion Error: Entity " + entityData.GUID + " could not be found in script");
 				return;
-			selectedNode.GetWindow().Deselect();
-			selectedNode = null;
+			}
+
+			bool confirmed = false;
+			foreach (var conn in serializedEntity.connectionInputs)
+			{ // check if anything still connected so we can warn the user
+				if (IsConnected(conn))
+				{ // show warning
+					if (!confirmed && !EditorUtility.DisplayDialog("Delete this Branch?",
+						"This branch has connections to other branches."
+							+ " If you continue, connections will be lost."
+							+ "\nAre you sure?",
+						"Yes", "No"))
+						return;
+
+					confirmed = true;
+					Disconnect(conn);
+				}
+			}
+
+
+			foreach (var conn in serializedEntity.connectionOutputs)
+			{ // check if anything still connected so we can warn the user
+				if (IsConnected(conn))
+				{ // show warning
+					if (!confirmed && !EditorUtility.DisplayDialog("Delete this Branch?",
+						"This branch has connections to other branches."
+							+ " If you continue, connections will be lost."
+							+ "\nAre you sure?",
+						"Yes", "No"))
+						return;
+
+					confirmed = true;
+					Disconnect(conn);
+				}
+			}
+
+			// check if this is the selected branch and switch branched if it is
+			if (IsEntitySelected() && selectedEntity != entityData)
+			{
+				selectedEntity.GetWindow().Deselect();
+			}
+
+
+			// delete
+			branchEntityDatas.Remove(entityData);
+			script.branches.Remove(serializedEntity);
 		}
 
-		public bool IsNodeSelected()
+
+		public void SelectEntity(GraphEntityData entityData)
 		{
-			return selectedNode != null;
+			if (IsEntitySelected() && selectedEntity != entityData)
+			{
+				selectedEntity.GetWindow().Deselect();
+			}
+
+			selectedEntity = entityData;
+			CreateBranchEditorWindow();
+			branchEditor.LoadBranch(selectedEntity);
+
+			script.lastSelectedNode = branchEntityDatas.IndexOf(selectedEntity);
+		}
+
+
+		public void DeselectEntity()
+		{
+			if (!IsEntitySelected())
+				return;
+			selectedEntity.GetWindow().Deselect();
+			selectedEntity = null;
+		}
+
+		public bool IsEntitySelected()
+		{
+			return selectedEntity != null;
 		}
 
 
@@ -314,7 +390,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private void CreateBranchWindow()
+		private void CreateBranchEditorWindow()
 		{
 			if (!EditorWindow.HasOpenInstances<ScenimaticBranchEditor>())
 			{
@@ -344,9 +420,35 @@ namespace AtomosZ.Scenimatic.EditorTools
 			genericMenu.ShowAsContext();
 		}
 
+		private void CreateStandAloneContextMenu(ConnectionPoint connectTo)
+		{
+			var genericMenu = new GenericMenu();
+			genericMenu.AddItem(new GUIContent("New Branch"), false,
+				() => CreateNewBranchConnectedTo(connectTo));
+			genericMenu.ShowAsContext();
+		}
+
+
 		private void CreateNewBranch()
 		{
-			AddBranch(ScenimaticScriptEditor.CreateNewBranch(savedMousePos));
+			var newNode = ScenimaticScriptEditor.CreateNewBranch(savedMousePos);
+			AddBranch(newNode);
+		}
+
+		private void CreateNewBranchConnectedTo(ConnectionPoint connected)
+		{
+			var newNode = ScenimaticScriptEditor.CreateNewBranch(savedMousePos);
+			AddBranch(newNode);
+
+			if (connected.connectionDirection == ConnectionPointDirection.Out)
+			{
+				newNode.connectionInputs[0].connectedToGUIDs.Add(connected.GUID);
+				connected.connection.connectedToGUIDs.Add(newNode.connectionInputs[0].GUID);
+			}
+			else
+			{
+				newNode.connectionOutputs[0].connectedToGUIDs.Add(connected.GUID);
+			}
 		}
 
 		private void CompleteConnection()
