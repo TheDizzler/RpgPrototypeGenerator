@@ -1,7 +1,7 @@
 ##TODO
 
 #BugFixes
-
+>- adding more than one ControlFlow queries causes issues (only one should be allowed anyway)
 
 
 #Functionality
@@ -9,6 +9,7 @@
 >- warnings when there are Out ControlFlows that are not connected to Input && Output
 >- inputs check if they are connected and warning when no connection
 >- Save As function (change to drop down menu?)
+>- (consider) disallow (limit?) events after a ControlFlow Query
 >- (consider) have inputs take the name of the connecting input
 >- text checks if replacement text exists
 >- add booleans as Input/Output connections
