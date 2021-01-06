@@ -118,10 +118,10 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 				connRect.width = rectHalfWidth;
 				connRect.x += 22;
-				connectionLabelStyle.normal.textColor = 
+				connectionLabelStyle.normal.textColor =
 					conn.data.connectionPointStyle.connectionColor;
-				GUI.Label(connRect, 
-					new GUIContent(conn.connection.variableName, conn.data.type.ToString()), 
+				GUI.Label(connRect,
+					new GUIContent(conn.connection.variableName, conn.data.type.ToString()),
 					connectionLabelStyle);
 			}
 
@@ -132,16 +132,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 				if (conn.connection.hide)
 					continue;
 				connRect = conn.OnGUI();
-				if (conn.data.type == ConnectionType.ControlFlow 
+				if (conn.data.type == ConnectionType.ControlFlow
 					&& conn.connection.variableName == Connection.ControlFlowOutName)
 					continue;
 
 				connRect.width = rectHalfWidth;
 				connRect.x -= rectHalfWidth;
-				connectionLabelStyle.normal.textColor = 
+				connectionLabelStyle.normal.textColor =
 					conn.data.connectionPointStyle.connectionColor;
-				GUI.Label(connRect, 
-					new GUIContent(conn.connection.variableName, conn.data.type.ToString()), 
+				GUI.Label(connRect,
+					new GUIContent(conn.connection.variableName, conn.data.type.ToString()),
 					connectionLabelStyle);
 			}
 
