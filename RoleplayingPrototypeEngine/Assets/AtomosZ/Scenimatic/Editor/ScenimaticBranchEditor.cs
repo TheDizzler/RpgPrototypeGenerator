@@ -334,7 +334,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			ScenimaticEventType eventType = eventData.eventType;
 			// Event Type selection/detection
 
-			Rect clickArea = EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(500));
+			Rect clickArea = EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				// move up/down buttons
 				EditorGUILayout.BeginVertical(GUILayout.Width(10));
