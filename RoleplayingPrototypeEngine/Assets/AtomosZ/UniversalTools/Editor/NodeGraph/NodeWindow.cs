@@ -37,15 +37,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
+			ConnectionPoint newConnPoint = new ConnectionPoint(this, direction, newConn);
 			if (direction == ConnectionPointDirection.In)
 			{
-				inConnectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.In, newConn));
+				inConnectionPoints.Add(newConnPoint);
 			}
 			else
 			{
-				outConnectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
+				outConnectionPoints.Add(newConnPoint);
 			}
 		}
 

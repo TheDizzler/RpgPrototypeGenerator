@@ -11,5 +11,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		void StartPointSelected(ConnectionPoint selectedConnection);
 		void EndPointSelected(ConnectionPoint endPoint);
 		void RefreshConnectionPoint(ConnectionPoint connectionPoint);
+		void MouseOver(GraphEntityData graphEntity);
 	}
 }

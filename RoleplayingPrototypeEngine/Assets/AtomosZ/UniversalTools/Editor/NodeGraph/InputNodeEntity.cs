@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
-using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using AtomosZ.UniversalTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
@@ -160,8 +160,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		{
 			if (direction == ConnectionPointDirection.Out)
 			{
-				connectionPoints.Add(
-					new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
+				connectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
+			}
+			else
+			{
+				Debug.LogWarning("Trying to create a new Out ConnectionPoint.");
 			}
 		}
 

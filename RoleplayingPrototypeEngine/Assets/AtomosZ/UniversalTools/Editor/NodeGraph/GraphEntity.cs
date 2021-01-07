@@ -120,6 +120,12 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			e.Use();
 		}
 
+		protected virtual void LeftClickUp(Event e)
+		{
+			nodeGraph.MouseOver(entityData);
+			e.Use();
+		}
+
 		protected virtual void RightClickDown(Event e)
 		{
 			Debug.Log("Window right clicked");

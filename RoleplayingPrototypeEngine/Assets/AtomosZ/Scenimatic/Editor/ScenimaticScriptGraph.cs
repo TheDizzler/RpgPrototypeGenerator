@@ -227,10 +227,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 				else if (current.button == 0 && current.type == EventType.MouseUp)
 				{
 					// if this has not been consumed we can assume that
-					//	the mouse was not released over a connection point
+					//		the mouse was not released over a connection point or a GraphEntity.
 
 					// check if the mouse was released over an entity. 
-					// if so, && it's a valid entity (ie output is not on same entity as input), open context menu to add new input/output
+					// if so, && it's a valid entity (ie output is not on same entity as input),
+					//		open context menu to add new input/output
 					// if not && the connection type is ControlFlow, open context menu to make new branch
 					savedMousePos = current.mousePosition + zoomerOffset;
 
@@ -259,6 +260,79 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 		}
 
+
+		public void MouseOver(GraphEntityData graphEntityData)
+		{
+			// Left mouse up over this entity
+			if (startConnection == null)
+				return;
+
+			CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
+
+			startConnection.isCreatingNewConnection = false;
+			startConnection = null;
+		}
+
+
+		private void CreateStandAloneContextMenu()
+		{
+			var genericMenu = new GenericMenu();
+			genericMenu.AddItem(new GUIContent("New Branch"), false,
+				() => CreateNewBranch());
+			genericMenu.ShowAsContext();
+		}
+
+		private void CreateStandAloneContextMenu(ConnectionPoint connectTo)
+		{
+			var genericMenu = new GenericMenu();
+			genericMenu.AddItem(new GUIContent("New Branch"), false,
+				() => CreateNewBranchConnectedTo(connectTo));
+			genericMenu.ShowAsContext();
+		}
+
+		private void CreateNewConnectionPointContextMenu(GraphEntityData graphEntity, ConnectionPoint connectedTo)
+		{
+			ConnectionPointDirection direction = connectedTo.connectionDirection == ConnectionPointDirection.In ?
+				ConnectionPointDirection.Out : ConnectionPointDirection.In;
+			string msg = "Add new "
+				+ (direction == ConnectionPointDirection.In ?
+					"Input" : "Output") + " Connection Point of type "
+				+ connectedTo.connection.type + "?";
+
+			var genericMenu = new GenericMenu();
+			genericMenu.AddItem(new GUIContent(msg), false,
+				() => CreateNewConnectionPointFromConnection(graphEntity, connectedTo, direction));
+			genericMenu.ShowAsContext();
+		}
+
+		private void CreateNewConnectionPointFromConnection(GraphEntityData graphEntity, ConnectionPoint connectedTo, ConnectionPointDirection direction)
+		{
+			Connection newConn = new Connection()
+			{
+				type = connectedTo.connection.type,
+				GUID = System.Guid.NewGuid().ToString(),
+				variableName = "tempName",
+			};
+
+			graphEntity.AddNewConnectionPoint(newConn, direction);
+
+			if (!connectedTo.AllowsMultipleConnections())
+			{
+				connectedTo.RemoveAllConnections();
+			}
+
+
+			if (direction == ConnectionPointDirection.In)
+			{
+				connectedTo.connection.connectedToGUIDs.Add(newConn.GUID);
+			}
+			else
+			{
+				newConn.connectedToGUIDs.Add(connectedTo.GUID);
+			}
+
+			RefreshConnectionPoint(connectedTo);
+		}
 
 		public void DeleteEntity(GraphEntityData entityData)
 		{
@@ -419,21 +493,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private void CreateStandAloneContextMenu()
-		{
-			var genericMenu = new GenericMenu();
-			genericMenu.AddItem(new GUIContent("New Branch"), false,
-				() => CreateNewBranch());
-			genericMenu.ShowAsContext();
-		}
-
-		private void CreateStandAloneContextMenu(ConnectionPoint connectTo)
-		{
-			var genericMenu = new GenericMenu();
-			genericMenu.AddItem(new GUIContent("New Branch"), false,
-				() => CreateNewBranchConnectedTo(connectTo));
-			genericMenu.ShowAsContext();
-		}
 
 
 		private void CreateNewBranch()
