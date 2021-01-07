@@ -1,5 +1,7 @@
-﻿using AtomosZ.Scenimatic;
+﻿using System.Collections.Generic;
+using AtomosZ.Scenimatic;
 using AtomosZ.Scenimatic.EditorTools;
+using AtomosZ.Scenimatic.UI;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -107,6 +109,20 @@ namespace AtomosZ.RPG.UI.EditorTools
 			if (GUILayout.Button("Clear Dialog"))
 			{
 				mngr.ClearDialog();
+			}
+
+		}
+	}
+
+	[CustomEditor(typeof(QueryPanel))]
+	public class QueryPanelTester : Editor
+	{
+		public override void OnInspectorGUI()
+		{
+			DrawDefaultInspector();
+			if (GUILayout.Button("Test Query"))
+			{
+				((QueryPanel)target).DisplayOptions(new List<string>());
 			}
 		}
 	}
