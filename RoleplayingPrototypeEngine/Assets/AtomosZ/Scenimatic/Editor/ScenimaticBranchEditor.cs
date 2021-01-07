@@ -99,10 +99,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 				GUILayout.Label(new GUIContent("No branch loaded"));
 			}
 
-
-			while (deferredCommandQueue.Count != 0)
-			{
-				ExecuteNextDeferredCommand();
+			if (Event.current.type != EventType.Layout)
+			{ // certain deferred commands throw exceptions when performed during the layout
+				while (deferredCommandQueue.Count != 0)
+				{
+					ExecuteNextDeferredCommand();
+				}
 			}
 		}
 
@@ -379,8 +381,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 													DeferredCommandType.DeleteControlFlowOutputConnection));
 										}
 
-										// turn default Out ControlFlow back on
-										serializedBranch.connectionOutputs[0].hide = false;
+										// turn default Out ControlFlow back on if was ControlFlow Query
+										if (eventData.connections[0].type == ConnectionType.ControlFlow)
+											serializedBranch.connectionOutputs[0].hide = false;
 									}
 								}
 
@@ -531,7 +534,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 										DeferredCommandType.DeleteControlFlowOutputConnection));
 							}
 
-							serializedBranch.connectionOutputs[0].hide = false;
+							if (eventData.connections[0].type == ConnectionType.ControlFlow)
+								serializedBranch.connectionOutputs[0].hide = false;
 						}
 						else if (newConnType == ConnectionType.ControlFlow)
 						{   // check if this branch already has a control flow
@@ -674,7 +678,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 							Debug.LogWarning(
 								"Could not find ConnectionPoint in ScenimaticBranch");
 
-						serializedBranch.connectionOutputs[0].hide = false; // just in case
+						if (command.eventData.connections[0].type == ConnectionType.ControlFlow)
+							serializedBranch.connectionOutputs[0].hide = false; // just in case
 					}
 
 					branch.events.Remove(command.eventData);
