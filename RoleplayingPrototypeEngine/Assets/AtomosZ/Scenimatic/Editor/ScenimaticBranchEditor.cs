@@ -331,9 +331,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		private ScenimaticEvent ParseEvent(ScenimaticEvent eventData)
 		{
-			ScenimaticEventType eventType = eventData.eventType;
-			// Event Type selection/detection
-
 			Rect clickArea = EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				// move up/down buttons
@@ -355,10 +352,10 @@ namespace AtomosZ.Scenimatic.EditorTools
 				}
 				EditorGUILayout.EndVertical();
 
-				eventType = (ScenimaticEventType)
-					EditorGUILayout.EnumPopup(eventType, GUILayout.Width(90));
+				ScenimaticEventType newEventType = (ScenimaticEventType)
+					EditorGUILayout.EnumPopup(eventData.eventType, GUILayout.Width(90));
 
-				if (eventType != eventData.eventType)
+				if (newEventType != eventData.eventType)
 				{
 					if (eventData.eventType == ScenimaticEventType.Unknown
 						|| EditorUtility.DisplayDialog("Event Type Changing!",
@@ -366,7 +363,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 								+ " which will destroy this current events data. Proceed?",
 							"Change Event Type", "Oops"))
 					{
-						switch (eventType)
+						switch (newEventType)
 						{
 							case ScenimaticEventType.Dialog:
 								if (eventData.eventType == ScenimaticEventType.Query)
@@ -397,7 +394,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 										eventData, DeferredCommandType.CreateOutputConnection));
 								break;
 							default:
-								Debug.LogWarning(eventType + " not yet implemented");
+								Debug.LogWarning(newEventType + " not yet implemented");
 								break;
 						}
 					}
@@ -513,18 +510,18 @@ namespace AtomosZ.Scenimatic.EditorTools
 			EditorGUILayout.EndVertical();
 
 			EditorGUILayout.EndHorizontal();
-			EditorGUILayout.BeginHorizontal(rectStyle, GUILayout.Width(375));
+			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				EditorGUILayout.LabelField("Output as:", GUILayout.Width(70));
 
-				ConnectionType outputType = eventData.connections[0].type;
+				ConnectionType originalConnType = eventData.connections[0].type;
 				ConnectionType newConnType = (ConnectionType)EditorGUILayout.EnumPopup(
-					(SelectableQueryOutputConnectionType)outputType, GUILayout.Width(100));
-				if (newConnType != outputType)
+					(SelectableQueryOutputConnectionType)originalConnType, GUILayout.Width(100));
+				if (newConnType != originalConnType)
 				{
 					if (ConfirmChangeOutputType(eventData.connections))
 					{
-						if (outputType == ConnectionType.ControlFlow)
+						if (originalConnType == ConnectionType.ControlFlow)
 						{   // if output was ControlFlow, delete extra outputs and unhide the default out ControlFlow
 							for (int i = eventData.outputGUIDs.Count - 1; i > 0; --i) // first one will still be used
 							{
@@ -537,7 +534,14 @@ namespace AtomosZ.Scenimatic.EditorTools
 							serializedBranch.connectionOutputs[0].hide = false;
 						}
 						else if (newConnType == ConnectionType.ControlFlow)
-						{   // if output is becoming ControlFlow, add extra outputs and hide the default out ControlFlow
+						{   // check if this branch already has a control flow
+							if (serializedBranch.connectionOutputs[0].hide)
+							{
+								Debug.LogWarning("Cannot have more than one ControlFlow Query in a branch.");
+								return;
+							}
+
+							// add extra outputs and hide the default out ControlFlow
 							for (int i = 1; i < eventData.options.Count; ++i) // first one is already made
 							{
 								deferredCommandQueue.Enqueue(
@@ -556,7 +560,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					}
 				}
 
-				if (outputType != ConnectionType.ControlFlow)
+				if (originalConnType != ConnectionType.ControlFlow)
 				{
 					EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
 					eventData.connections[0].variableName = EditorGUILayout.DelayedTextField(eventData.connections[0].variableName);

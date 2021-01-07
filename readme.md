@@ -1,7 +1,7 @@
 ##TODO
 
 #BugFixes
->- adding more than one ControlFlow queries causes issues (only one should be allowed anyway)
+
 
 
 #Functionality
@@ -21,6 +21,7 @@
 >- graph entities that resize horizontally dynamically
 
 ##Done
+>- ~adding more than one ControlFlow queries causes issues (only one should be allowed anyway)~
 >- ~make branches deletable~
 >- ~new branch context menu on drag release of connection wire~
 >- ~save last selected branch~
