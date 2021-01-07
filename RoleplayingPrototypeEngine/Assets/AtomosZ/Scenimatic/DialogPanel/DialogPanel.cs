@@ -5,16 +5,14 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-namespace AtomosZ.Scenimatic.UI.Panels
+namespace AtomosZ.Scenimatic.UI
 {
 	/// <summary>
 	/// Duties of DialogPanel:
 	///		Display text & portrait of speaker (if any).
-	///		Show a pop-up dialog for user response
-	///		Return results of Response Dialog
 	///		
 	/// NOT duties of DialogPanel:
-	///		Consume results of Response Dialog
+	///		Return results of Query Dialog
 	///		Parsing any text or files (aside from font/style info)
 	///		
 	/// </summary>
@@ -52,7 +50,7 @@ namespace AtomosZ.Scenimatic.UI.Panels
 			gameObject.SetActive(false);
 		}
 
-		public void NextLine(string image, string text)
+		public void NextTextBlock(string image, string textBlock)
 		{
 			if (!gameObject.activeInHierarchy)
 				gameObject.SetActive(true);
@@ -80,10 +78,10 @@ namespace AtomosZ.Scenimatic.UI.Panels
 
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
-				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(DisplayText(text));
+				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(DisplayText(textBlock));
 			else
 #endif
-				typingCoroutine = StartCoroutine(DisplayText(text));
+				typingCoroutine = StartCoroutine(DisplayText(textBlock));
 		}
 
 

@@ -176,7 +176,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 							otherCP.ConnectTo(cp);
 							cp.ConnectTo(otherCP);
 						}
-							catch (System.Exception)
+						catch (System.Exception)
 						{
 							Debug.Log("Could not find GUID " + connGUID);
 						}

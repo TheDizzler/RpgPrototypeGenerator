@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
+using Unity.EditorCoroutines.Editor;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace AtomosZ.Scenimatic.UI
 {
@@ -13,6 +16,11 @@ namespace AtomosZ.Scenimatic.UI
 		public Vector2 maxTextSize;
 		public Vector3 pointerOffset;
 		public float pointerGutterWidth = 80;
+		/// <summary>
+		/// The last letter gets cut off on the right side so this padding prevents.
+		/// May need adjusting after the scrollbar disappears.
+		/// </summary>
+		public float rightPadding = 20;
 
 		[SerializeField]
 		private TextMeshProUGUI textPrefab = null;
@@ -25,8 +33,18 @@ namespace AtomosZ.Scenimatic.UI
 
 
 		private List<TextMeshProUGUI> selectionList;
+#if UNITY_EDITOR
+		private EditorCoroutine editorCoroutine;
+#endif
 
-
+		/// <summary>
+		/// Notes on TMP bounds:
+		///		The bounds don't get set automatically after the text is set.
+		///		ForceMeshUpdate() can be called but it seems the bounds are not yet accurate
+		///		(the x and y sizes are reversed, for example o.O).
+		///		Waiting for the next frame (with a coroutine, for example) has the best results.
+		/// </summary>
+		/// <param name="newOptions"></param>
 		public void DisplayOptions(List<string> newOptions)
 		{
 			//options = newOptions;
@@ -37,31 +55,36 @@ namespace AtomosZ.Scenimatic.UI
 
 			selectionList = new List<TextMeshProUGUI>();
 
-			Vector2 maxSize = minTextSize;
 			foreach (string option in options)
 			{
 				TextMeshProUGUI newOption = Instantiate(textPrefab, contents);
 				newOption.SetText(option);
 				selectionList.Add(newOption);
-				newOption.ForceMeshUpdate(); // can't check the bounds until the mesh updated
-
-				// bounds x and y are reversed!
-				if (newOption.textBounds.size.y > maxSize.x)
-					maxSize.x = newOption.textBounds.size.y;
-				if (newOption.textBounds.size.x > maxSize.y)
-					maxSize.y = newOption.textBounds.size.x;
 			}
 
-			
-			Debug.Log("MaxSize: " + maxSize);
-
-			
-			RectTransform rt = GetComponent<RectTransform>();
-			var lg = GetComponent<VerticalLayoutGroup>();
-			rt.sizeDelta = new Vector2(maxSize.x + pointerGutterWidth + lg.padding.horizontal, maxSize.y * selectionList.Count + lg.padding.vertical) ;
-			Debug.Log(maxSize.x + pointerGutterWidth + lg.padding.horizontal);
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(ResizePanelToFitText());
+#endif
 		}
 
 
+		private IEnumerator ResizePanelToFitText()
+		{
+			yield return null;
+			Vector2 maxSize = Vector2.zero;
+			foreach (var t in selectionList)
+			{
+				Debug.Log(t.text + ": " + t.textBounds.size + "\n" + t.bounds.size);
+				if (t.textBounds.size.y > maxSize.y)
+					maxSize.y = t.textBounds.size.y;
+				if (t.textBounds.size.x > maxSize.x)
+					maxSize.x = t.textBounds.size.x;
+			}
+
+			RectTransform rt = GetComponent<RectTransform>();
+			var lg = GetComponent<VerticalLayoutGroup>();
+			rt.sizeDelta = new Vector2(maxSize.x + pointerGutterWidth + lg.padding.horizontal + rightPadding, maxSize.y * selectionList.Count + lg.padding.vertical);
+		}
 	}
 }

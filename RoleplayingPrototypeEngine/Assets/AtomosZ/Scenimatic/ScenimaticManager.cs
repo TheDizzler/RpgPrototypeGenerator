@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using AtomosZ.Scenimatic.Schemas;
-using AtomosZ.Scenimatic.UI.Panels;
-using AtomosZ.UniversalTools.NodeGraph.Schemas;
+using AtomosZ.Scenimatic.UI;
 using AtomosZ.UniversalTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -17,6 +17,7 @@ namespace AtomosZ.Scenimatic
 	public class ScenimaticManager : MonoBehaviour
 	{
 		public DialogPanel dialogPanel;
+		public QueryPanel queryPanel;
 		/// <summary>
 		/// change this to a TextAsset to make assignment easier. which means changing extension name to plain .json
 		/// </summary>
@@ -131,6 +132,11 @@ namespace AtomosZ.Scenimatic
 						ScenimaticEvent dialog = ScenimaticEvent.CreateDialogEvent(dialogText, imageName);
 						eventQueue.Enqueue(dialog);
 						break;
+
+					case ScenimaticEvent.ScenimaticEventType.Query:
+						eventQueue.Enqueue(ScenimaticEvent.CreateQueryEvent(evnt.options));
+						break;
+
 					default:
 						Debug.Log("Unknown event type: " + eventType);
 						break;
@@ -157,8 +163,13 @@ namespace AtomosZ.Scenimatic
 			switch (nextEvent.eventType)
 			{
 				case ScenimaticEvent.ScenimaticEventType.Dialog:
-					dialogPanel.NextLine(nextEvent.image, nextEvent.text);
+					dialogPanel.NextTextBlock(nextEvent.image, nextEvent.text);
 					break;
+
+				case ScenimaticEvent.ScenimaticEventType.Query:
+					queryPanel.DisplayOptions(nextEvent.options);
+					break;
+
 				default:
 					Debug.LogWarning("Event type " + nextEvent.eventType + " unrecognized or un-implemented");
 					break;

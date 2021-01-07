@@ -5,7 +5,7 @@
 
 
 #Functionality
->- add inputs (context menu) on drag release of output variables wires
+>- duplicate variable name checks
 >- warnings when there are Out ControlFlows that are not connected to Input && Output
 >- inputs check if they are connected and warning when no connection
 >- Save As function (change to drop down menu?)
@@ -21,6 +21,7 @@
 >- graph entities that resize horizontally dynamically
 
 ##Done
+>- ~add inputs (context menu) on drag release of output variables wires~
 >- ~adding more than one ControlFlow queries causes issues (only one should be allowed anyway)~
 >- ~make branches deletable~
 >- ~new branch context menu on drag release of connection wire~
