@@ -267,7 +267,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (startConnection == null)
 				return;
 
-			CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
+			if (graphEntityData != startConnection.nodeWindow.entityData)
+				CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
 
 			startConnection.isCreatingNewConnection = false;
 			startConnection = null;
