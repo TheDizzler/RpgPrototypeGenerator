@@ -58,6 +58,11 @@ namespace AtomosZ.Scenimatic.UI
 		public void SetSelection(int index)
 		{
 			index = 7;
+			if (index > options.Count)
+				index = options.Count -1;
+			else if (index < 0)
+				index = 0;
+
 			selectedColumn = index / maxColumnLength;
 			selectedRow = index % maxColumnLength;
 
