@@ -126,9 +126,23 @@ namespace AtomosZ.RPG.UI.EditorTools
 			}
 
 			if (GUILayout.Button("IndexTest"))
-				{
+			{
 				((QueryPanel)target).SetSelection(0);
 			}
+
+
+			if (GUILayout.Button("^"))
+				((QueryPanel)target).NavigateUp();
+
+			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button("<"))
+				((QueryPanel)target).NavigateLeft();
+			if (GUILayout.Button(">"))
+				((QueryPanel)target).NavigateRight();
+			EditorGUILayout.EndHorizontal();
+
+			if (GUILayout.Button("v"))
+				((QueryPanel)target).NavigateDown();
 		}
 	}
 }

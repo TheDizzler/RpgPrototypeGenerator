@@ -61,11 +61,12 @@ namespace AtomosZ.Scenimatic.UI
 			selectedColumn = index / maxColumnLength;
 			selectedRow = index % maxColumnLength;
 
-			selectionChanged = true;
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
 				RefreshSelected();
+			else
 #endif
+			selectionChanged = true;
 			//Debug.Log(selectedColumn + ", " + selectedRow);
 		}
 
@@ -92,14 +93,29 @@ namespace AtomosZ.Scenimatic.UI
 		{
 			if (++selectedRow >= selectionList[selectedColumn].Count && allowWrapAround)
 				selectedRow = 0;
-			selectionChanged = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+			else
+#endif
+				selectionChanged = true;
 		}
 
 		public void NavigateUp()
 		{
 			if (--selectedRow < 0 && allowWrapAround)
 				selectedRow = selectionList[selectedColumn].Count - 1;
-			selectionChanged = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+			else
+#endif
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+			else
+#endif
+				selectionChanged = true;
 		}
 
 		public void NavigateRight()
@@ -113,7 +129,12 @@ namespace AtomosZ.Scenimatic.UI
 					selectedColumn = 0;
 			}
 
-			selectionChanged = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+			else
+#endif
+				selectionChanged = true;
 		}
 
 		public void NavigateLeft()
@@ -127,7 +148,12 @@ namespace AtomosZ.Scenimatic.UI
 					selectedColumn = selectionList.Count - 1;
 			}
 
-			selectionChanged = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+			else
+#endif
+				selectionChanged = true;
 		}
 
 
