@@ -12,30 +12,130 @@ namespace AtomosZ.Scenimatic.UI
 	{
 		public List<string> options;
 
+		public bool allowWrapAround = true;
+		[Tooltip("Number of items visible vertically in a panel")]
+		[Range(2, 20)]
+		public int maxViewportItems = 4;
+		[Tooltip("Number of items in a column before starting a new column")]
+		[Range(2, 50)]
+		public int maxColumnLength = 10;
+
 		public Vector2 minTextSize;
 		public Vector2 maxTextSize;
-		public Vector3 pointerOffset;
+		public Vector2 pointerOffset;
 		public float pointerGutterWidth = 80;
 		/// <summary>
-		/// The last letter gets cut off on the right side so this padding prevents.
+		/// The last letter gets cut off on the right side so this padding prevents that.
 		/// May need adjusting after the scrollbar disappears.
 		/// </summary>
+		[Tooltip("The last letter gets cut off on the right side so this padding prevents that." +
+			" May need adjusting after the scrollbar disappears.")]
 		public float rightPadding = 20;
 
+		[SerializeField]
+		private GameObject contentColumnPrefab = null;
 		[SerializeField]
 		private TextMeshProUGUI textPrefab = null;
 		[SerializeField]
 		private RectTransform pointer = null;
 		[SerializeField]
-		private Transform contents = null;
+		private RectTransform contents = null;
 		[SerializeField]
 		private ScrollRect scrollRect;
 
 
-		private List<TextMeshProUGUI> selectionList;
+		private List<List<TextMeshProUGUI>> selectionList;
+		private Coroutine resizeCoroutine;
 #if UNITY_EDITOR
-		private EditorCoroutine editorCoroutine;
+		private EditorCoroutine editorResizeCoroutine;
 #endif
+
+		private int selectedRow = 0;
+		private int selectedColumn = 0;
+		private bool selectionChanged = false;
+
+
+		public void SetSelection(int index)
+		{
+			index = 7;
+			selectedColumn = index / maxColumnLength;
+			selectedRow = index % maxColumnLength;
+
+			selectionChanged = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				RefreshSelected();
+#endif
+			//Debug.Log(selectedColumn + ", " + selectedRow);
+		}
+
+		private void RefreshSelected()
+		{
+			selectionChanged = false;
+
+			TextMeshProUGUI item = selectionList[selectedColumn][selectedRow];
+			if (item == null)
+			{
+				Debug.LogWarning("no item found at [" + selectedColumn + "][" + selectedRow + "]");
+				return;
+			}
+
+
+			Vector2 itempos = item.transform.localPosition;
+			itempos = item.transform.position;
+			itempos += pointerOffset;
+			pointer.transform.position = itempos;
+		}
+
+
+		public void NavigateDown()
+		{
+			if (++selectedRow >= selectionList[selectedColumn].Count && allowWrapAround)
+				selectedRow = 0;
+			selectionChanged = true;
+		}
+
+		public void NavigateUp()
+		{
+			if (--selectedRow < 0 && allowWrapAround)
+				selectedRow = selectionList[selectedColumn].Count - 1;
+			selectionChanged = true;
+		}
+
+		public void NavigateRight()
+		{
+			if (++selectedColumn >= selectionList.Count)
+				selectedColumn = 0;
+
+			while (selectionList[selectedColumn].Count <= selectedRow)
+			{   // selectedColumn has no item in that slot. 
+				if (++selectedColumn >= selectionList.Count)
+					selectedColumn = 0;
+			}
+
+			selectionChanged = true;
+		}
+
+		public void NavigateLeft()
+		{
+			if (--selectedColumn < 0)
+				selectedColumn = selectionList.Count - 1;
+
+			while (selectionList[selectedColumn].Count <= selectedRow)
+			{   // selectedColumn has no item in that slot. 
+				if (--selectedColumn < 0)
+					selectedColumn = selectionList.Count - 1;
+			}
+
+			selectionChanged = true;
+		}
+
+
+		void LateUpdate()
+		{
+			if (selectionChanged)
+				RefreshSelected();
+		}
 
 		/// <summary>
 		/// Notes on TMP bounds:
@@ -48,43 +148,74 @@ namespace AtomosZ.Scenimatic.UI
 		public void DisplayOptions(List<string> newOptions)
 		{
 			//options = newOptions;
+
 			for (int i = contents.childCount - 1; i >= 0; --i)
 			{
-				DestroyImmediate(contents.GetChild(i).gameObject);
+				var columnContent = contents.GetChild(i);
+				for (int j = columnContent.childCount - 1; j >= 0; --j)
+				{ // is this necessary? won't deleting the parent do this automatically?
+					DestroyImmediate(columnContent.GetChild(j).gameObject);
+				}
+
+				DestroyImmediate(columnContent.gameObject);
 			}
 
-			selectionList = new List<TextMeshProUGUI>();
+			Transform currentColContents = Instantiate(contentColumnPrefab, contents).transform;
 
-			foreach (string option in options)
+			selectionList = new List<List<TextMeshProUGUI>>();
+			selectionList.Add(new List<TextMeshProUGUI>());
+
+			int currentColumn = 0;
+			for (int i = 0; i < options.Count; ++i)
 			{
-				TextMeshProUGUI newOption = Instantiate(textPrefab, contents);
+				if (Mathf.Ceil((i + 1) / (currentColumn + 1f)) > maxColumnLength)
+				{
+					++currentColumn;
+					currentColContents = Instantiate(contentColumnPrefab, contents).transform;
+					selectionList.Add(new List<TextMeshProUGUI>());
+				}
+
+				string option = options[i];
+				TextMeshProUGUI newOption = Instantiate(textPrefab, currentColContents);
 				newOption.SetText(option);
-				selectionList.Add(newOption);
+				selectionList[currentColumn].Add(newOption);
 			}
 
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
-				editorCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(ResizePanelToFitText());
+				editorResizeCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(ResizePanelToFitText());
+			else
 #endif
+				resizeCoroutine = StartCoroutine(ResizePanelToFitText());
 		}
 
 
 		private IEnumerator ResizePanelToFitText()
 		{
 			yield return null;
-			Vector2 maxSize = Vector2.zero;
-			foreach (var t in selectionList)
+			Vector2 largest = minTextSize;
+
+			foreach (List<TextMeshProUGUI> columnList in selectionList)
 			{
-				Debug.Log(t.text + ": " + t.textBounds.size + "\n" + t.bounds.size);
-				if (t.textBounds.size.y > maxSize.y)
-					maxSize.y = t.textBounds.size.y;
-				if (t.textBounds.size.x > maxSize.x)
-					maxSize.x = t.textBounds.size.x;
+				for (int i = 0; i < columnList.Count; ++i)
+				{
+					TextMeshProUGUI tmp = columnList[i];
+					//Debug.Log(tmp.text + ": " + tmp.textBounds.size + "\n" + tmp.bounds.size);
+					if (tmp.textBounds.size.y > largest.y)
+						largest.y = tmp.textBounds.size.y;
+					if (tmp.textBounds.size.x > largest.x)
+						largest.x = tmp.textBounds.size.x;
+				}
 			}
+
+			if (largest.x > maxTextSize.x)
+				largest.x = maxTextSize.x;
 
 			RectTransform rt = GetComponent<RectTransform>();
 			var lg = GetComponent<VerticalLayoutGroup>();
-			rt.sizeDelta = new Vector2(maxSize.x + pointerGutterWidth + lg.padding.horizontal + rightPadding, maxSize.y * selectionList.Count + lg.padding.vertical);
+			rt.sizeDelta = new Vector2(
+				(selectionList.Count * largest.x) + pointerGutterWidth + lg.padding.horizontal + rightPadding,
+				largest.y * Mathf.Min(maxViewportItems, maxColumnLength) + lg.padding.vertical);
 		}
 	}
 }

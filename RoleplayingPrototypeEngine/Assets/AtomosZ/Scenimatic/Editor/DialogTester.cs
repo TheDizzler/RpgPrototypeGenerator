@@ -124,6 +124,11 @@ namespace AtomosZ.RPG.UI.EditorTools
 			{
 				((QueryPanel)target).DisplayOptions(new List<string>());
 			}
+
+			if (GUILayout.Button("IndexTest"))
+				{
+				((QueryPanel)target).SetSelection(0);
+			}
 		}
 	}
 }
