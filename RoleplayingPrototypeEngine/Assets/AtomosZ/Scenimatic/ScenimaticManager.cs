@@ -17,7 +17,7 @@ namespace AtomosZ.Scenimatic
 	public class ScenimaticManager : MonoBehaviour
 	{
 		public DialogPanel dialogPanel;
-		public QueryPanel queryPanel;
+		public SelectionPanel queryPanel;
 		/// <summary>
 		/// change this to a TextAsset to make assignment easier. which means changing extension name to plain .json
 		/// </summary>
@@ -167,7 +167,7 @@ namespace AtomosZ.Scenimatic
 					break;
 
 				case ScenimaticEvent.ScenimaticEventType.Query:
-					queryPanel.DisplayOptions(nextEvent.options);
+					queryPanel.SetOptionList(nextEvent.options);
 					break;
 
 				default:

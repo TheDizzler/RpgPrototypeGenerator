@@ -114,7 +114,7 @@ namespace AtomosZ.RPG.UI.EditorTools
 		}
 	}
 
-	[CustomEditor(typeof(QueryPanel))]
+	[CustomEditor(typeof(SelectionPanel))]
 	public class QueryPanelTester : Editor
 	{
 		public override void OnInspectorGUI()
@@ -122,27 +122,27 @@ namespace AtomosZ.RPG.UI.EditorTools
 			DrawDefaultInspector();
 			if (GUILayout.Button("Test Query"))
 			{
-				((QueryPanel)target).DisplayOptions(new List<string>());
+				((SelectionPanel)target).SetOptionList(new List<string>());
 			}
 
 			if (GUILayout.Button("IndexTest"))
 			{
-				((QueryPanel)target).SetSelection(0);
+				((SelectionPanel)target).SetSelection(7);
 			}
 
 
 			if (GUILayout.Button("^"))
-				((QueryPanel)target).NavigateUp();
+				((SelectionPanel)target).NavigateUp();
 
 			EditorGUILayout.BeginHorizontal();
 			if (GUILayout.Button("<"))
-				((QueryPanel)target).NavigateLeft();
+				((SelectionPanel)target).NavigateLeft();
 			if (GUILayout.Button(">"))
-				((QueryPanel)target).NavigateRight();
+				((SelectionPanel)target).NavigateRight();
 			EditorGUILayout.EndHorizontal();
 
 			if (GUILayout.Button("v"))
-				((QueryPanel)target).NavigateDown();
+				((SelectionPanel)target).NavigateDown();
 		}
 	}
 }

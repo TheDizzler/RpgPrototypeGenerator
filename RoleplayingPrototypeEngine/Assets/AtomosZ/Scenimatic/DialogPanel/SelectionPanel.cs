@@ -8,7 +8,11 @@ using UnityEngine.UI;
 
 namespace AtomosZ.Scenimatic.UI
 {
-	public class QueryPanel : MonoBehaviour
+	/// <summary>
+	/// A panel that takes a list of strings and allows user to select one.
+	/// TODO: Optional header.
+	/// </summary>
+	public class SelectionPanel : MonoBehaviour
 	{
 		public List<string> options;
 
@@ -53,13 +57,24 @@ namespace AtomosZ.Scenimatic.UI
 		private int selectedRow = 0;
 		private int selectedColumn = 0;
 		private bool selectionChanged = false;
+		private int index = 0;
 
 
-		public void SetSelection(int index)
+		public int GetSelection()
 		{
-			index = 7;
+			return index;
+		}
+
+		public string GetSelectedItem()
+		{
+			return options[index];
+		}
+
+		public void SetSelection(int newIndex)
+		{
+			index = newIndex;
 			if (index > options.Count)
-				index = options.Count -1;
+				index = options.Count - 1;
 			else if (index < 0)
 				index = 0;
 
@@ -71,26 +86,8 @@ namespace AtomosZ.Scenimatic.UI
 				RefreshSelected();
 			else
 #endif
-			selectionChanged = true;
+				selectionChanged = true;
 			//Debug.Log(selectedColumn + ", " + selectedRow);
-		}
-
-		private void RefreshSelected()
-		{
-			selectionChanged = false;
-
-			TextMeshProUGUI item = selectionList[selectedColumn][selectedRow];
-			if (item == null)
-			{
-				Debug.LogWarning("no item found at [" + selectedColumn + "][" + selectedRow + "]");
-				return;
-			}
-
-
-			Vector2 itempos = item.transform.localPosition;
-			itempos = item.transform.position;
-			itempos += pointerOffset;
-			pointer.transform.position = itempos;
 		}
 
 
@@ -162,10 +159,16 @@ namespace AtomosZ.Scenimatic.UI
 		}
 
 
-		void LateUpdate()
+		public void SetOptionList(List<string> newOptions, string header)
 		{
-			if (selectionChanged)
-				RefreshSelected();
+			SetHeader(header);
+			SetOptionList(newOptions);
+		}
+
+
+		public void SetHeader(string header)
+		{
+
 		}
 
 		/// <summary>
@@ -176,7 +179,7 @@ namespace AtomosZ.Scenimatic.UI
 		///		Waiting for the next frame (with a coroutine, for example) has the best results.
 		/// </summary>
 		/// <param name="newOptions"></param>
-		public void DisplayOptions(List<string> newOptions)
+		public void SetOptionList(List<string> newOptions)
 		{
 			//options = newOptions;
 
@@ -220,6 +223,31 @@ namespace AtomosZ.Scenimatic.UI
 				resizeCoroutine = StartCoroutine(ResizePanelToFitText());
 		}
 
+
+		void LateUpdate()
+		{
+			if (selectionChanged)
+				RefreshSelected();
+		}
+
+
+		private void RefreshSelected()
+		{
+			selectionChanged = false;
+
+			TextMeshProUGUI item = selectionList[selectedColumn][selectedRow];
+			if (item == null)
+			{
+				Debug.LogWarning("no item found at [" + selectedColumn + "][" + selectedRow + "]");
+				return;
+			}
+
+
+			Vector2 itempos = item.transform.localPosition;
+			itempos = item.transform.position;
+			itempos += pointerOffset;
+			pointer.transform.position = itempos;
+		}
 
 		private IEnumerator ResizePanelToFitText()
 		{
