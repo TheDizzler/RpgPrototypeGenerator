@@ -10,7 +10,6 @@ namespace AtomosZ.Scenimatic.UI
 {
 	/// <summary>
 	/// A panel that takes a list of strings and allows user to select one.
-	/// TODO: Optional header.
 	/// </summary>
 	public class SelectionPanel : MonoBehaviour
 	{
@@ -44,6 +43,8 @@ namespace AtomosZ.Scenimatic.UI
 		private RectTransform pointer = null;
 		[SerializeField]
 		private RectTransform contents = null;
+		[SerializeField]
+		private TextMeshProUGUI header = null;
 		[SerializeField]
 		private ScrollRect scrollRect;
 
@@ -159,16 +160,17 @@ namespace AtomosZ.Scenimatic.UI
 		}
 
 
-		public void SetOptionList(List<string> newOptions, string header)
+		public void SetOptionList(List<string> newOptions, string headerText)
 		{
-			SetHeader(header);
 			SetOptionList(newOptions);
+			SetHeader(headerText);
 		}
 
 
-		public void SetHeader(string header)
+		public void SetHeader(string headerText)
 		{
-
+			header.SetText(headerText);
+			header.gameObject.SetActive(true);
 		}
 
 		/// <summary>
@@ -181,6 +183,7 @@ namespace AtomosZ.Scenimatic.UI
 		/// <param name="newOptions"></param>
 		public void SetOptionList(List<string> newOptions)
 		{
+			header.gameObject.SetActive(false);
 			//options = newOptions;
 
 			for (int i = contents.childCount - 1; i >= 0; --i)
@@ -270,11 +273,14 @@ namespace AtomosZ.Scenimatic.UI
 			if (largest.x > maxTextSize.x)
 				largest.x = maxTextSize.x;
 
+			float headerAdjust = 0f;
+			if (header.gameObject.activeInHierarchy)
+				headerAdjust = header.textBounds.size.y;
 			RectTransform rt = GetComponent<RectTransform>();
 			var lg = GetComponent<VerticalLayoutGroup>();
 			rt.sizeDelta = new Vector2(
 				(selectionList.Count * largest.x) + pointerGutterWidth + lg.padding.horizontal + rightPadding,
-				largest.y * Mathf.Min(maxViewportItems, maxColumnLength) + lg.padding.vertical);
+				largest.y * Mathf.Min(maxViewportItems, maxColumnLength) + lg.padding.vertical + headerAdjust);
 		}
 	}
 }

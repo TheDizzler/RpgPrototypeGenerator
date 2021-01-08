@@ -120,9 +120,14 @@ namespace AtomosZ.RPG.UI.EditorTools
 		public override void OnInspectorGUI()
 		{
 			DrawDefaultInspector();
-			if (GUILayout.Button("Test Query"))
+			if (GUILayout.Button("Test Query (No Header)"))
 			{
 				((SelectionPanel)target).SetOptionList(new List<string>());
+			}
+
+			if (GUILayout.Button("Test Query (Header)"))
+			{
+				((SelectionPanel)target).SetOptionList(new List<string>(), "Oh HI Mark");
 			}
 
 			if (GUILayout.Button("IndexTest"))
