@@ -48,7 +48,6 @@ namespace AtomosZ.Scenimatic.UI
 		[SerializeField]
 		private ScrollRect scrollRect;
 
-
 		private List<List<TextMeshProUGUI>> selectionList;
 		private Coroutine resizeCoroutine;
 #if UNITY_EDITOR
@@ -58,37 +57,54 @@ namespace AtomosZ.Scenimatic.UI
 		private int selectedRow = 0;
 		private int selectedColumn = 0;
 		private bool selectionChanged = false;
-		private int index = 0;
+		private Vector2 itemSize;
 
+
+
+		public void ClearPanel()
+		{
+			header.SetText("");
+			header.gameObject.SetActive(false);
+			pointer.gameObject.SetActive(false);
+			gameObject.SetActive(false);
+
+			for (int i = contents.childCount - 1; i >= 0; --i)
+			{
+				var columnContent = contents.GetChild(i);
+				DestroyImmediate(columnContent.gameObject);
+			}
+
+			options = null;
+			selectionList = null;
+		}
 
 		public int GetSelection()
 		{
-			return index;
+			return selectedColumn * maxColumnLength + selectedRow;
 		}
 
 		public string GetSelectedItem()
 		{
-			return options[index];
+			return options[selectedColumn * maxColumnLength + selectedRow];
 		}
 
 		public void SetSelection(int newIndex)
 		{
-			index = newIndex;
-			if (index > options.Count)
-				index = options.Count - 1;
-			else if (index < 0)
-				index = 0;
+			if (newIndex > options.Count)
+				newIndex = options.Count - 1;
+			else if (newIndex < 0)
+				newIndex = 0;
 
-			selectedColumn = index / maxColumnLength;
-			selectedRow = index % maxColumnLength;
+			selectedColumn = newIndex / maxColumnLength;
+			selectedRow = newIndex % maxColumnLength;
 
+			pointer.gameObject.SetActive(true);
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
 				RefreshSelected();
 			else
 #endif
 				selectionChanged = true;
-			//Debug.Log(selectedColumn + ", " + selectedRow);
 		}
 
 
@@ -160,9 +176,9 @@ namespace AtomosZ.Scenimatic.UI
 		}
 
 
-		public void SetOptionList(List<string> newOptions, string headerText)
+		public void SetOptionList(List<string> newOptions, string headerText, int startSelectionIndex = 0)
 		{
-			SetOptionList(newOptions);
+			SetOptionList(newOptions, startSelectionIndex);
 			SetHeader(headerText);
 		}
 
@@ -181,10 +197,13 @@ namespace AtomosZ.Scenimatic.UI
 		///		Waiting for the next frame (with a coroutine, for example) has the best results.
 		/// </summary>
 		/// <param name="newOptions"></param>
-		public void SetOptionList(List<string> newOptions)
+		public void SetOptionList(List<string> newOptions, int startSelectionIndex = 0)
 		{
+			options = newOptions;
+
+			gameObject.SetActive(true);
 			header.gameObject.SetActive(false);
-			//options = newOptions;
+
 
 			for (int i = contents.childCount - 1; i >= 0; --i)
 			{
@@ -220,10 +239,10 @@ namespace AtomosZ.Scenimatic.UI
 
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
-				editorResizeCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(ResizePanelToFitText());
+				editorResizeCoroutine = EditorCoroutineUtility.StartCoroutineOwnerless(ResizePanelToFitText(startSelectionIndex));
 			else
 #endif
-				resizeCoroutine = StartCoroutine(ResizePanelToFitText());
+				resizeCoroutine = StartCoroutine(ResizePanelToFitText(startSelectionIndex));
 		}
 
 
@@ -245,33 +264,31 @@ namespace AtomosZ.Scenimatic.UI
 				return;
 			}
 
-
-			Vector2 itempos = item.transform.localPosition;
-			itempos = item.transform.position;
-			itempos += pointerOffset;
+			Vector2 itempos = item.transform.position;
+			itempos -= itemSize * .5f * transform.lossyScale.x;
+			itempos += pointerOffset * transform.lossyScale.x;
 			pointer.transform.position = itempos;
 		}
 
-		private IEnumerator ResizePanelToFitText()
+		private IEnumerator ResizePanelToFitText(int startSelectionIndex)
 		{
 			yield return null;
-			Vector2 largest = minTextSize;
+			itemSize = minTextSize;
 
 			foreach (List<TextMeshProUGUI> columnList in selectionList)
 			{
 				for (int i = 0; i < columnList.Count; ++i)
 				{
 					TextMeshProUGUI tmp = columnList[i];
-					//Debug.Log(tmp.text + ": " + tmp.textBounds.size + "\n" + tmp.bounds.size);
-					if (tmp.textBounds.size.y > largest.y)
-						largest.y = tmp.textBounds.size.y;
-					if (tmp.textBounds.size.x > largest.x)
-						largest.x = tmp.textBounds.size.x;
+					if (tmp.textBounds.size.y > itemSize.y)
+						itemSize.y = tmp.textBounds.size.y;
+					if (tmp.textBounds.size.x > itemSize.x)
+						itemSize.x = tmp.textBounds.size.x;
 				}
 			}
 
-			if (largest.x > maxTextSize.x)
-				largest.x = maxTextSize.x;
+			if (itemSize.x > maxTextSize.x)
+				itemSize.x = maxTextSize.x;
 
 			float headerAdjust = 0f;
 			if (header.gameObject.activeInHierarchy)
@@ -279,8 +296,11 @@ namespace AtomosZ.Scenimatic.UI
 			RectTransform rt = GetComponent<RectTransform>();
 			var lg = GetComponent<VerticalLayoutGroup>();
 			rt.sizeDelta = new Vector2(
-				(selectionList.Count * largest.x) + pointerGutterWidth + lg.padding.horizontal + rightPadding,
-				largest.y * Mathf.Min(maxViewportItems, maxColumnLength) + lg.padding.vertical + headerAdjust);
+				(selectionList.Count * itemSize.x) + pointerGutterWidth + lg.padding.horizontal + rightPadding,
+				itemSize.y * Mathf.Min(maxViewportItems, maxColumnLength, options.Count) + lg.padding.vertical + headerAdjust);
+
+			yield return null;
+			SetSelection(startSelectionIndex);
 		}
 	}
 }
