@@ -1,3 +1,0 @@
-dialog Relm_Portrait This is a test.\nIs it succesful?
-dialog Terra_Portrait It seems so.
-dialog Edgar_Portrait Hello, ladies.
