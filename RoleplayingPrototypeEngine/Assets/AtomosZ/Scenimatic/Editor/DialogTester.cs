@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using AtomosZ.Scenimatic;
+﻿using AtomosZ.Scenimatic;
 using AtomosZ.Scenimatic.EditorTools;
-using AtomosZ.Scenimatic.UI;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 
 
-namespace AtomosZ.RPG.UI.EditorTools
+namespace AtomosZ.UI.EditorTools
 {
 	[CustomEditor(typeof(ScenimaticManager))]
 	public class DialogTester : Editor
@@ -111,43 +109,6 @@ namespace AtomosZ.RPG.UI.EditorTools
 				mngr.ClearDialog();
 			}
 
-		}
-	}
-
-	[CustomEditor(typeof(SelectionPanel))]
-	public class QueryPanelTester : Editor
-	{
-		public override void OnInspectorGUI()
-		{
-			DrawDefaultInspector();
-			if (GUILayout.Button("Test Query (No Header)"))
-			{
-				((SelectionPanel)target).SetOptionList(new List<string>());
-			}
-
-			if (GUILayout.Button("Test Query (Header)"))
-			{
-				((SelectionPanel)target).SetOptionList(new List<string>(), "Oh HI Mark");
-			}
-
-			if (GUILayout.Button("IndexTest"))
-			{
-				((SelectionPanel)target).SetSelection(7);
-			}
-
-
-			if (GUILayout.Button("^"))
-				((SelectionPanel)target).NavigateUp();
-
-			EditorGUILayout.BeginHorizontal();
-			if (GUILayout.Button("<"))
-				((SelectionPanel)target).NavigateLeft();
-			if (GUILayout.Button(">"))
-				((SelectionPanel)target).NavigateRight();
-			EditorGUILayout.EndHorizontal();
-
-			if (GUILayout.Button("v"))
-				((SelectionPanel)target).NavigateDown();
 		}
 	}
 }

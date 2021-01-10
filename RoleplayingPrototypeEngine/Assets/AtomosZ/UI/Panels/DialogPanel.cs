@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-namespace AtomosZ.Scenimatic.UI
+namespace AtomosZ.UI
 {
 	/// <summary>
 	/// Duties of DialogPanel:
@@ -18,7 +18,7 @@ namespace AtomosZ.Scenimatic.UI
 	/// </summary>
 	public class DialogPanel : MonoBehaviour
 	{
-		private const char escapeChar = '<';
+		private const char escapeChar = '{';
 
 		public Image portrait;
 		public TextMeshProUGUI textbox;
@@ -43,7 +43,7 @@ namespace AtomosZ.Scenimatic.UI
 		}
 
 
-		public void Clear()
+		public void ClearPanel()
 		{
 			portrait.sprite = emptyPortrait;
 			textbox.text = "";
@@ -85,6 +85,11 @@ namespace AtomosZ.Scenimatic.UI
 		}
 
 
+		public bool IsFinished()
+		{
+			return typingCoroutine == null;
+		}
+
 		public void HurryText()
 		{
 			displayAll = true;
@@ -123,7 +128,13 @@ namespace AtomosZ.Scenimatic.UI
 			}
 
 			continueTextImage.gameObject.SetActive(true);
-			typingCoroutine = null;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				editorCoroutine = null;
+			else
+#endif
+				typingCoroutine = null;
+
 		}
 	}
 }

@@ -6,12 +6,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace AtomosZ.Scenimatic.UI
+namespace AtomosZ.UI
 {
 	/// <summary>
 	/// A panel that takes a list of strings and allows user to select one.
 	/// </summary>
-	public class SelectionPanel : MonoBehaviour
+	public class SelectionPanel : MonoBehaviour, INavigatableUI
 	{
 		public List<string> options;
 
@@ -78,7 +78,7 @@ namespace AtomosZ.Scenimatic.UI
 			selectionList = null;
 		}
 
-		public int GetSelection()
+		public int GetSelectedIndex()
 		{
 			return selectedColumn * maxColumnLength + selectedRow;
 		}
@@ -106,6 +106,15 @@ namespace AtomosZ.Scenimatic.UI
 #endif
 				selectionChanged = true;
 		}
+
+
+		public bool Confirm()
+		{
+			return true;
+		}
+
+
+		public void Cancel() { }
 
 
 		public void NavigateDown()
