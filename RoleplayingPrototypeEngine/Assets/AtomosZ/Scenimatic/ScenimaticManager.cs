@@ -18,6 +18,8 @@ namespace AtomosZ.Scenimatic
 	/// </summary>
 	public class ScenimaticManager : MonoBehaviour
 	{
+		public const float InputNavigationThreshold = .4f;
+
 		public DialogPanel dialogPanel;
 		public SelectionPanel queryPanel;
 		/// <summary>
@@ -26,26 +28,106 @@ namespace AtomosZ.Scenimatic
 		public string eventFile;
 		[HideInInspector]
 		public InputNode eventInput;
-		[System.NonSerialized]
-		public ScenimaticBranch currentBranch = null;
+		/// <summary>
+		/// Set but never really used.
+		/// </summary>
+		public bool eventPrepared = false;
+		public PlayerInput playerInput = null;
+		//[System.NonSerialized] temporarily making serialized so can click to another object and not lose context in non-play mode
+		public ScenimaticSerializedNode currentBranch = null;
 
 		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
 		private string eventPath;
 
 		/// <summary>
 		/// Variables that are passed by connection, using GUIDs of connection points.
-		/// When a variable is set (by a player choice, for example), add it to here.
+		/// When a variable is set (via Selection Panel, for example), add it to here.
+		/// All variables saved as strings to be parsed as needed.
 		/// </summary>
-		private Dictionary<string, object> guidPassedVariables;
+		private Dictionary<string, string> guidPassedVariables;
 		/// <summary>
-		/// The GUID of the INPUT CONNECTION POINT for the branch.
+		/// The GUID of the INPUT CONNECTION POINT for the branch, NOT the GUID of the branch itself.
 		/// </summary>
-		private Dictionary<string, ScenimaticBranch> guidBranches;
+		private Dictionary<string, ScenimaticSerializedNode> guidBranches;
 		private Dictionary<string, Connection> guidConnectionOutputs;
+		private Dictionary<string, Connection> guidConnectionInputs;
+		private string nextGUID;
+		private int querySelectionIndex;
+		private ScenimaticEvent currentEvent;
 
 
-		public void LoadEvent(string path)
+		void Start()
 		{
+			playerInput.DeactivateInput();
+			dialogPanel.Hide();
+			queryPanel.Hide();
+		}
+
+		/// <summary>
+		/// UI Input
+		/// CallbackContext.Phase:
+		///		Started - OnButtonDown
+		///		Performed - same as above?
+		///		Canceled - OnButtonUp
+		/// </summary>
+		public void OnConfirm(CallbackContext value)
+		{
+			if (value.phase == InputActionPhase.Started)
+			{
+				switch (currentEvent.eventType)
+				{
+					case ScenimaticEvent.ScenimaticEventType.Query:
+
+						int selectionIndex = queryPanel.GetSelectedIndex();
+						Debug.Log("Index: " + selectionIndex);
+						Debug.Log("OutputGUID: " + currentEvent.outputGUIDs[selectionIndex]);
+						string outConnGUID = currentEvent.outputGUIDs[selectionIndex];
+						var conn = guidConnectionOutputs[outConnGUID];
+						if (conn.type == ConnectionType.ControlFlow)
+						{
+							nextGUID = guidConnectionInputs[conn.connectedToGUIDs[0]].GUID;
+							Debug.Log(nextGUID);
+						}
+						else
+						{
+							string selected = queryPanel.GetSelectedItem();
+							Debug.Log("Selected: " + selected);
+							guidPassedVariables.Add(currentEvent.outputGUIDs[0], selected);
+						}
+
+						queryPanel.Clear();
+
+						NextEventInQueue();
+						break;
+
+					case ScenimaticEvent.ScenimaticEventType.Dialog:
+						if (dialogPanel.Confirm())
+							NextEventInQueue();
+						break;
+				}
+			}
+		}
+
+		public void OnNavigate(CallbackContext value)
+		{
+			if (value.phase != InputActionPhase.Started
+				|| currentEvent.eventType != ScenimaticEvent.ScenimaticEventType.Query)
+				return;
+
+			Vector2 direction = value.ReadValue<Vector2>();
+			if (direction.x > InputNavigationThreshold)
+				queryPanel.NavigateRight();
+			else if (direction.x < -InputNavigationThreshold)
+				queryPanel.NavigateLeft();
+			if (direction.y > InputNavigationThreshold)
+				queryPanel.NavigateUp();
+			else if (direction.y < -InputNavigationThreshold)
+				queryPanel.NavigateDown();
+		}
+
+		public void LoadScenimatic(string path)
+		{
+			ClearPanels();
 			currentBranch = null;
 			eventPath = path;
 			StreamReader reader = new StreamReader(eventPath);
@@ -53,97 +135,81 @@ namespace AtomosZ.Scenimatic
 			reader.Close();
 
 			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
-			Debug.Log("Loaded event " + script.sceneName);
-			Debug.Log("Using script atlas " + script.spriteAtlas);
-			Debug.Log("First branch: " + script.branches[0].data.branchName + " of " + script.branches.Count);
 			eventInput = script.inputNode;
 			// this is not ideal. It will force users to have their sprite atlas in a resource folder.
 			dialogPanel.spriteAtlas = Resources.Load<SpriteAtlas>(script.spriteAtlas);
 
-			guidBranches = new Dictionary<string, ScenimaticBranch>();
+			guidBranches = new Dictionary<string, ScenimaticSerializedNode>();
 			guidConnectionOutputs = new Dictionary<string, Connection>();
+			guidConnectionInputs = new Dictionary<string, Connection>();
 
 			foreach (var branch in script.branches)
 			{
-				guidBranches.Add(branch.connectionInputs[0].GUID, branch.data);
+				guidBranches.Add(branch.connectionInputs[0].GUID, branch);
 				foreach (var conn in branch.connectionOutputs)
-				{
 					guidConnectionOutputs.Add(conn.GUID, conn);
-				}
+				foreach (var conn in branch.connectionInputs)
+					guidConnectionInputs.Add(conn.GUID, conn);
 			}
 		}
 
 
+		/// <summary>
+		/// Currently typechecks all objects to see if they conform to what
+		/// the script is expecting and displays a warning if the do not.
+		/// However, all data is saved as strings to be parsed when needed
+		/// anyway, so...maybe it's not necessary?
+		/// </summary>
+		/// <param name="inputParams"></param>
 		public void StartEvent(object[] inputParams)
 		{
+			ClearPanels();
+			eventQueue.Clear();
+
 			if (eventInput.connections.Count - 1 != inputParams.Length)
 			{
 				Debug.LogError("Invalid Scenimatic Event setup for event " + eventPath
 					+ ".\nInput parameter count " + inputParams.Length
-					+ " does not match connections count " + eventInput.connections.Count);
+					+ " does not match expected count of " + eventInput.connections.Count);
 			}
 
-			guidPassedVariables = new Dictionary<string, object>();
+			guidPassedVariables = new Dictionary<string, string>();
 			var conns = eventInput.connections;
 			for (int i = 1; i < conns.Count; ++i)
 			{
-				Debug.Log(conns[i].variableName + " " + conns[i].type);
-
 				switch (conns[i].type)
 				{
 					case ConnectionType.Int:
 						if (!(inputParams[i - 1] is int))
 						{
-							Debug.LogError("input param #" + i + " does not match event input." +
+							Debug.LogWarning("input param #" + i + " does not match event input." +
 								" Event was expecting int but received " + inputParams[i].GetType());
-							continue;
 						}
 						break;
 					case ConnectionType.Float:
 						if (!(inputParams[i - 1] is float))
 						{
-							Debug.LogError("input param #" + i + " does not match event input." +
+							Debug.LogWarning("input param #" + i + " does not match event input." +
 								" Event was expecting float but received " + inputParams[i].GetType());
-							continue;
 						}
 						break;
 					case ConnectionType.String:
 						if (!(inputParams[i - 1] is string))
 						{
-							Debug.LogError("input param #" + i + " does not match event input." +
+							Debug.LogWarning("input param #" + i + " does not match event input." +
 								" Event was expecting string but received " + inputParams[i].GetType());
-							continue;
 						}
 						break;
 				}
 
-				guidPassedVariables.Add(conns[i].GUID, inputParams[i - 1]);
+				guidPassedVariables.Add(conns[i].GUID, inputParams[i - 1].ToString());
 			}
 
-			currentBranch = guidBranches[eventInput.connections[0].connectedToGUIDs[0]];
-			Debug.Log("First Branch: " + currentBranch.branchName);
+			LoadBranch(eventInput.connections[0].connectedToGUIDs[0]);
 
-			foreach (var evnt in currentBranch.events)
-			{
-				var eventType = evnt.eventType;
-				switch (eventType)
-				{
-					case ScenimaticEvent.ScenimaticEventType.Dialog:
-						string imageName = evnt.image;
-						string dialogText = evnt.text;
-						ScenimaticEvent dialog = ScenimaticEvent.CreateDialogEvent(dialogText, imageName);
-						eventQueue.Enqueue(dialog);
-						break;
-
-					case ScenimaticEvent.ScenimaticEventType.Query:
-						eventQueue.Enqueue(ScenimaticEvent.CreateQueryEvent(evnt.options));
-						break;
-
-					default:
-						Debug.Log("Unknown event type: " + eventType);
-						break;
-				}
-			}
+			if (Application.isPlaying)
+				playerInput.ActivateInput();
+			eventPrepared = true;
 		}
 
 
@@ -152,36 +218,83 @@ namespace AtomosZ.Scenimatic
 			return eventQueue.Count;
 		}
 
-		public void RunEventQueue()
+		public void NextEventInQueue()
 		{
 			if (eventQueue.Count == 0)
-			{
-				Debug.Log("EventQueue empty");
-				ClearDialog();
+			{ // load next branch
+				if (!currentBranch.connectionOutputs[0].hide)
+				{
+					if (currentBranch.connectionOutputs[0].connectedToGUIDs == null // change this an ExitNode check (note: implement ExitNodes)
+						|| currentBranch.connectionOutputs[0].connectedToGUIDs.Count == 0)
+					{
+						Debug.LogWarning("Came to an end ");
+						return;
+					}
+
+					nextGUID = currentBranch.connectionOutputs[0].connectedToGUIDs[0];
+				}
+
+				LoadBranch(nextGUID);
 				return;
 			}
 
-			var nextEvent = eventQueue.Dequeue();
-			switch (nextEvent.eventType)
+			currentEvent = eventQueue.Dequeue();
+			switch (currentEvent.eventType)
 			{
 				case ScenimaticEvent.ScenimaticEventType.Dialog:
-					dialogPanel.NextTextBlock(nextEvent.image, nextEvent.text);
+					dialogPanel.NextTextBlock(currentEvent.image, currentEvent.text);
 					break;
 
 				case ScenimaticEvent.ScenimaticEventType.Query:
-					queryPanel.SetOptionList(nextEvent.options);
+					queryPanel.SetOptionList(currentEvent.options, 0);
 					break;
 
 				default:
-					Debug.LogWarning("Event type " + nextEvent.eventType + " unrecognized or un-implemented");
+					Debug.LogWarning("Event type " + currentEvent.eventType + " unrecognized or un-implemented");
 					break;
 			}
 		}
 
 
-		public void ClearDialog()
+		public void GetQuerySelection()
 		{
+			querySelectionIndex = queryPanel.GetSelectedIndex();
+		}
+
+
+		public void ClearPanels()
+		{
+			eventPrepared = false;
 			dialogPanel.Clear();
+			queryPanel.Clear();
+		}
+
+
+		private void LoadBranch(string guid)
+		{
+			currentBranch = guidBranches[guid];
+			Debug.Log("First Branch: " + currentBranch.data.branchName);
+
+			foreach (var evnt in currentBranch.data.events)
+			{
+				var eventType = evnt.eventType;
+				switch (eventType)
+				{
+					case ScenimaticEvent.ScenimaticEventType.Dialog:
+						eventQueue.Enqueue(evnt);
+						break;
+
+					case ScenimaticEvent.ScenimaticEventType.Query:
+						eventQueue.Enqueue(evnt);
+						break;
+
+					default:
+						Debug.Log("Unknown event type: " + eventType);
+						break;
+				}
+			}
+
+			NextEventInQueue();
 		}
 	}
 }

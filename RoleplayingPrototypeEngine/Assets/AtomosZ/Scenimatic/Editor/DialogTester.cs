@@ -17,7 +17,7 @@ namespace AtomosZ.UI.EditorTools
 		{
 			if (!string.IsNullOrEmpty(((ScenimaticManager)target).eventFile))
 			{
-				((ScenimaticManager)target).LoadEvent(Application.dataPath + "/" + ((ScenimaticManager)target).eventFile);
+				((ScenimaticManager)target).LoadScenimatic(Application.dataPath + "/" + ((ScenimaticManager)target).eventFile);
 			}
 		}
 
@@ -54,6 +54,9 @@ namespace AtomosZ.UI.EditorTools
 								inputParams[i - 1] = "";
 							inputParams[i - 1] = EditorGUILayout.DelayedTextField((string)inputParams[i - 1]);
 							break;
+						default:
+							Debug.LogWarning(conn.type + " not yet implemented in DialogTester");
+							break;
 					}
 					EditorGUILayout.EndHorizontal();
 				}
@@ -61,7 +64,6 @@ namespace AtomosZ.UI.EditorTools
 
 			if (GUILayout.Button("Load Event"))
 			{
-				inputParams = null;
 				string path = mngr.eventFile;
 				if (string.IsNullOrEmpty(path))
 				{
@@ -80,33 +82,30 @@ namespace AtomosZ.UI.EditorTools
 						else
 						{
 							mngr.eventFile = path.Substring(index + 7);
-							mngr.LoadEvent(path);
+							mngr.LoadScenimatic(path);
+							mngr.StartEvent(inputParams);
 						}
 					}
 				}
 				else
 				{
-					mngr.LoadEvent(Application.dataPath + "/" + path);
+					mngr.LoadScenimatic(Application.dataPath + "/" + path);
+					mngr.StartEvent(inputParams);
 				}
 			}
 
-			if (mngr.currentBranch == null)
-			{
-				if (GUILayout.Button("Start Scenimatic"))
-					mngr.StartEvent(inputParams);
-			}
-			else
+			if (mngr.eventPrepared)
 			{
 				int numEvents = ((ScenimaticManager)target).GetEventCount();
 				if (GUILayout.Button("Next Event (" + numEvents + " in queue)"))
 				{
-					mngr.RunEventQueue();
+					mngr.NextEventInQueue();
 				}
 			}
 
 			if (GUILayout.Button("Clear Dialog"))
 			{
-				mngr.ClearDialog();
+				mngr.ClearPanels();
 			}
 
 		}

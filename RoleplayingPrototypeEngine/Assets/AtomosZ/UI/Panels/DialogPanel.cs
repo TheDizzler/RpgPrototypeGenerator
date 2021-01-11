@@ -16,7 +16,7 @@ namespace AtomosZ.UI
 	///		Parsing any text or files (aside from font/style info)
 	///		
 	/// </summary>
-	public class DialogPanel : MonoBehaviour
+	public class DialogPanel : MonoBehaviour, IPanelUI
 	{
 		private const char escapeChar = '{';
 
@@ -43,12 +43,49 @@ namespace AtomosZ.UI
 		}
 
 
-		public void ClearPanel()
+		public void Clear()
 		{
 			portrait.sprite = emptyPortrait;
 			textbox.text = "";
 			gameObject.SetActive(false);
 		}
+
+		public void Show()
+		{
+			gameObject.SetActive(true);
+		}
+
+		public void Hide()
+		{
+			gameObject.SetActive(false);
+		}
+
+		public void NavigateUp() { }
+
+		public void NavigateDown() { }
+
+		public void NavigateRight() { }
+
+		public void NavigateLeft() { }
+
+		/// <summary>
+		/// If text has not finished displaying completely, sets text to finish quickly and returns false.
+		/// Returns true if text has finished displaying completely.
+		/// </summary>
+		/// <returns></returns>
+		public bool Confirm()
+		{
+			if (!IsFinished())
+			{
+				HurryText();
+				return false;
+			}
+
+			return true;
+		}
+
+		public void Cancel() { }
+
 
 		public void NextTextBlock(string image, string textBlock)
 		{
@@ -90,11 +127,11 @@ namespace AtomosZ.UI
 			return typingCoroutine == null;
 		}
 
-		public void HurryText()
+
+		private void HurryText()
 		{
 			displayAll = true;
 		}
-
 
 
 		private IEnumerator DisplayText(string fullText)

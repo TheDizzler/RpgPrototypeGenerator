@@ -11,7 +11,7 @@ namespace AtomosZ.UI
 	/// <summary>
 	/// A panel that takes a list of strings and allows user to select one.
 	/// </summary>
-	public class SelectionPanel : MonoBehaviour, INavigatableUI
+	public class SelectionPanel : MonoBehaviour, IPanelUI
 	{
 		public List<string> options;
 
@@ -25,7 +25,7 @@ namespace AtomosZ.UI
 
 		public Vector2 minTextSize;
 		public Vector2 maxTextSize;
-		public Vector2 pointerOffset;
+		public Vector3 pointerOffset;
 		public float pointerGutterWidth = 80;
 		/// <summary>
 		/// The last letter gets cut off on the right side so this padding prevents that.
@@ -57,26 +57,9 @@ namespace AtomosZ.UI
 		private int selectedRow = 0;
 		private int selectedColumn = 0;
 		private bool selectionChanged = false;
-		private Vector2 itemSize;
+		private Vector3 itemSize;
 
 
-
-		public void ClearPanel()
-		{
-			header.SetText("");
-			header.gameObject.SetActive(false);
-			pointer.gameObject.SetActive(false);
-			gameObject.SetActive(false);
-
-			for (int i = contents.childCount - 1; i >= 0; --i)
-			{
-				var columnContent = contents.GetChild(i);
-				DestroyImmediate(columnContent.gameObject);
-			}
-
-			options = null;
-			selectionList = null;
-		}
 
 		public int GetSelectedIndex()
 		{
@@ -108,13 +91,52 @@ namespace AtomosZ.UI
 		}
 
 
+		public void Clear()
+		{
+			header.SetText("");
+			header.gameObject.SetActive(false);
+			pointer.gameObject.SetActive(false);
+			gameObject.SetActive(false);
+
+			for (int i = contents.childCount - 1; i >= 0; --i)
+			{
+				var columnContent = contents.GetChild(i);
+				DestroyImmediate(columnContent.gameObject);
+			}
+
+			options = null;
+			selectionList = null;
+			selectedColumn = 0;
+			selectedRow = -1;
+		}
+
+
+		public void Show()
+		{
+			gameObject.SetActive(true);
+		}
+
+		public void Hide()
+		{
+			gameObject.SetActive(false);
+		}
+
+		/// <summary>
+		/// Always returns true and does nothing.
+		/// </summary>
+		/// <returns></returns>
 		public bool Confirm()
 		{
 			return true;
 		}
 
-
-		public void Cancel() { }
+		/// <summary>
+		/// Hides window.
+		/// </summary>
+		public void Cancel()
+		{
+			Hide();
+		}
 
 
 		public void NavigateDown()
@@ -273,10 +295,14 @@ namespace AtomosZ.UI
 				return;
 			}
 
-			Vector2 itempos = item.transform.position;
+			Vector3 itempos = item.transform.position;
 			itempos -= itemSize * .5f * transform.lossyScale.x;
 			itempos += pointerOffset * transform.lossyScale.x;
+			itempos.z = 0;
 			pointer.transform.position = itempos;
+			// for some reason the pointer likes to make it's local z -800 something....
+			pointer.transform.localPosition = 
+				new Vector3(pointer.transform.localPosition.x, pointer.transform.localPosition.y, 0);
 		}
 
 		private IEnumerator ResizePanelToFitText(int startSelectionIndex)

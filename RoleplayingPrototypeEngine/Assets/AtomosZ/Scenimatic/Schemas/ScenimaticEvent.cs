@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 
+
 namespace AtomosZ.Scenimatic.Schemas
 {
 	[System.Serializable]
@@ -59,7 +60,6 @@ namespace AtomosZ.Scenimatic.Schemas
 		public Sprite sprite;
 #endif
 
-
 		//  Query variables
 		public List<string> options;
 		/// <summary>
@@ -74,21 +74,34 @@ namespace AtomosZ.Scenimatic.Schemas
 		public List<Connection> connections;
 #endif
 
-
+#if UNITY_EDITOR
+		/// <summary>
+		/// For EDITOR use only!
+		/// </summary>
+		/// <returns></returns>
 		public static ScenimaticEvent CreateEmpytEvent()
 		{
 			return new ScenimaticEvent();
 		}
 
+		/// <summary>
+		/// For EDITOR use only!
+		/// </summary>
+		/// <returns></returns>
 		public static ScenimaticEvent CreateDialogEvent(string dialogText, string imageName)
 		{
 			return new ScenimaticEvent(dialogText, imageName);
 		}
 
+		/// <summary>
+		/// For EDITOR use only!
+		/// </summary>
+		/// <returns></returns>
 		public static ScenimaticEvent CreateQueryEvent(List<string> choices)
 		{
 			return new ScenimaticEvent(choices);
 		}
+#endif
 
 
 		/// <summary>

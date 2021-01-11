@@ -48,7 +48,7 @@ namespace AtomosZ.UI.EditorTools
 				((SelectionPanel)target).NavigateDown();
 
 			if (GUILayout.Button("Clear"))
-				((SelectionPanel)target).ClearPanel();
+				((SelectionPanel)target).Clear();
 		}
 	}
 }
