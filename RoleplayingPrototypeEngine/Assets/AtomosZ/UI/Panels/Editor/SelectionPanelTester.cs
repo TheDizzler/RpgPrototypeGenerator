@@ -9,7 +9,14 @@ namespace AtomosZ.UI.EditorTools
 	{
 		public List<string> testList = new List<string>
 		{
-			"A", "B", "CCCCC",
+			"0", "1", "2",
+			"3", "4", "5CCCC",
+			"6", "B", "8CCCC",
+			"9", "B", "11CCCC",
+			"12", "B", "14CCCCC",
+			"15", "B", "17CCCCC",
+			"18", "B", "20CCCCC",
+			"21", "B", "23CCCCC",
 		};
 		private int rnd = 0;
 
@@ -19,18 +26,18 @@ namespace AtomosZ.UI.EditorTools
 			DrawDefaultInspector();
 			if (GUILayout.Button("Test Query (No Header)"))
 			{
-				((SelectionPanel)target).SetOptionList(testList);
+				((SelectionPanel)target).SetOptionList(testList, 0);
 			}
 
 			if (GUILayout.Button("Test Query (Header)"))
 			{
-				((SelectionPanel)target).SetOptionList(testList, "Oh HI Mark");
+				((SelectionPanel)target).SetOptionList(testList, "Oh HI Mark", 8);
 			}
 
 			if (GUILayout.Button("IndexTest - " + rnd))
 			{
-				((SelectionPanel)target).SetSelection(0);
 				rnd = Random.Range(0, ((SelectionPanel)target).options.Count);
+				((SelectionPanel)target).SetSelection(rnd);
 			}
 
 

@@ -51,6 +51,8 @@ namespace AtomosZ.UI
 		private HorizontalLayoutGroup contentsLayout = null;
 		[SerializeField]
 		private VerticalLayoutGroup viewportLayout = null;
+		[SerializeField]
+		private Scrollbar scrollbar = null;
 
 		private List<List<TextMeshProUGUI>> selectionList;
 		private Coroutine resizeCoroutine;
@@ -60,6 +62,9 @@ namespace AtomosZ.UI
 
 		private int selectedRow = 0;
 		private int selectedColumn = 0;
+		private int firstIndexInViewport;
+		private int lastIndexInViewport;
+		private float stepValue;
 		private bool selectionChanged = false;
 		private Vector3 itemSize;
 
@@ -84,6 +89,20 @@ namespace AtomosZ.UI
 
 			selectedColumn = newIndex / maxColumnLength;
 			selectedRow = newIndex % maxColumnLength;
+
+			firstIndexInViewport = selectedRow - Mathf.FloorToInt(maxViewportItems * .5f);
+			lastIndexInViewport = selectedRow + Mathf.CeilToInt(maxViewportItems * .5f) - 1;
+			if (firstIndexInViewport < 0)
+			{
+				lastIndexInViewport = maxViewportItems - 1;
+				firstIndexInViewport = 0;
+			}
+			else if (lastIndexInViewport > maxColumnLength - 1)
+			{
+				lastIndexInViewport = maxColumnLength - 1;
+				firstIndexInViewport = lastIndexInViewport - (maxViewportItems - 1);
+			}
+
 
 			pointer.gameObject.SetActive(true);
 #if UNITY_EDITOR
@@ -293,6 +312,22 @@ namespace AtomosZ.UI
 		private void RefreshSelected()
 		{
 			selectionChanged = false;
+			while (selectedRow < firstIndexInViewport)
+			{
+				--firstIndexInViewport;
+				--lastIndexInViewport;
+			}
+
+			while (selectedRow > lastIndexInViewport)
+			{
+				++firstIndexInViewport;
+				++lastIndexInViewport;
+			}
+
+			float selectionStepMultiplier = Mathf.Max(0, 1f - firstIndexInViewport * stepValue);
+			scrollbar.value = selectionStepMultiplier;
+
+
 
 			TextMeshProUGUI item = selectionList[selectedColumn][selectedRow];
 			if (item == null)
@@ -304,9 +339,10 @@ namespace AtomosZ.UI
 			Vector3 itempos = item.transform.position;
 			itempos -= itemSize * .5f * transform.lossyScale.x;
 			itempos += pointerOffset * transform.lossyScale.x;
-			itempos.x -= rightPadding * transform.lossyScale.x *.5f;
+			itempos.x -= rightPadding * transform.lossyScale.x * .5f;
 			itempos.z = 0;
 			pointer.transform.position = itempos;
+
 			// for some reason the pointer likes to make it's local z -800 something....
 			pointer.transform.localPosition =
 				new Vector3(pointer.transform.localPosition.x, pointer.transform.localPosition.y, 0);
@@ -343,6 +379,9 @@ namespace AtomosZ.UI
 				itemSize.y * Mathf.Min(maxViewportItems, maxColumnLength, options.Count)
 					+ lg.padding.vertical + headerAdjust);
 
+			scrollbar.numberOfSteps = maxColumnLength - maxViewportItems + 1;
+			stepValue = 1f / (scrollbar.numberOfSteps - 1);
+			
 			yield return null;
 			SetSelection(startSelectionIndex);
 		}
