@@ -27,7 +27,8 @@ namespace AtomosZ.UI
 		public Vector2 minTextSize;
 		public Vector2 maxTextSize;
 		public Vector3 pointerOffset;
-		public float pointerGutterWidth = 80;
+		[Tooltip("Left padding")]
+		public int pointerGutterWidth = 80;
 		/// <summary>
 		/// The last letter gets cut off on the right side so this padding prevents that.
 		/// May need adjusting after the scrollbar disappears.
@@ -48,6 +49,8 @@ namespace AtomosZ.UI
 		private TextMeshProUGUI header = null;
 		[SerializeField]
 		private HorizontalLayoutGroup contentsLayout = null;
+		[SerializeField]
+		private VerticalLayoutGroup viewportLayout = null;
 
 		private List<List<TextMeshProUGUI>> selectionList;
 		private Coroutine resizeCoroutine;
@@ -210,7 +213,6 @@ namespace AtomosZ.UI
 
 		public void SetOptionList(List<string> newOptions, string headerText, int startSelectionIndex = 0)
 		{
-			contentsLayout.spacing = spaceBetweenColumns;
 			SetOptionList(newOptions, startSelectionIndex);
 			SetHeader(headerText);
 		}
@@ -234,6 +236,8 @@ namespace AtomosZ.UI
 		{
 			options = newOptions;
 
+			contentsLayout.spacing = spaceBetweenColumns;
+			viewportLayout.padding.left = pointerGutterWidth;
 			gameObject.SetActive(true);
 			header.gameObject.SetActive(false);
 
@@ -300,6 +304,7 @@ namespace AtomosZ.UI
 			Vector3 itempos = item.transform.position;
 			itempos -= itemSize * .5f * transform.lossyScale.x;
 			itempos += pointerOffset * transform.lossyScale.x;
+			itempos.x -= rightPadding * transform.lossyScale.x *.5f;
 			itempos.z = 0;
 			pointer.transform.position = itempos;
 			// for some reason the pointer likes to make it's local z -800 something....
