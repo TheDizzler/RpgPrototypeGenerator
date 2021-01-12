@@ -10,6 +10,7 @@ namespace AtomosZ.UI
 {
 	/// <summary>
 	/// A panel that takes a list of strings and allows user to select one.
+	/// Auto-places items in columns based on settings.
 	/// </summary>
 	public class SelectionPanel : MonoBehaviour, IPanelUI
 	{
@@ -23,8 +24,11 @@ namespace AtomosZ.UI
 		[Range(2, 50)]
 		public int maxColumnLength = 10;
 		public float spaceBetweenColumns = 100;
-
+		[Tooltip("The mininum size of an item in the list." +
+			" Basically sets the minimum length of a column and minimum height of a row.")]
 		public Vector2 minTextSize;
+		[Tooltip("The maximum size of an item in the list." +
+			" Basically sets the maximum length of a column.")]
 		public Vector2 maxTextSize;
 		public Vector3 pointerOffset;
 		[Tooltip("Left padding")]
