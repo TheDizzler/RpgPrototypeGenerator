@@ -22,6 +22,7 @@ namespace AtomosZ.UI
 		[Tooltip("Number of items in a column before starting a new column")]
 		[Range(2, 50)]
 		public int maxColumnLength = 10;
+		public float spaceBetweenColumns = 100;
 
 		public Vector2 minTextSize;
 		public Vector2 maxTextSize;
@@ -46,7 +47,7 @@ namespace AtomosZ.UI
 		[SerializeField]
 		private TextMeshProUGUI header = null;
 		[SerializeField]
-		private ScrollRect scrollRect;
+		private HorizontalLayoutGroup contentsLayout = null;
 
 		private List<List<TextMeshProUGUI>> selectionList;
 		private Coroutine resizeCoroutine;
@@ -209,6 +210,7 @@ namespace AtomosZ.UI
 
 		public void SetOptionList(List<string> newOptions, string headerText, int startSelectionIndex = 0)
 		{
+			contentsLayout.spacing = spaceBetweenColumns;
 			SetOptionList(newOptions, startSelectionIndex);
 			SetHeader(headerText);
 		}
@@ -301,7 +303,7 @@ namespace AtomosZ.UI
 			itempos.z = 0;
 			pointer.transform.position = itempos;
 			// for some reason the pointer likes to make it's local z -800 something....
-			pointer.transform.localPosition = 
+			pointer.transform.localPosition =
 				new Vector3(pointer.transform.localPosition.x, pointer.transform.localPosition.y, 0);
 		}
 
@@ -331,8 +333,10 @@ namespace AtomosZ.UI
 			RectTransform rt = GetComponent<RectTransform>();
 			var lg = GetComponent<VerticalLayoutGroup>();
 			rt.sizeDelta = new Vector2(
-				(selectionList.Count * itemSize.x) + pointerGutterWidth + lg.padding.horizontal + rightPadding,
-				itemSize.y * Mathf.Min(maxViewportItems, maxColumnLength, options.Count) + lg.padding.vertical + headerAdjust);
+				(selectionList.Count * itemSize.x) + (spaceBetweenColumns * (selectionList.Count - 1))
+					+ pointerGutterWidth + lg.padding.horizontal + rightPadding,
+				itemSize.y * Mathf.Min(maxViewportItems, maxColumnLength, options.Count)
+					+ lg.padding.vertical + headerAdjust);
 
 			yield return null;
 			SetSelection(startSelectionIndex);
