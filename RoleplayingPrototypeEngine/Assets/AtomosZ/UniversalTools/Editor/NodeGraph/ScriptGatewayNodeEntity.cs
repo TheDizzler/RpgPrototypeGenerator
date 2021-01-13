@@ -78,7 +78,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					}
 					if (GetRect().Contains(e.mousePosition))
 					{
-						if (e.button == 1)
+						if (e.button == 0)
+						{
+							LeftClickUp(e);
+						}
+						else if (e.button == 1)
 						{
 							RightClickUp(e);
 						}
