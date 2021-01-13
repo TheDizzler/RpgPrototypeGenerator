@@ -98,7 +98,21 @@ namespace AtomosZ.Scenimatic.EditorTools
 		{
 			if (window == null)
 			{
-				CreateWindows();
+				var remainingBuggedEditors = Editor.FindObjectsOfType<ScenimaticScriptEditor>();
+				foreach (var editor in remainingBuggedEditors)
+				{
+					if (editor == this)
+					{
+						window = editor;
+						continue;
+					}
+
+					Debug.LogWarning("Found a duplicated EditorWindow");
+					Editor.DestroyImmediate(editor);
+				}
+
+				if (window == null)
+					CreateWindows();
 				scenimaticGraph = null; // make sure the graph gets re-initialized
 			}
 
