@@ -2,6 +2,7 @@
 using System.IO;
 using AtomosZ.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -276,7 +277,31 @@ namespace AtomosZ.Scenimatic.EditorTools
 				return;
 
 			if (graphEntityData != startConnection.nodeWindow.entityData)
-				CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
+			{
+				ScriptGatewayNodeData gatewayData = graphEntityData as ScriptGatewayNodeData;
+				ScriptGatewayNodeData connGatewayData = startConnection.nodeWindow.entityData as ScriptGatewayNodeData;
+				if (gatewayData == null && connGatewayData == null)
+				{
+					if (startConnection.connectionDirection == ConnectionPointDirection.Out)
+					{
+						CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
+					}
+				}
+				else
+				{
+					if ((connGatewayData != null
+						&& (connGatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance
+							|| gatewayData != null))
+						|| (gatewayData != null && gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance)
+						|| (gatewayData != null && gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Exit
+							&& startConnection.connectionDirection != ConnectionPointDirection.In))
+					{
+						CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
+					}
+				}
+
+			}
+
 
 			startConnection.isCreatingNewConnection = false;
 			startConnection = null;
