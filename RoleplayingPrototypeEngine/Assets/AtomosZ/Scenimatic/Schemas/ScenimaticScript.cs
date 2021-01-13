@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using AtomosZ.UniversalTools.NodeGraph;
+using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
 
 namespace AtomosZ.Scenimatic.Schemas
@@ -10,11 +10,14 @@ namespace AtomosZ.Scenimatic.Schemas
 	{
 		public string sceneName;
 
-		public InputNode inputNode;
+		public GatewayNode inputNode;
+		public GatewayNode outputNode;
 		public List<ScenimaticSerializedNode> branches;
 		public string spriteAtlas;
 
-		// Editor specific settings
+		//							//
+		// Editor specific settings	//
+		//							//
 
 		// Editor window settings
 		public Vector2 savedScreenSize;
@@ -24,15 +27,16 @@ namespace AtomosZ.Scenimatic.Schemas
 		// Editor zoomer settings
 		public Vector2 zoomOrigin = Vector2.zero;
 		public float zoomScale = 1;
-		
 
 
-		public ScenimaticScript(string sceneName)
+
+		public ScenimaticScript(string sceneName, ScenimaticSerializedNode firstBranch)
 		{
 			this.sceneName = sceneName;
-			inputNode = new InputNode()
+			inputNode = new GatewayNode()
 			{
 				GUID = System.Guid.NewGuid().ToString(),
+				gatewayType = GatewayNode.GatewayType.Entrance,
 				position = Vector2.zero,
 				connections = new List<Connection>()
 				{
@@ -44,6 +48,27 @@ namespace AtomosZ.Scenimatic.Schemas
 					}
 				},
 			};
+			outputNode = new GatewayNode()
+			{
+				GUID = System.Guid.NewGuid().ToString(),
+				gatewayType = GatewayNode.GatewayType.Exit,
+				position = new Vector2(800, 0),
+				connections = new List<Connection>()
+				{
+					new Connection()
+					{
+						GUID = System.Guid.NewGuid().ToString(),
+						type = ConnectionType.ControlFlow,
+						variableName = Connection.ControlFlowInName,
+					}
+				},
+			};
+
+			branches = new List<ScenimaticSerializedNode>();
+			branches.Add(firstBranch);
+
+			inputNode.connections[0].connectedToGUIDs.Add(firstBranch.GetMainControlFlowInputGUID());
+			outputNode.connections[0].connectedToGUIDs.Add(firstBranch.GetMainControlFlowOutputGUID());
 		}
 	}
 }

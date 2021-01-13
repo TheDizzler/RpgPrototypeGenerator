@@ -11,10 +11,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 	/// </summary>
 	public abstract class GraphEntity
 	{
-		public GraphEntityData entityData;
-
+		protected const int inputLabelLeftMargin = 22;
 		protected const float TITLEBAR_OFFSET = 15;
 		protected const float DoubleClickTime = .3f;
+
+		public GraphEntityData entityData;
 
 		protected INodeGraph nodeGraph;
 		protected string nodeName;

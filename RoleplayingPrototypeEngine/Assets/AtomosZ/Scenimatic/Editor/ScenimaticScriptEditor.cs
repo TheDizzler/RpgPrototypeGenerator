@@ -314,9 +314,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			var di = Directory.CreateDirectory(
 				Directory.GetCurrentDirectory() + "/" + userScenimaticFolder);
 
-			ScenimaticScript script = new ScenimaticScript("New Scene");
-			script.branches = new List<ScenimaticSerializedNode>();
-			script.branches.Add(CreateNewBranch(new Vector2(0, 200)));
+			ScenimaticScript script = new ScenimaticScript("New Scene", CreateNewBranch(new Vector2(400, 0)));
 
 			scenimaticGraph = new ScenimaticScriptGraph();
 			scenimaticGraph.Initialize(script);

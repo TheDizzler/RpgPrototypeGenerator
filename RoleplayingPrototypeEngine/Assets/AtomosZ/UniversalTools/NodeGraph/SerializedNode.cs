@@ -7,9 +7,8 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 	public class SerializedNode<T>
 	{
 		/// <summary>
-		/// A personal identifier for a node.
+		/// A personal identifier for a node. Used in editor for deletion.
 		/// Only needs to be unique to the script it belongs to.
-		/// Currently not being use. This could just be identical to the ControlFlow input.
 		/// </summary>
 		public string GUID;
 		/// <summary>
@@ -23,8 +22,9 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 		public List<Connection> connectionInputs;
 		public List<Connection> connectionOutputs;
 
-
-		// Editor variables.
+		//					//
+		// Editor variables	//
+		//					//
 
 		/// <summary>
 		/// Position in graph. Editor Only.
@@ -32,6 +32,15 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 		public Vector2 position;
 
 
+		public string GetMainControlFlowInputGUID()
+		{
+			return connectionInputs[0].GUID;
+		}
+
+		public string GetMainControlFlowOutputGUID()
+		{
+			return connectionOutputs[0].GUID;
+		}
 		public Connection GetOutputConnectionByGUID(string linkedOutputGUID)
 		{
 			foreach (var conn in connectionOutputs)

@@ -7,24 +7,39 @@ using UnityEngine;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
-	public class InputNodeEntity : GraphEntity
+	/// <summary>
+	/// An input or output node (or start/end, entrance/exit) for a script graph.
+	/// </summary>
+	public class ScriptGatewayNodeEntity : GraphEntity
 	{
 		protected List<ConnectionPoint> connectionPoints;
-		private InputNode inputNode;
+		private bool isInputNode;
 
 
-
-		public InputNodeEntity(InputNodeData inputNodeData, INodeGraph graph) : base(inputNodeData, graph)
+		public ScriptGatewayNodeEntity(ScriptGatewayNodeData gatewayData, INodeGraph graph) : base(gatewayData, graph)
 		{
 			connectionPoints = new List<ConnectionPoint>();
 
-			for (int i = 0; i < inputNodeData.connections.Count; ++i)
+			ConnectionPointDirection direction;
+			if (gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance)
 			{
-				var connection = inputNodeData.connections[i];
-				connectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.Out, connection));
+				isInputNode = true;
+				direction = ConnectionPointDirection.Out;
+				nodeName = "Event Start";
+			}
+			else
+			{
+				isInputNode = false;
+				direction = ConnectionPointDirection.In;
+				nodeName = "Event End";
+			}
+
+			for (int i = 0; i < gatewayData.connections.Count; ++i)
+			{
+				var connection = gatewayData.connections[i];
+				connectionPoints.Add(new ConnectionPoint(this, direction, connection));
 			}
 		}
-
 
 		public override string GetName()
 		{
@@ -82,14 +97,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			return saveNeeded;
 		}
 
+
 		public override void OnGUI()
 		{
 			Color defaultColor = GUI.backgroundColor;
 
 			if (isSelected)
-			{
 				GUI.backgroundColor = selectedBGColor;
-			}
 			else
 				GUI.backgroundColor = defaultBGColor;
 
@@ -100,7 +114,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					// Title bar
 					GUILayout.BeginHorizontal(EditorStyles.helpBox);
 					{
-						GUILayout.Label(new GUIContent("Event Start"), titleBarStyle);
+						GUILayout.Label(new GUIContent(nodeName), titleBarStyle);
 					}
 					GUILayout.EndHorizontal();
 				}
@@ -111,25 +125,38 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			GUI.backgroundColor = defaultColor;
 
 			float rectHalfWidth = GetRect().width * .5f;
-			Rect connRect = new Rect();
-			connectionLabelStyle.alignment = TextAnchor.MiddleRight;
+			float horizontalShift;
+			if (isInputNode)
+			{
+				horizontalShift = -rectHalfWidth;
+				connectionLabelStyle.alignment = TextAnchor.MiddleRight;
+			}
+			else
+			{
+				horizontalShift = inputLabelLeftMargin;
+				connectionLabelStyle.alignment = TextAnchor.MiddleLeft;
+			}
+
+			
 
 			foreach (var conn in connectionPoints)
 			{
-				connRect = conn.OnGUI();
+				Rect connRect = conn.OnGUI();
 				if (conn.data.type == ConnectionType.ControlFlow)
 					continue;
 
 				connRect.width = rectHalfWidth;
-				connRect.x -= rectHalfWidth;
+				connRect.x += horizontalShift;
 				connectionLabelStyle.normal.textColor = conn.data.connectionPointStyle.connectionColor;
 				GUI.Label(connRect, new GUIContent(conn.connection.variableName, conn.data.type.ToString()), connectionLabelStyle);
 			}
 
 
-			if (connectionPoints.Count > 1 && connectionPoints[connectionPoints.Count - 1].rect.yMax > (nodeStyle.size.y + entityData.offset.y))
+			if (connectionPoints.Count > 1
+				&& connectionPoints[connectionPoints.Count - 1].rect.yMax > (nodeStyle.size.y + entityData.offset.y))
 			{
-				entityData.windowRect.yMax = connectionPoints[connectionPoints.Count - 1].rect.yMax + entityData.offset.y;
+				entityData.windowRect.yMax =
+					connectionPoints[connectionPoints.Count - 1].rect.yMax + entityData.offset.y;
 			}
 			else // Set rect to min height
 			{
@@ -145,28 +172,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		}
 
 
-
-		protected override void Deselected()
-		{
-			nodeGraph.DeselectEntity();
-		}
-
-		protected override void Selected()
-		{
-			nodeGraph.SelectEntity(entityData);
-		}
-
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
-			if (direction == ConnectionPointDirection.Out)
-			{
-				connectionPoints.Add(new ConnectionPoint(this, ConnectionPointDirection.Out, newConn));
-			}
-			else
-			{
-				Debug.LogWarning("Trying to create a new Out ConnectionPoint.");
-			}
+			connectionPoints.Add(new ConnectionPoint(this, direction, newConn));
 		}
+
 
 		public override void RemoveConnectionPoint(Connection conn, ConnectionPointDirection direction)
 		{
@@ -185,20 +195,28 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				connectionPoints.Remove(del);
 		}
 
+		protected override void Deselected()
+		{
+			nodeGraph.DeselectEntity();
+		}
+
+		protected override void Selected()
+		{
+			nodeGraph.SelectEntity(entityData);
+		}
 	}
 
 
-	public class InputNodeData : GraphEntityData
+	public class ScriptGatewayNodeData : GraphEntityData
 	{
 		public List<Connection> connections;
 		/// <summary>
 		/// The serialized data.
 		/// </summary>
-		public InputNode serializedNode;
+		public GatewayNode serializedNode;
 
 
-
-		public InputNodeData(INodeGraph graph, InputNode serializedData) : base(graph)
+		public ScriptGatewayNodeData(INodeGraph graph, GatewayNode serializedData) : base(graph)
 		{
 			serializedNode = serializedData;
 			GUID = serializedData.GUID;
@@ -211,30 +229,31 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected override void CreateWindow()
 		{
-			window = new InputNodeEntity(this, nodeGraph);
+			window = new ScriptGatewayNodeEntity(this, nodeGraph);
 		}
 
-
 		/// <summary>
-		/// Direction is irrelevant in InputNodes as the input (from code) is routed directly to the output connection.
+		/// If this is input/entrance/start node, direction == ConnectionPointDirection.Out.
+		/// If this is output/exit/end node, direction == ConnectionPointDirection.In.
 		/// </summary>
 		/// <param name="newConn"></param>
-		/// <param name="direction">Always ConnectionPointDirection.Out</param>
+		/// <param name="direction"></param>
 		public override void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction)
 		{
 			connections.Add(newConn);
-			window.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+			window.AddNewConnectionPoint(newConn, direction);
 		}
 
 		/// <summary>
-		/// Direction is irrelevant in InputNodes as the input (from code) is routed directly to the output connection.
+		/// If this is input/entrance/start node, direction == ConnectionPointDirection.Out.
+		/// If this is output/exit/end node, direction == ConnectionPointDirection.In.
 		/// </summary>
 		/// <param name="newConn"></param>
-		/// <param name="direction">Always ConnectionPointDirection.Out</param>
+		/// <param name="direction"></param>
 		public override void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction)
 		{
 			connections.Remove(connection);
-			window.RemoveConnectionPoint(connection, ConnectionPointDirection.Out);
+			window.RemoveConnectionPoint(connection, direction);
 		}
 
 		public override void MoveWindowPosition(Vector2 delta)

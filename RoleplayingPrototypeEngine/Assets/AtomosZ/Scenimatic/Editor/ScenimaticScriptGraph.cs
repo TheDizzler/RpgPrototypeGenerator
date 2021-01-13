@@ -18,7 +18,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 		public Dictionary<string, ConnectionPoint> connectionPoints;
 
 		private ScenimaticBranchEditor branchEditor;
-		private InputNodeData inputNode;
+		private ScriptGatewayNodeData inputNode;
+		private ScriptGatewayNodeData outputNode;
 		private List<GraphEntityData> branchEntityDatas;
 		private GraphEntityData selectedEntity;
 		private List<ConnectionPoint> refreshConnections;
@@ -60,7 +61,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 			ConnectionPoint.nodeGraph = this;
 
-			inputNode = new InputNodeData(this, newScript.inputNode);
+			inputNode = new ScriptGatewayNodeData(this, newScript.inputNode);
+			outputNode = new ScriptGatewayNodeData(this, newScript.outputNode);
 			branchEntityDatas = new List<GraphEntityData>();
 			for (int i = 0; i < script.branches.Count; ++i)
 			{
@@ -194,6 +196,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (inputNode.ProcessEvents(current))
 				save = true;
 			inputNode.DrawConnectionWires();
+			outputNode.Offset(zoomerOffset);
+			if (outputNode.ProcessEvents(current))
+				save = true;
+			outputNode.DrawConnectionWires();
+
 
 			foreach (var node in branchEntityDatas)
 			{
@@ -206,6 +213,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 
 			inputNode.OnGUI();
+			outputNode.OnGUI();
 			foreach (var node in branchEntityDatas)
 				node.OnGUI();
 

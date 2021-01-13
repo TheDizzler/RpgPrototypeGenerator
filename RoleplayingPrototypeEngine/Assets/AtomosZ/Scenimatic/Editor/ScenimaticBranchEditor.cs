@@ -42,7 +42,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
 		private GraphEntityData entityData;
-		private InputNode serializedInput;
+		private GatewayNode serializedGateway;
 		private ScenimaticSerializedNode serializedBranch = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
@@ -62,7 +62,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			this.entityData = branchData;
 			if (branchData is EventBranchObjectData)
 			{
-				serializedInput = null;
+				serializedGateway = null;
 				serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
 				branch = serializedBranch.data;
 			}
@@ -70,7 +70,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				serializedBranch = null;
 				branch = null;
-				serializedInput = ((InputNodeData)branchData).serializedNode;
+				serializedGateway = ((ScriptGatewayNodeData)branchData).serializedNode;
 			}
 			Repaint();
 		}
@@ -115,8 +115,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				EditorGUILayout.BeginHorizontal();
 				{
-					GUILayout.Label(new GUIContent("Inputs:", "These are passed into the event through code."));
-					ResizableInputBlock(serializedInput.connections, ConnectionPointDirection.Out);
+					if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
+					{
+						GUILayout.Label(new GUIContent("Inputs:", "These are passed into the event through code."));
+						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.Out);
+					}
+					else
+					{
+						GUILayout.Label(new GUIContent("Ouputs:", "These are passed from the event to code."));
+						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.In);
+					}
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
@@ -124,16 +132,19 @@ namespace AtomosZ.Scenimatic.EditorTools
 				Color defaultColor = GUI.backgroundColor;
 				EditorGUILayout.BeginHorizontal();
 				{
-					for (int i = 0; i < serializedInput.connections.Count; ++i)
+					for (int i = 0; i < serializedGateway.connections.Count; ++i)
 					{
-						DrawInputBox(serializedInput.connections[i]);
+						DrawInputBox(serializedGateway.connections[i]);
 					}
 
 					GUI.backgroundColor = defaultColor;
 					if (GUILayout.Button("+"))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
-						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+						if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
+							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+						else
+							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
 					}
 				}
 				GUILayout.FlexibleSpace();

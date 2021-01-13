@@ -27,7 +27,9 @@ namespace AtomosZ.Scenimatic
 		/// </summary>
 		public string eventFile;
 		[HideInInspector]
-		public InputNode eventInput;
+		public GatewayNode eventStart;
+		[HideInInspector]
+		public GatewayNode eventEnd;
 		/// <summary>
 		/// Set but never really used.
 		/// </summary>
@@ -135,7 +137,8 @@ namespace AtomosZ.Scenimatic
 			reader.Close();
 
 			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
-			eventInput = script.inputNode;
+			eventStart = script.inputNode;
+			eventEnd = script.outputNode;
 			// this is not ideal. It will force users to have their sprite atlas in a resource folder.
 			dialogPanel.spriteAtlas = Resources.Load<SpriteAtlas>(script.spriteAtlas);
 
@@ -166,15 +169,15 @@ namespace AtomosZ.Scenimatic
 			ClearPanels();
 			eventQueue.Clear();
 
-			if (eventInput.connections.Count - 1 != inputParams.Length)
+			if (eventStart.connections.Count - 1 != inputParams.Length)
 			{
 				Debug.LogError("Invalid Scenimatic Event setup for event " + eventPath
 					+ ".\nInput parameter count " + inputParams.Length
-					+ " does not match expected count of " + eventInput.connections.Count);
+					+ " does not match expected count of " + eventStart.connections.Count);
 			}
 
 			guidPassedVariables = new Dictionary<string, string>();
-			var conns = eventInput.connections;
+			var conns = eventStart.connections;
 			for (int i = 1; i < conns.Count; ++i)
 			{
 				switch (conns[i].type)
@@ -205,7 +208,7 @@ namespace AtomosZ.Scenimatic
 				guidPassedVariables.Add(conns[i].GUID, inputParams[i - 1].ToString());
 			}
 
-			LoadBranch(eventInput.connections[0].connectedToGUIDs[0]);
+			LoadBranch(eventStart.connections[0].connectedToGUIDs[0]);
 
 			if (Application.isPlaying)
 				playerInput.ActivateInput();

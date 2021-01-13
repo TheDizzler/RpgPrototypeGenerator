@@ -112,16 +112,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 			connectionLabelStyle.alignment = TextAnchor.MiddleLeft;
 			float rectHalfWidth = GetRect().width * .5f;
-			Rect connRect = new Rect();
 
 			foreach (var conn in inConnectionPoints)
 			{
-				connRect = conn.OnGUI();
+				Rect connRect = conn.OnGUI();
 				if (conn.data.type == ConnectionType.ControlFlow)
 					continue;
 
 				connRect.width = rectHalfWidth;
-				connRect.x += 22;
+				connRect.x += inputLabelLeftMargin;
 				connectionLabelStyle.normal.textColor =
 					conn.data.connectionPointStyle.connectionColor;
 				GUI.Label(connRect,
@@ -135,7 +134,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				if (conn.connection.hide)
 					continue;
-				connRect = conn.OnGUI();
+				Rect connRect = conn.OnGUI();
 				if (conn.data.type == ConnectionType.ControlFlow
 					&& conn.connection.variableName == Connection.ControlFlowOutName)
 					continue;
