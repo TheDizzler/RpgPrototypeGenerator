@@ -6,8 +6,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public class ConnectionPointData
 	{
-		public static string ImageFolder = "Assets/AtomosZ/UniversalTools/Editor/NodeGraph/Images/";
-		public static GUIStyle invalidStyle = CreateStyle(ImageFolder + "Node Broken Branch.png");
+		public static GUIStyle invalidStyle = CreateStyle(ImageLinks.brokenConnection);
 
 		private static ConnectionPointData controlFlowType = null;
 		private static ConnectionPointData intType = null;
@@ -47,10 +46,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					type = ConnectionType.Int,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
-						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
-						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
-						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						unconnectedStyle = CreateStyle(ImageLinks.dataTypeUnconnected),
+						unconnectedHoverStyle = CreateStyle(ImageLinks.dataTypeUnconnectedHover),
+						connectedStyle = CreateStyle(ImageLinks.dataTypeConnected),
+						connectedHoverStyle = CreateStyle(ImageLinks.dataTypeConnectedHover),
 						connectionColor = Color.blue,
 					},
 					wireThickness = 6,
@@ -71,10 +70,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					type = ConnectionType.String,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
-						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
-						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
-						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						unconnectedStyle = CreateStyle(ImageLinks.dataTypeUnconnected),
+						unconnectedHoverStyle = CreateStyle(ImageLinks.dataTypeUnconnectedHover),
+						connectedStyle = CreateStyle(ImageLinks.dataTypeConnected),
+						connectedHoverStyle = CreateStyle(ImageLinks.dataTypeConnectedHover),
 						connectionColor = Color.magenta,
 					},
 					wireThickness = 6,
@@ -96,10 +95,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					type = ConnectionType.Float,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected.png"),
-						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint unconnected hover.png"),
-						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint connected.png"),
-						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint connected hover.png"),
+						unconnectedStyle = CreateStyle(ImageLinks.dataTypeUnconnected),
+						unconnectedHoverStyle = CreateStyle(ImageLinks.dataTypeUnconnectedHover),
+						connectedStyle = CreateStyle(ImageLinks.dataTypeConnected),
+						connectedHoverStyle = CreateStyle(ImageLinks.dataTypeConnectedHover),
 						connectionColor = Color.cyan,
 					},
 					wireThickness = 6,
@@ -120,10 +119,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					type = ConnectionType.ControlFlow,
 					connectionPointStyle = new ConnectionPointStyle()
 					{
-						unconnectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected.png"),
-						unconnectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow unconnected hover.png"),
-						connectedStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected.png"),
-						connectedHoverStyle = CreateStyle(ImageFolder + "ConnectionPoint ControlFlow connected hover.png"),
+						unconnectedStyle = CreateStyle(ImageLinks.controlFlowUnconnected),
+						unconnectedHoverStyle = CreateStyle(ImageLinks.controlFlowUnconnectedHover),
+						connectedStyle = CreateStyle(ImageLinks.controlFlowConnected),
+						connectedHoverStyle = CreateStyle(ImageLinks.controlFlowConnectedHover),
 						connectionColor = Color.white,
 					},
 					wireThickness = 10,
