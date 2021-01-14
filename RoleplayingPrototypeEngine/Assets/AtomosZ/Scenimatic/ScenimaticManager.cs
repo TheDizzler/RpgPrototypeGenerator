@@ -276,8 +276,7 @@ namespace AtomosZ.Scenimatic
 		private void LoadBranch(string guid)
 		{
 			currentBranch = guidBranches[guid];
-			Debug.Log("First Branch: " + currentBranch.data.branchName);
-
+			
 			foreach (var evnt in currentBranch.data.events)
 			{
 				var eventType = evnt.eventType;

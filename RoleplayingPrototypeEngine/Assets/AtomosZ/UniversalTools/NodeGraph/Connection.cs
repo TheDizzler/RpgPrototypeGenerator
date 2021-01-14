@@ -14,8 +14,8 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 	[System.Serializable]
 	public class Connection
 	{
-		public static readonly string ControlFlowInName = "ControlFlow-In";
-		public static readonly string ControlFlowOutName = "ControlFlow-Out";
+		public const string ControlFlowInName = "ControlFlow-In";
+		public const string ControlFlowOutName = "ControlFlow-Out";
 
 		/// <summary>
 		/// A personal identifier for a Connection point.

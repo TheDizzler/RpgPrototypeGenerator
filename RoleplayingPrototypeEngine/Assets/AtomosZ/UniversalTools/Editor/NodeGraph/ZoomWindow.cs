@@ -22,7 +22,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		private const float SLIDER_HEIGHT = 50;
 		private const float WINDOW_PADDING = 25;
 		private const float ERROR_WINDOW_TEXT_MARGIN = 5;
-		private readonly float panMinimum = 1f;
+		private const float PAN_MINIMUM = 1f;
 
 		public bool isScreenMoved;
 

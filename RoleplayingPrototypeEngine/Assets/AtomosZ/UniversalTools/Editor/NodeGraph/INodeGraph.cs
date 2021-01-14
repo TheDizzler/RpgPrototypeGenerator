@@ -1,6 +1,4 @@
-﻿using AtomosZ.UniversalTools.NodeGraph.Schemas;
-
-namespace AtomosZ.UniversalEditorTools.NodeGraph
+﻿namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
 	public interface INodeGraph
 	{

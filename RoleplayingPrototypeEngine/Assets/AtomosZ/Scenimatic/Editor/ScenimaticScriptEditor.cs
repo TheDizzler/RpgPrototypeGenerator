@@ -12,7 +12,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 {
 	public class ScenimaticScriptEditor : EditorWindow
 	{
-		public static readonly string ScenimaticFileExtension = "SceneJson";
+		public const string ScenimaticFileExtension = "SceneJson";
 
 		private const float ZOOM_BORDER = 5;
 		private const float RESERVED_AREA_BELOW_ZOOM_HEIGHT = 28;
