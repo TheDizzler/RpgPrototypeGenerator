@@ -89,22 +89,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			// This is opened again in End().
 			GUI.EndGroup();
 
-
-			Vector2 offset = GetContentOffset();
-			if (useBGTexture)
-			{
-				float xFactor = offset.x / bgTexture.width;
-				float yFactor = offset.y / bgTexture.height;
-
-				GUI.DrawTextureWithTexCoords(zoomAreaRect, bgTexture, // texcoords are between 0 and 1! 1 == fullwrap!
-					new Rect(xFactor, -yFactor, zoomAreaRect.width / (bgTexture.width * zoomScale),
-						zoomAreaRect.height / (bgTexture.height * zoomScale)));
-			}
-			else
-			{
-				GraphBackground.DrawGraphBackground(zoomAreaRect, -offset, zoomScale);
-			}
-
 			Rect clippedArea = ScaleSizeBy(zoomAreaRect, 1.0f / zoomScale, new Vector2(zoomAreaRect.xMin, zoomAreaRect.yMin));
 			GUI.BeginGroup(clippedArea);
 
@@ -114,6 +98,25 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				new Vector2(clippedArea.xMin, clippedArea.yMin), Quaternion.identity, Vector3.one);
 			Matrix4x4 scale = Matrix4x4.Scale(new Vector3(zoomScale, zoomScale, 1f));
 			GUI.matrix = translation * scale * translation.inverse * GUI.matrix;
+
+			Vector2 offset = GetContentOffset();
+			if (useBGTexture)
+			{
+				float xFactor = offset.x / bgTexture.width / zoomScale;
+				float yFactor = offset.y / bgTexture.height / zoomScale;
+				Rect bgRect = zoomAreaRect;
+				bgRect.xMin = 0;
+				bgRect.yMin = 0;
+				bgRect.xMax /= zoomScale;
+				bgRect.yMax /= zoomScale;
+				GUI.DrawTextureWithTexCoords(bgRect, bgTexture, // texcoords are between 0 and 1! 1 == fullwrap!
+					new Rect(xFactor, -yFactor, bgRect.width / (bgTexture.width * zoomScale),
+						bgRect.height / (bgTexture.height * zoomScale)));
+			}
+			else
+			{
+				GraphBackground.DrawGraphBackground(zoomAreaRect, -offset, zoomScale);
+			}
 		}
 
 

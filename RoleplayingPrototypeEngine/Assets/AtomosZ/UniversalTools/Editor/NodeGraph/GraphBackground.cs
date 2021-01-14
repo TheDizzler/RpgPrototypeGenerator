@@ -38,6 +38,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		{
 			if (Event.current.type == EventType.Repaint)
 			{
+				graphExtents.yMax /= zoomScale;
+				graphExtents.xMax /= zoomScale;
+				graphExtents.yMin = 0;
+				graphExtents.xMin = 0;
 				UnityEditor.Graphs.Styles.graphBackground.Draw(graphExtents, false, false, false, false);
 				DrawGrid(graphExtents, offset, zoomScale);
 			}
@@ -45,13 +49,13 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		private static void DrawGrid(Rect graphExtents, Vector2 offset, float zoomScale)
 		{
-				HandleUtility.ApplyWireMaterial();
-				GL.PushMatrix();
-				GL.Begin(1);
-				DrawGridLines(graphExtents, 12f * zoomScale, gridMinorColor, offset);
-				DrawGridLines(graphExtents, 120f * zoomScale, gridMajorColor, offset);
-				GL.End();
-				GL.PopMatrix();
+			HandleUtility.ApplyWireMaterial();
+			GL.PushMatrix();
+			GL.Begin(1);
+			DrawGridLines(graphExtents, 12f * zoomScale, gridMinorColor, offset);
+			DrawGridLines(graphExtents, 120f * zoomScale, gridMajorColor, offset);
+			GL.End();
+			GL.PopMatrix();
 		}
 
 		private static void DrawGridLines(Rect graphExtents, float gridSize, Color gridColor, Vector2 offset)
