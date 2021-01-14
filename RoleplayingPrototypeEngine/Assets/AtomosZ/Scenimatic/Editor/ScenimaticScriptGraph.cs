@@ -553,6 +553,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			else
 			{
 				newNode.connectionOutputs[0].connectedToGUIDs.Add(connected.GUID);
+				connected.connection.connectedToGUIDs.Add(newNode.connectionOutputs[0].GUID);
 			}
 		}
 

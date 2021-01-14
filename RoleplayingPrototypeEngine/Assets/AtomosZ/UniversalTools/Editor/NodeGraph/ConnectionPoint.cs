@@ -251,8 +251,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			connectedTo.Add(otherConnectionPoint);
 			isConnected = true;
 			SetCurrentStyle();
-			if (connectionDirection == ConnectionPointDirection.Out)
-				connection.connectedToGUIDs.Add(otherConnectionPoint.GUID);
+			connection.connectedToGUIDs.Add(otherConnectionPoint.GUID);
 		}
 
 
