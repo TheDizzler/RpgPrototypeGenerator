@@ -11,11 +11,17 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		/// Should be set externally per instance.
 		/// </summary>
 		public static GUIStyle warningTextStyle;
+		public static GUIStyle errorTextStyle;
+
+		public static Texture warningImage =
+			EditorGUIUtility.FindTexture(ImageLinks.exclamation);
 
 		public const float MIN_ZOOM = .1f;
 		public const float MAX_ZOOM = 2;
-		private const float sliderWidth = 75;
-		private const float sliderHeight = 50;
+		private const float SLIDER_WIDTH = 125;
+		private const float SLIDER_HEIGHT = 50;
+		private const float WINDOW_PADDING = 25;
+		private const float ERROR_WINDOW_TEXT_MARGIN = 5;
 		private readonly float panMinimum = 1f;
 
 		public bool isScreenMoved;
@@ -39,10 +45,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		private Vector2 prePanZoomOrigin;
 
 		private Rect errorWindowRect;
+		private float errorWindowLength = SLIDER_WIDTH * 3.3f;
+		private float errorWindowHeight = SLIDER_HEIGHT;
 		private bool displayMessageWindow;
-		private bool isErrorWindowDragged;
-		private int numErrorsLast = 0;
 		private List<ZoomWindowMessage> errorMsgs;
+
 
 
 		public void Reset(ZoomerSettings settings = null)
@@ -81,7 +88,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			// Ends group that Unity implicity begins for every editor window.
 			// This is opened again in End().
 			GUI.EndGroup();
-			
+
 
 			Vector2 offset = GetContentOffset();
 			if (useBGTexture)
@@ -125,8 +132,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			GUI.BeginGroup(zoomAreaRect, EditorStyles.helpBox);
 			{
 				GUILayout.BeginArea(
-					new Rect(zoomAreaRect.xMax - sliderWidth * 1.5f, zoomAreaRect.yMin - 25,
-						sliderWidth, sliderHeight),
+					new Rect(
+						zoomAreaRect.width - (SLIDER_WIDTH + WINDOW_PADDING),
+						WINDOW_PADDING,
+						SLIDER_WIDTH, SLIDER_HEIGHT),
 					EditorStyles.helpBox);
 				var defaultColor = GUI.color;
 				GUI.color = new Color(0, 0, 0, .25f);
@@ -240,61 +249,35 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		private void DrawMessageWindow()
 		{
-			if (numErrorsLast != errorMsgs.Count)
-			{
-				numErrorsLast = errorMsgs.Count;
-				errorWindowRect = new Rect(zoomAreaRect.xMax - sliderWidth * 4f, zoomAreaRect.yMax - 100,
-					sliderWidth * 3.3f, sliderHeight * .5f * errorMsgs.Count);
-			}
-
-			Event e = Event.current;
-			if (errorWindowRect.Contains(e.mousePosition))
-			{
-				switch (e.type)
-				{
-					case EventType.MouseDown:
-						if (e.button == 0)
-						{
-							isErrorWindowDragged = true;
-							e.Use();
-						}
-						break;
-					case EventType.MouseUp:
-						if (isErrorWindowDragged)
-						{
-							e.Use();
-						}
-						isErrorWindowDragged = false;
-						break;
-					case EventType.MouseDrag:
-						if (e.button == 0 && isErrorWindowDragged)
-						{
-							errorWindowRect.position += e.delta;
-							e.Use();
-						}
-						break;
-				}
-			}
+			errorWindowRect.x =
+				zoomAreaRect.width - (errorWindowLength + WINDOW_PADDING);
+			errorWindowRect.y =
+				zoomAreaRect.height - (errorWindowHeight + WINDOW_PADDING);
+			errorWindowRect.width = errorWindowLength /*+ WINDOW_PADDING*/;
+			errorWindowRect.height = errorWindowHeight;
 
 
 			GUI.BeginGroup(zoomAreaRect, EditorStyles.helpBox);
 			{
-				if (Event.current.type != EventType.Repaint)
+				GUILayout.BeginArea(errorWindowRect, EditorStyles.helpBox);
 				{
-					GUILayout.BeginArea(errorWindowRect, EditorStyles.helpBox);
+					GUILayout.Label("Graph Invalid (" + errorMsgs.Count + " errors)", GUIStyle.none);
+					float height = EditorGUIUtility.singleLineHeight;
+					errorWindowLength = 0;
+					foreach (ZoomWindowMessage msg in errorMsgs)
 					{
-						GUILayout.Label("Tree Invalid - Please fix broken branches", warningTextStyle);
-						foreach (ZoomWindowMessage msg in errorMsgs)
-						{
-							msg.DrawMessage();
-						}
+						Vector2 size = msg.DrawMessage();
+						if (size.x > errorWindowLength)
+							errorWindowLength = size.x + 10;
+						height += size.y;
 					}
-					GUILayout.EndArea();
+
+					errorWindowHeight = height + ERROR_WINDOW_TEXT_MARGIN;
 				}
+				GUILayout.EndArea();
 			}
 			GUI.EndGroup();
 		}
-
 	}
 
 
@@ -305,17 +288,63 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		public float zoomScale = 1;
 	}
 
-	public abstract class ZoomWindowMessage
+	public class ZoomWindowMessage
 	{
+		public enum MessageType
+		{
+			Normal,
+			Warning,
+			Error
+		}
+
+		public MessageType messageType = MessageType.Normal;
 		public string msg;
 
-		public virtual void DrawMessage()
+		private Vector2 iconSize = Vector2.zero;
+
+
+		/// <summary>
+		/// Returns size of created label.
+		/// </summary>
+		/// <param name="textStyle"></param>
+		/// <returns></returns>
+		public virtual Vector2 DrawMessage()
 		{
+			Color defaultColor = GUI.color;
+			GUIStyle textStyle;
+			Vector2 textSize;
+			
 			GUILayout.BeginHorizontal();
+			{
+				switch (messageType)
+				{
+					case MessageType.Warning:
+						textStyle = ZoomWindow.warningTextStyle;
+						GUI.color = Color.yellow;
+						textSize = textStyle.CalcSize(new GUIContent(msg));
+						GUILayout.Label(ZoomWindow.warningImage, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f));
+						iconSize.x = 10;
+						break;
 
-			GUILayout.Label(msg);
+					case MessageType.Error:
+						GUI.color = Color.red;
+						textStyle = ZoomWindow.errorTextStyle;
+						textSize = textStyle.CalcSize(new GUIContent(msg));
+						GUILayout.Label(ZoomWindow.warningImage, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f), GUILayout.MaxWidth(10));
+						iconSize.x = 10;
+						break;
 
+					default:
+						textStyle = new GUIStyle();
+						textSize = textStyle.CalcSize(new GUIContent(msg));
+						break;
+				}
+				GUILayout.Label(msg, textStyle);
+			}
 			GUILayout.EndHorizontal();
+
+			GUI.color = defaultColor;
+			return textSize + iconSize;
 		}
 	}
 }
