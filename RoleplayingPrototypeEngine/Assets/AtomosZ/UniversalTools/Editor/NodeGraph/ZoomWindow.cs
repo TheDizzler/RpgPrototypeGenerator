@@ -132,7 +132,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			GUI.matrix = prevGUIMatrix;
 			GUI.EndGroup();
 
-			GUI.BeginGroup(zoomAreaRect, EditorStyles.helpBox);
+			// draw zoom box
+			GUI.BeginGroup(zoomAreaRect);
 			{
 				GUILayout.BeginArea(
 					new Rect(
@@ -142,7 +143,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					EditorStyles.helpBox);
 				var defaultColor = GUI.color;
 				GUI.color = new Color(0, 0, 0, .25f);
-				GUILayout.Label("Zoom Scale: " + zoomScale + "x");
+				GUILayout.Label("Zoom Scale: " + zoomScale.ToString("#.##") + "x");
 				float newZoom = GUILayout.HorizontalSlider(zoomScale, MIN_ZOOM, MAX_ZOOM);
 				if (zoomScale != newZoom)
 				{
@@ -186,8 +187,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				}
 				else if (current.type == EventType.MouseUp && (current.button == 1 || current.button == 2))
 				{
-					isScreenMoved = Mathf.Abs(prePanZoomOrigin.x) > panMinimum
-						|| Mathf.Abs(prePanZoomOrigin.y) > panMinimum;
+					isScreenMoved = Mathf.Abs(prePanZoomOrigin.x) > PAN_MINIMUM
+						|| Mathf.Abs(prePanZoomOrigin.y) > PAN_MINIMUM;
 
 					lastWasDragging = false;
 					prePanZoomOrigin = Vector2.zero;
@@ -256,11 +257,11 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				zoomAreaRect.width - (errorWindowLength + WINDOW_PADDING);
 			errorWindowRect.y =
 				zoomAreaRect.height - (errorWindowHeight + WINDOW_PADDING);
-			errorWindowRect.width = errorWindowLength /*+ WINDOW_PADDING*/;
+			errorWindowRect.width = errorWindowLength;
 			errorWindowRect.height = errorWindowHeight;
 
 
-			GUI.BeginGroup(zoomAreaRect, EditorStyles.helpBox);
+			GUI.BeginGroup(zoomAreaRect);
 			{
 				GUILayout.BeginArea(errorWindowRect, EditorStyles.helpBox);
 				{
