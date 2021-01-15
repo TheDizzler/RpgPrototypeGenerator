@@ -122,7 +122,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					}
 					else
 					{
-						GUILayout.Label(new GUIContent("Ouputs:", "These are passed from the event to code."));
+						GUILayout.Label(new GUIContent("Ouputs:", "These are passed from the event script to code."));
 						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.In);
 					}
 				}
@@ -265,7 +265,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 					ConnectionType newType = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
 					if (newType != conn.type)
 					{
-						ChangeConnectionTypeWarning(conn, newType);
+						if (ChangeConnectionTypeWarning(conn, newType))
+						{
+							AssetDatabase.SaveAssets();
+							AssetDatabase.Refresh();
+						}
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -572,6 +576,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 						Connection conn = eventData.connections[0];
 						conn.type = newConnType;
 						nodeGraph.RefreshConnectionData(conn);
+
+						AssetDatabase.SaveAssets();
+						AssetDatabase.Refresh();
 					}
 				}
 
@@ -694,9 +701,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 					}
 
 					branch.events.Remove(command.eventData);
-
-					AssetDatabase.SaveAssets();
-					AssetDatabase.Refresh();
 					break;
 
 				case DeferredCommandType.CreateOutputConnection:
@@ -734,6 +738,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 					Debug.LogError("No actions for deferred command type " + command.commandType);
 					break;
 			}
+
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
 		}
 
 
