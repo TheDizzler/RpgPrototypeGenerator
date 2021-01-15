@@ -95,7 +95,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 			else if (entityData != null)
 			{
-				InputView();
+				GatewayView();
 			}
 			else
 			{
@@ -112,7 +112,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private void InputView()
+		private void GatewayView()
 		{
 			GUILayout.BeginVertical(rectStyle);
 			{
@@ -120,13 +120,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 				{
 					if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
 					{
-						GUILayout.Label(new GUIContent("Inputs:", "These are passed into the event through code."));
+						GUILayout.Label("Inputs:");
 						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.Out);
+						GUILayout.Label("These are passed into the event script from code.");
 					}
 					else
 					{
-						GUILayout.Label(new GUIContent("Ouputs:", "These are passed from the event script to code."));
+						GUILayout.Label("Ouputs:");
 						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.In);
+						GUILayout.Label("These are passed from the event script to code.");
 					}
 				}
 				GUILayout.FlexibleSpace();
@@ -247,9 +249,10 @@ namespace AtomosZ.Scenimatic.EditorTools
 					}
 
 					GUI.backgroundColor = defaultColor;
-					if (GUILayout.Button("+"))
+					if (GUILayout.Button(new GUIContent("+", "Creates new Input")))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
+						CheckForDuplicateName(newConn, serializedBranch.connectionInputs);
 						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
 					}
 				}
@@ -615,6 +618,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						{   // check if this branch already has a control flow
 							if (serializedBranch.connectionOutputs[0].hide)
 							{
+								// a popup would be better here, no?
 								Debug.LogWarning("Cannot have more than one ControlFlow Query in a branch.");
 								return;
 							}
@@ -649,6 +653,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 			// !this Layout is purposefully left un-Ended! (it's ended after the function ends)
 		}
+
 
 
 		private void DialogEventEdit(ScenimaticEvent eventData)
