@@ -203,7 +203,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (outputNode.ProcessEvents(current))
 				save = true;
 			outputNode.CheckForErrors(warnings);
-			outputNode.DrawConnectionWires();
 
 			foreach (var node in branchEntityDatas)
 			{
