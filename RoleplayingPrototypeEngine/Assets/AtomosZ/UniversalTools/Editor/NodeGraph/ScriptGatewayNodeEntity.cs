@@ -141,7 +141,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				connectionLabelStyle.alignment = TextAnchor.MiddleLeft;
 			}
 
-			
+
 
 			foreach (var conn in connectionPoints)
 			{
@@ -264,6 +264,40 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		{
 			base.MoveWindowPosition(delta);
 			serializedNode.position = windowRect.position;
+		}
+
+
+		public override void CheckForErrors(List<ZoomWindowMessage> warnings)
+		{
+			foreach (var conn in connections)
+			{
+				if (conn.connectedToGUIDs.Count == 0)
+				{
+					switch (conn.type)
+					{
+						case ConnectionType.ControlFlow:
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = ZoomWindowMessage.MessageType.Error,
+								msg = serializedNode.gatewayType == GatewayNode.GatewayType.Exit ?
+									"ERROR: Script does not reach end node."
+									: "ERROR: Start node has no connection to output ControlFlow.",
+							});
+							break;
+
+						default:
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = ZoomWindowMessage.MessageType.Warning,
+								msg = serializedNode.gatewayType == GatewayNode.GatewayType.Exit ?
+									"WARNING: Event End " + conn.variableName 
+										+ " has no input. It will be null or empty."
+									: "WARNING: Event Start " + conn.variableName + " has no output.",
+							});
+							break;
+					}
+				}
+			}
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using AtomosZ.Scenimatic.Schemas;
+﻿using System.Collections.Generic;
+using AtomosZ.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
@@ -195,6 +196,71 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 			windowRect = new Rect(branchData.position, nodeStyle.size);
 		}
+
+
+
+		public override void CheckForErrors(List<ZoomWindowMessage> warnings)
+		{
+			bool allWarnings = false;
+			foreach (var inConn in inputConnections)
+			{
+				if (inConn.connectedToGUIDs.Count == 0)
+				{
+					switch (inConn.type)
+					{
+						case ConnectionType.ControlFlow:
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = ZoomWindowMessage.MessageType.Warning,
+								msg = serializedNode.data.branchName + " will not be run.",
+							});
+							allWarnings = true;
+							break;
+
+						default:
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = allWarnings ? ZoomWindowMessage.MessageType.Warning
+									: ZoomWindowMessage.MessageType.Error,
+								msg = serializedNode.data.branchName + " -> "
+									+ inConn.variableName + " has no input. It will be null or empty.",
+							});
+							break;
+					}
+				}
+			}
+
+			foreach (var outConn in outputConnections)
+			{
+				if (outConn.connectedToGUIDs.Count == 0)
+				{
+					switch (outConn.type)
+					{
+						case ConnectionType.ControlFlow:
+							if (outConn.hide)
+								continue;
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = allWarnings ? ZoomWindowMessage.MessageType.Warning
+									: ZoomWindowMessage.MessageType.Error,
+								msg = serializedNode.data.branchName + " -> "
+									+ outConn.variableName + " has no valid output",
+							});
+							break;
+
+						default:
+							warnings.Add(new ZoomWindowMessage()
+							{
+								messageType = ZoomWindowMessage.MessageType.Warning,
+								msg = serializedNode.data.branchName + " -> "
+									+ outConn.variableName + " is not connected to anything.",
+							});
+							break;
+					}
+				}
+			}
+		}
+
 
 		protected override void CreateWindow()
 		{

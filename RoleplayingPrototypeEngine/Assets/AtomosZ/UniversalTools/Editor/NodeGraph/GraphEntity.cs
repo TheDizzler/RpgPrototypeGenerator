@@ -1,4 +1,6 @@
-﻿using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
+﻿using System;
+using System.Collections.Generic;
+using AtomosZ.UniversalEditorTools.NodeGraph.Styles;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
@@ -129,7 +131,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 		protected virtual void RightClickDown(Event e)
 		{
-			Debug.Log("Window right clicked");
 			e.Use();
 		}
 
@@ -222,7 +223,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			window.DrawConnectionWires();
 		}
 
-
+		public abstract void CheckForErrors(List<ZoomWindowMessage> warnings);
 		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
 		public abstract void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction);
 

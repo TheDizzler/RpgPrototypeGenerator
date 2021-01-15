@@ -28,7 +28,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		private ConnectionPoint endConnection;
 		private Vector2 savedMousePos;
 		private bool save;
-
+		private List<ZoomWindowMessage> warnings = new List<ZoomWindowMessage>();
 
 
 		public void Initialize(ScenimaticScript newScript)
@@ -192,16 +192,18 @@ namespace AtomosZ.Scenimatic.EditorTools
 			Vector2 zoomerOffset = zoomer.GetContentOffset();
 
 			save = false;
+			warnings.Clear();
 
 			inputNode.Offset(zoomerOffset);
 			if (inputNode.ProcessEvents(current))
 				save = true;
+			inputNode.CheckForErrors(warnings);
 			inputNode.DrawConnectionWires();
 			outputNode.Offset(zoomerOffset);
 			if (outputNode.ProcessEvents(current))
 				save = true;
+			outputNode.CheckForErrors(warnings);
 			outputNode.DrawConnectionWires();
-
 
 			foreach (var node in branchEntityDatas)
 			{
@@ -209,6 +211,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				if (node.ProcessEvents(current))
 					save = true;
 
+				node.CheckForErrors(warnings);
 				// draw connections
 				node.DrawConnectionWires();
 			}
@@ -217,6 +220,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 			outputNode.OnGUI();
 			foreach (var node in branchEntityDatas)
 				node.OnGUI();
+
+			zoomer.DisplayMessage(warnings.Count > 0, warnings);
 
 			if (startConnection != null)
 			{// we want to draw the line on-top of everything else

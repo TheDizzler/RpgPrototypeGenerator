@@ -49,7 +49,9 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		private float errorWindowHeight = SLIDER_HEIGHT;
 		private bool displayMessageWindow;
 		private List<ZoomWindowMessage> errorMsgs;
-
+		private int warningsCount;
+		private int errorsCount;
+		private GUIStyle windowStyle;
 
 
 		public void Reset(ZoomerSettings settings = null)
@@ -64,13 +66,40 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				zoomOrigin = settings.zoomOrigin;
 				zoomScale = settings.zoomScale;
 			}
+
+			windowStyle = new GUIStyle(EditorStyles.helpBox);
+			windowStyle.normal.background = MakeTexture(new Color(.5f, .5f, .5f, .5f));
 		}
 
+		private Texture2D MakeTexture(Color color)
+		{
+			int width = 2;
+			int height = 2;
+			Color[] pix = new Color[width * height];
+
+			for (int i = 0; i < pix.Length; i++)
+				pix[i] = color;
+
+			Texture2D result = new Texture2D(width, height);
+			result.SetPixels(pix);
+			result.Apply();
+
+			return result;
+		}
 
 		public void DisplayMessage(bool displayMsgs, List<ZoomWindowMessage> errMsgs)
 		{
 			displayMessageWindow = displayMsgs;
 			errorMsgs = errMsgs;
+			errorsCount = 0;
+			warningsCount = 0;
+			foreach (var msg in errorMsgs)
+			{
+				if (msg.messageType == ZoomWindowMessage.MessageType.Error)
+					++errorsCount;
+				else if (msg.messageType == ZoomWindowMessage.MessageType.Warning)
+					++warningsCount;
+			}
 		}
 
 
@@ -140,7 +169,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 						zoomAreaRect.width - (SLIDER_WIDTH + WINDOW_PADDING),
 						WINDOW_PADDING,
 						SLIDER_WIDTH, SLIDER_HEIGHT),
-					EditorStyles.helpBox);
+					windowStyle);
 				var defaultColor = GUI.color;
 				GUI.color = new Color(0, 0, 0, .25f);
 				GUILayout.Label("Zoom Scale: " + zoomScale.ToString("#.##") + "x");
@@ -263,9 +292,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 			GUI.BeginGroup(zoomAreaRect);
 			{
-				GUILayout.BeginArea(errorWindowRect, EditorStyles.helpBox);
+				GUILayout.BeginArea(errorWindowRect, windowStyle);
 				{
-					GUILayout.Label("Graph Invalid (" + errorMsgs.Count + " errors)", GUIStyle.none);
+					GUILayout.Label("Graph Invalid (" + errorsCount + " errors and "
+						+ warningsCount + " warnings)", GUIStyle.none);
 					float height = EditorGUIUtility.singleLineHeight;
 					errorWindowLength = 0;
 					foreach (ZoomWindowMessage msg in errorMsgs)
@@ -317,7 +347,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			Color defaultColor = GUI.color;
 			GUIStyle textStyle;
 			Vector2 textSize;
-			
+
 			GUILayout.BeginHorizontal();
 			{
 				switch (messageType)
@@ -326,7 +356,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 						textStyle = ZoomWindow.warningTextStyle;
 						GUI.color = Color.yellow;
 						textSize = textStyle.CalcSize(new GUIContent(msg));
-						GUILayout.Label(ZoomWindow.warningImage, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f));
+						GUILayout.Label(ZoomWindow.warningImage, 
+							GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f), GUILayout.MaxWidth(10));
 						iconSize.x = 10;
 						break;
 
@@ -334,7 +365,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 						GUI.color = Color.red;
 						textStyle = ZoomWindow.errorTextStyle;
 						textSize = textStyle.CalcSize(new GUIContent(msg));
-						GUILayout.Label(ZoomWindow.warningImage, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f), GUILayout.MaxWidth(10));
+						GUILayout.Label(ZoomWindow.warningImage, 
+							GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight * .75f), GUILayout.MaxWidth(10));
 						iconSize.x = 10;
 						break;
 
