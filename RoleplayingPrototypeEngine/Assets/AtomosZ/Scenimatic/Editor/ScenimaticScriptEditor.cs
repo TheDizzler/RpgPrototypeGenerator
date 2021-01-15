@@ -235,6 +235,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					}
 					else
 					{
+						GUILayout.Label(sceneFileName);
 						scenimaticGraph.script.sceneName = GUILayout.TextField(scenimaticGraph.script.sceneName);
 
 						if (GUILayout.Button("Save Scene"))
@@ -258,6 +259,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						NewScene();
 					}
 				}
+				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 
 				scenimaticGraph.spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField(
@@ -358,6 +360,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				if (!string.IsNullOrEmpty(path) && path.Length != 0)
 				{
 					sceneFileName = Path.GetFileNameWithoutExtension(path);
+					EditorPrefs.SetString(lastOpenScriptKey, path);
 					// check if new path is different from userScenimaticFolder
 				}
 				else
