@@ -86,6 +86,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (deferredCommandQueue == null)
 				deferredCommandQueue = new Queue<DeferredCommand>();
 
+			if (Event.current.type == EventType.MouseDown)
+				GUI.FocusControl(null); // deselects textfield on a button click
+
 			if (serializedBranch != null)
 			{
 				BranchEventView();

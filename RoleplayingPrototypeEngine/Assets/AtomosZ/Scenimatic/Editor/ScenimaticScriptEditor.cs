@@ -237,6 +237,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						GUILayout.Label(sceneFileName);
 						scenimaticGraph.script.sceneName = GUILayout.TextField(scenimaticGraph.script.sceneName);
+						if (Event.current.type == EventType.MouseDown)
+							GUI.FocusControl(null); // deselects the textfield on a button click
 
 						if (GUILayout.Button("Save Scene"))
 						{
