@@ -276,7 +276,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (startConnection == null)
 				return;
 
-			if (graphEntityData != startConnection.nodeWindow.entityData)
+			if (startConnection.data.type != ConnectionType.ControlFlow
+					&& graphEntityData != startConnection.nodeWindow.entityData)
 			{
 				ScriptGatewayNodeData gatewayData = graphEntityData as ScriptGatewayNodeData;
 				ScriptGatewayNodeData connGatewayData = startConnection.nodeWindow.entityData as ScriptGatewayNodeData;
@@ -483,7 +484,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 			startConnection = selectedConnection;
 		}
 
-
 		public void EndPointSelected(ConnectionPoint endPoint)
 		{
 			if (startConnection == null)
@@ -525,8 +525,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 			branchEditor.nodeGraph = this;
 		}
-
-
 
 
 		private void CreateNewBranch()
