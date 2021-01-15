@@ -132,8 +132,17 @@ namespace AtomosZ.Scenimatic.EditorTools
 				Color defaultColor = GUI.backgroundColor;
 				EditorGUILayout.BeginHorizontal();
 				{
+					int rowCount = -1;
 					for (int i = 0; i < serializedGateway.connections.Count; ++i)
 					{
+						if (serializedGateway.connections[i].type != ConnectionType.ControlFlow)
+							++rowCount;
+						if (rowCount % 5 == 0)
+						{
+							GUILayout.FlexibleSpace();
+							EditorGUILayout.EndHorizontal();
+							EditorGUILayout.BeginHorizontal();
+						}
 						DrawInputBox(serializedGateway.connections[i]);
 					}
 
@@ -188,8 +197,17 @@ namespace AtomosZ.Scenimatic.EditorTools
 				Color defaultColor = GUI.backgroundColor;
 				EditorGUILayout.BeginHorizontal();
 				{
+					int rowCount = -1;
 					for (int i = 0; i < serializedBranch.connectionInputs.Count; ++i)
 					{
+						if (serializedBranch.connectionInputs[i].type != ConnectionType.ControlFlow)
+							++rowCount;
+						if (rowCount % 5 == 0)
+						{
+							GUILayout.FlexibleSpace();
+							EditorGUILayout.EndHorizontal();
+							EditorGUILayout.BeginHorizontal();
+						}
 						DrawInputBox(serializedBranch.connectionInputs[i]);
 					}
 
