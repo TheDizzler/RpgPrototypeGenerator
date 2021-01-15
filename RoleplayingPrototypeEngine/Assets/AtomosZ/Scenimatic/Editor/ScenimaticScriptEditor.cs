@@ -142,7 +142,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		void OnDisable()
 		{
 			// this saves changes whenever scripts are reloaded.
-			SaveScene(); // maybe save to a temp file?
+			SaveScript(false); // maybe save to a temp file?
 		}
 
 		void OnDestroy()
@@ -239,7 +239,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 						if (GUILayout.Button("Save Scene"))
 						{
-							SaveScene(); // this stuff should be done in update to prevent annoying error messages
+							SaveScript(false); // this stuff should be done in update to prevent annoying error messages
+						}
+
+						if (GUILayout.Button("Save Scene As"))
+						{
+							SaveScript(true); // this stuff should be done in update to prevent annoying error messages
 						}
 					}
 
@@ -342,9 +347,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 			EditorUtility.SetDirty(this);
 		}
 
-		private void SaveScene()
+		private void SaveScript(bool saveAs)
 		{
-			if (string.IsNullOrEmpty(sceneFileName))
+			if (saveAs || string.IsNullOrEmpty(sceneFileName))
 			{
 				// prompt for save
 				var path = EditorUtility.SaveFilePanelInProject(
@@ -369,7 +374,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 			writer.WriteLine(JsonUtility.ToJson(scenimaticGraph.SaveScript(), true));
 			writer.Close();
 		}
-
 
 
 		public static ScenimaticSerializedNode CreateNewBranch(Vector2 windowPosition)

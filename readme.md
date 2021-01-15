@@ -6,18 +6,20 @@
 
 #Functionality
 >- duplicate variable name checks
->- Save As function (change to drop down menu?)
 >- (consider) disallow (limit?) events after a ControlFlow Query
 >- (consider) have inputs take the name of the connecting input
+>- (consider) change save/load/new buttons to menu
 >- text checks if replacement text exists
 >- add booleans as Input/Output connections
 >- updating InputNode inputs should refresh ScenimaticManager editor
->- OutputNode for passing player choices to game !Implemented in graph. Needs in-game implementation!
+>- OutputNode for passing player choices to game (!Implemented in graph. Needs in-game implementation!)
 >- query choices manipulatable at runtime
 >- ctrl-z undo
 >- graph entities that resize horizontally dynamically
+>- multiple entity selection
 
 ##Done
+>- ~Save As function (change to drop down menu?)~
 >- ~connection points currently only hold reference to guids of connections if it's an output. This is fine for control flows but will need to be changed for variables~
 >- ~inputs check if they are connected and warning when no connection~
 >- ~warnings when there are Out ControlFlows that are not connected to Input && Output~
