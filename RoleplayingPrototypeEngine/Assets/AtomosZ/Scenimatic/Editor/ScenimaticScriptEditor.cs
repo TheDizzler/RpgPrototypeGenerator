@@ -98,21 +98,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		{
 			if (window == null)
 			{
-				var remainingBuggedEditors = Editor.FindObjectsOfType<ScenimaticScriptEditor>();
-				foreach (var editor in remainingBuggedEditors)
-				{
-					if (editor == this)
-					{
-						window = editor;
-						continue;
-					}
-
-					Debug.LogWarning("Found a duplicated EditorWindow");
-					Editor.DestroyImmediate(editor);
-				}
-
-				if (window == null)
-					CreateWindows();
+				CreateWindows();
 				scenimaticGraph = null; // make sure the graph gets re-initialized
 			}
 
@@ -315,6 +301,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				}
 			}
 			EditorGUILayout.EndVertical();
+
 			//if (GUI.changed) // adding this check means there is a delay when hovering over connection points.
 			Repaint();
 		}
