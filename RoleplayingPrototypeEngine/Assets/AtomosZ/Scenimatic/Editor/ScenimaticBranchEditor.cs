@@ -150,6 +150,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					if (GUILayout.Button("+"))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
+						CheckForDuplicateName(newConn, serializedGateway.connections);
 						if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
 							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 						else
@@ -165,17 +166,48 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
+		private void CheckForDuplicateName(Connection newConn, List<Connection> connList)
+		{
+			string suffix = "";
+			int next = 0;
+			foreach (var conn in connList)
+			{
+				if (conn.variableName == newConn.variableName + suffix)
+				{
+					suffix = "_" + (++next);
+				}
+			}
+
+			if (next > 9)
+				suffix += "_STAHP_NAME_YOUR_VARIABLES_YOU_GOON";
+			newConn.variableName += suffix;
+		}
+
+		private string CheckForDuplicateName(string newChoiceText, List<string> options)
+		{
+			string suffix = "";
+			int next = 0;
+			foreach (string option in options)
+				if (option == newChoiceText)
+					suffix = "_" + (++next);
+
+			if (next > 9)
+				suffix += "_STAHP_NAME_YOUR_VARIABLES_YOU_GOON";
+			return newChoiceText + suffix;
+		}
+
 		private void BranchEventView()
 		{
 			EditorGUILayout.BeginHorizontal(rectStyle);
 			{
 				branch.branchName = GUILayout.TextField(branch.branchName);
-
+				GUILayout.FlexibleSpace();
 				if (GUILayout.Button("Add Event"))
 				{
 					branch.events.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
 				}
 			}
+			
 			EditorGUILayout.EndHorizontal();
 
 			// inputs
@@ -245,6 +277,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				while (size > newSize)
 				{
 					Connection newConn = CreateNewConnection(ConnectionType.Int);
+					CheckForDuplicateName(newConn, connections);
 					entityData.AddNewConnectionPoint(newConn, direction);
 					++newSize;
 				}
@@ -429,6 +462,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 									new DeferredCommand(
 										eventData, DeferredCommandType.CreateOutputConnection));
 								break;
+
 							default:
 								Debug.LogWarning(newEventType + " not yet implemented");
 								break;
@@ -496,7 +530,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 						ConnectionType outputType = eventData.connections[0].type;
 						while (size > eventData.options.Count)
 						{
-							eventData.options.Add("");
+							char c = (char)((int)'A' + eventData.options.Count);
+							eventData.options.Add(c.ToString());
 
 							if (outputType == ConnectionType.ControlFlow)
 							{ // add new output
@@ -533,7 +568,10 @@ namespace AtomosZ.Scenimatic.EditorTools
 						}
 
 						string newChoiceText = EditorGUILayout.DelayedTextField(eventData.options[i]);
-						eventData.options[i] = newChoiceText;
+						if (newChoiceText != eventData.options[i])
+						{
+							eventData.options[i] = CheckForDuplicateName(newChoiceText, eventData.options);
+						}
 
 						if (eventData.connections[0].type == ConnectionType.ControlFlow && eventData.connections.Count == eventData.options.Count)
 						{
@@ -728,6 +766,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
 
 					var newConn = CreateNewConnection(ConnectionType.Int);
+					CheckForDuplicateName(newConn, serializedBranch != null
+						? serializedBranch.connectionOutputs : serializedGateway.connections);
 					entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 
 					command.eventData.outputGUIDs = new List<string>();

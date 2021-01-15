@@ -5,7 +5,6 @@
 
 
 #Functionality
->- duplicate variable name checks
 >- (consider) disallow (limit?) events after a ControlFlow Query
 >- (consider) have inputs take the name of the connecting input
 >- (consider) change save/load/new buttons to menu
@@ -19,6 +18,7 @@
 >- multiple entity selection
 
 ##Done
+>- ~duplicate variable name checks~
 >- ~Save As function (change to drop down menu?)~
 >- ~connection points currently only hold reference to guids of connections if it's an output. This is fine for control flows but will need to be changed for variables~
 >- ~inputs check if they are connected and warning when no connection~
