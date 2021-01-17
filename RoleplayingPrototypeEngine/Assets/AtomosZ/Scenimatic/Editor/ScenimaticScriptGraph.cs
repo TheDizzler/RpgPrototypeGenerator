@@ -360,15 +360,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 				connectedTo.RemoveAllConnections();
 			}
 
-
-			if (direction == ConnectionPointDirection.In)
-			{
-				connectedTo.connection.connectedToGUIDs.Add(newConn.GUID);
-			}
-			else
-			{
-				newConn.connectedToGUIDs.Add(connectedTo.GUID);
-			}
+			newConn.connectedToGUIDs.Add(connectedTo.GUID);
+			connectedTo.connection.connectedToGUIDs.Add(newConn.GUID);
 
 			RefreshConnectionPoint(connectedTo);
 		}
