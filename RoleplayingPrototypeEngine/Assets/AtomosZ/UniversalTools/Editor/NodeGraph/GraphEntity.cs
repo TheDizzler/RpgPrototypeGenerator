@@ -223,6 +223,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			window.DrawConnectionWires();
 		}
 
+		public abstract List<Connection> GetConnections(ConnectionPointDirection direction);
 		public abstract void CheckForErrors(List<ZoomWindowMessage> warnings);
 		public abstract void AddNewConnectionPoint(Connection newConn, ConnectionPointDirection direction);
 		public abstract void RemoveConnectionPoint(Connection connection, ConnectionPointDirection direction);

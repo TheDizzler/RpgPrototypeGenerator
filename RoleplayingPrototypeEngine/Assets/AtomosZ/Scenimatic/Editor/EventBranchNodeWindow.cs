@@ -198,7 +198,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-
 		public override void CheckForErrors(List<ZoomWindowMessage> warnings)
 		{
 			bool allWarnings = false;
@@ -265,6 +264,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 		protected override void CreateWindow()
 		{
 			window = new EventBranchNodeWindow(this, nodeGraph);
+		}
+
+		public override List<Connection> GetConnections(ConnectionPointDirection direction)
+		{
+			return direction == ConnectionPointDirection.In ?
+				inputConnections : outputConnections;
 		}
 	}
 }

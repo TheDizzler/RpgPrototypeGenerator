@@ -154,7 +154,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					if (GUILayout.Button("+"))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
-						CheckForDuplicateName(newConn, gateway.connections);
+						CheckForDuplicateNameInConnections(newConn, gateway.connections);
 						if (gateway.gatewayType == GatewayType.Entrance)
 							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 						else
@@ -170,7 +170,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private void CheckForDuplicateName(Connection newConn, List<Connection> connList)
+		public static void CheckForDuplicateNameInConnections(Connection newConn, List<Connection> connList)
 		{
 			string suffix = "";
 			int next = 0;
@@ -187,7 +187,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			newConn.variableName += suffix;
 		}
 
-		private string CheckForDuplicateName(string newChoiceText, List<string> options)
+		private string CheckForDuplicateNameInQueryList(string newChoiceText, List<string> options)
 		{
 			string suffix = "";
 			int next = 0;
@@ -251,7 +251,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					if (GUILayout.Button(new GUIContent("+", "Creates new Input")))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
-						CheckForDuplicateName(newConn, branch.connectionInputs);
+						CheckForDuplicateNameInConnections(newConn, branch.connectionInputs);
 						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
 					}
 				}
@@ -282,7 +282,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				while (size > newSize)
 				{
 					Connection newConn = CreateNewConnection(ConnectionType.Int);
-					CheckForDuplicateName(newConn, connections);
+					CheckForDuplicateNameInConnections(newConn, connections);
 					entityData.AddNewConnectionPoint(newConn, direction);
 					++newSize;
 				}
@@ -575,7 +575,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						string newChoiceText = EditorGUILayout.DelayedTextField(eventData.options[i]);
 						if (newChoiceText != eventData.options[i])
 						{
-							eventData.options[i] = CheckForDuplicateName(newChoiceText, eventData.options);
+							eventData.options[i] = CheckForDuplicateNameInQueryList(newChoiceText, eventData.options);
 						}
 
 						if (eventData.connections[0].type == ConnectionType.ControlFlow && eventData.connections.Count == eventData.options.Count)
@@ -773,7 +773,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
 
 					var newConn = CreateNewConnection(ConnectionType.Int);
-					CheckForDuplicateName(newConn, branch != null
+					CheckForDuplicateNameInConnections(newConn, branch != null
 						? branch.connectionOutputs : gateway.connections);
 					entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 

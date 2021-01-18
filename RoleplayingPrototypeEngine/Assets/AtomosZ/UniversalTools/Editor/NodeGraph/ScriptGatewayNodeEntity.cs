@@ -300,5 +300,10 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 				}
 			}
 		}
+
+		public override List<Connection> GetConnections(ConnectionPointDirection direction)
+		{
+			return connections;
+		}
 	}
 }

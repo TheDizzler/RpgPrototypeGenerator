@@ -350,7 +350,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 				GUID = System.Guid.NewGuid().ToString(),
 				variableName = "tempName",
 			};
-
+			
+			ScenimaticBranchEditor.CheckForDuplicateNameInConnections(newConn, graphEntity.GetConnections(direction));
 			graphEntity.AddNewConnectionPoint(newConn, direction);
 
 			if (!connectedTo.AllowsMultipleConnections())
