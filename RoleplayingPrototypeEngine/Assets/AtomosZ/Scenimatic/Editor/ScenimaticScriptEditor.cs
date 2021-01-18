@@ -178,10 +178,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (zoomer == null)
 			{
 				zoomer = new ZoomWindow();
-				ZoomWindow.warningTextStyle = new GUIStyle();
-				ZoomWindow.warningTextStyle.normal.textColor = Color.yellow;
-				ZoomWindow.errorTextStyle = new GUIStyle();
-				ZoomWindow.errorTextStyle.normal.textColor = Color.red;
 			}
 
 

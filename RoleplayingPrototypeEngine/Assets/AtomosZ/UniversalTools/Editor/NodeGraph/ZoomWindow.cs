@@ -54,6 +54,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		private GUIStyle windowStyle;
 
 
+		public ZoomWindow()
+		{
+			warningTextStyle = new GUIStyle();
+			warningTextStyle.normal.textColor = Color.yellow;
+			errorTextStyle = new GUIStyle();
+			errorTextStyle.normal.textColor = Color.red;
+		}
+
 		public void Reset(ZoomerSettings settings = null)
 		{
 			if (settings == null)
@@ -310,7 +318,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 					if (warningsCount > 0)
 					{
-						 label += warningsCount + " warnings)";
+						label += warningsCount + " warnings)";
 					}
 
 					GUILayout.Label(label, GUIStyle.none);
