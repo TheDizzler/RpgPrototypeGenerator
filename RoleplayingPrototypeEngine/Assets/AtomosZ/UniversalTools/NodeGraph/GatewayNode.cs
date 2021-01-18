@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
-using UnityEngine;
 
 namespace AtomosZ.UniversalTools.NodeGraph
 {
 	[System.Serializable]
-	public class GatewayNode
+	public class Gateway
 	{
 		public enum GatewayType
 		{
@@ -19,22 +18,12 @@ namespace AtomosZ.UniversalTools.NodeGraph
 			Exit
 		}
 
-		/// <summary>
-		/// A personal identifier for a node.
-		/// Only needs to be unique to the script it belongs to.
-		/// </summary>
-		public string GUID;
 		public GatewayType gatewayType;
 		/// <summary>
 		/// Data sent from game code in case of StartNode (outputs in graph),
 		/// data sent TO game in case of EndNode (input in graph).
 		/// </summary>
 		public List<Connection> connections;
-		/// <summary>
-		/// Position in graph.
-		/// </summary>
-		public Vector2 position;
-
 
 		public Connection GetOutputConnectionByGUID(string linkedOutputGUID)
 		{
@@ -49,4 +38,7 @@ namespace AtomosZ.UniversalTools.NodeGraph
 			return null;
 		}
 	}
+
+	[System.Serializable]
+	public class GatewaySerializedNode : SerializedNode<Gateway> { }
 }

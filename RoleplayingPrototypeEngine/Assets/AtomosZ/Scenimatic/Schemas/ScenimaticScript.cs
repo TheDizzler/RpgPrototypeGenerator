@@ -2,6 +2,7 @@
 using AtomosZ.UniversalTools.NodeGraph;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEngine;
+using static AtomosZ.UniversalTools.NodeGraph.Gateway;
 
 namespace AtomosZ.Scenimatic.Schemas
 {
@@ -10,8 +11,8 @@ namespace AtomosZ.Scenimatic.Schemas
 	{
 		public string sceneName;
 
-		public GatewayNode inputNode;
-		public GatewayNode outputNode;
+		public GatewaySerializedNode inputNode;
+		public GatewaySerializedNode outputNode;
 		public List<ScenimaticSerializedNode> branches;
 		public string spriteAtlas;
 
@@ -33,42 +34,51 @@ namespace AtomosZ.Scenimatic.Schemas
 		public ScenimaticScript(string sceneName, ScenimaticSerializedNode firstBranch)
 		{
 			this.sceneName = sceneName;
-			inputNode = new GatewayNode()
+			inputNode = new GatewaySerializedNode()
 			{
 				GUID = System.Guid.NewGuid().ToString(),
-				gatewayType = GatewayNode.GatewayType.Entrance,
 				position = Vector2.zero,
-				connections = new List<Connection>()
+				data = new Gateway()
 				{
-					new Connection()
+					gatewayType = GatewayType.Entrance,
+					connections = new List<Connection>()
 					{
-						GUID = System.Guid.NewGuid().ToString(),
-						type = ConnectionType.ControlFlow,
-						variableName = Connection.ControlFlowOutName,
-					}
+						new Connection()
+						{
+							GUID = System.Guid.NewGuid().ToString(),
+							type = ConnectionType.ControlFlow,
+							variableName = Connection.ControlFlowOutName,
+						}
+					},
 				},
 			};
-			outputNode = new GatewayNode()
+			outputNode = new GatewaySerializedNode()
 			{
 				GUID = System.Guid.NewGuid().ToString(),
-				gatewayType = GatewayNode.GatewayType.Exit,
 				position = new Vector2(800, 0),
-				connections = new List<Connection>()
+				data = new Gateway()
 				{
-					new Connection()
+					gatewayType = GatewayType.Exit,
+
+					connections = new List<Connection>()
 					{
-						GUID = System.Guid.NewGuid().ToString(),
-						type = ConnectionType.ControlFlow,
-						variableName = Connection.ControlFlowInName,
-					}
+						new Connection()
+						{
+							GUID = System.Guid.NewGuid().ToString(),
+							type = ConnectionType.ControlFlow,
+							variableName = Connection.ControlFlowInName,
+						}
+					},
 				},
 			};
 
 			branches = new List<ScenimaticSerializedNode>();
 			branches.Add(firstBranch);
 
-			inputNode.connections[0].connectedToGUIDs.Add(firstBranch.GetMainControlFlowInputGUID());
-			outputNode.connections[0].connectedToGUIDs.Add(firstBranch.GetMainControlFlowOutputGUID());
+			inputNode.data.connections[0].connectedToGUIDs.Add(firstBranch.data.GetMainControlFlowInputGUID());
+			firstBranch.data.connectionInputs[0].connectedToGUIDs.Add(inputNode.data.connections[0].GUID);
+			firstBranch.data.connectionOutputs[0].connectedToGUIDs.Add(outputNode.data.connections[0].GUID);
+			outputNode.data.connections[0].connectedToGUIDs.Add(firstBranch.data.GetMainControlFlowOutputGUID());
 		}
 	}
 }

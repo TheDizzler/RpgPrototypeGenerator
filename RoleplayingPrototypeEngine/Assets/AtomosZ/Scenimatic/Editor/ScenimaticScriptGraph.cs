@@ -2,11 +2,11 @@
 using System.IO;
 using AtomosZ.Scenimatic.Schemas;
 using AtomosZ.UniversalEditorTools.NodeGraph;
-using AtomosZ.UniversalTools.NodeGraph;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
+using static AtomosZ.UniversalTools.NodeGraph.Gateway;
 
 namespace AtomosZ.Scenimatic.EditorTools
 {
@@ -295,18 +295,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 				else
 				{
 					if ((connGatewayData != null
-						&& (connGatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance
+						&& (connGatewayData.serializedNode.data.gatewayType == GatewayType.Entrance
 							|| gatewayData != null))
-						|| (gatewayData != null && gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance)
-						|| (gatewayData != null && gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Exit
+						|| (gatewayData != null && gatewayData.serializedNode.data.gatewayType == GatewayType.Entrance)
+						|| (gatewayData != null && gatewayData.serializedNode.data.gatewayType == GatewayType.Exit
 							&& startConnection.connectionDirection != ConnectionPointDirection.In))
 					{
 						CreateNewConnectionPointContextMenu(graphEntityData, startConnection);
 					}
 				}
-
 			}
-
 
 			startConnection.isCreatingNewConnection = false;
 			startConnection = null;
@@ -386,7 +384,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 
 			bool confirmed = false;
-			foreach (var conn in serializedEntity.connectionInputs)
+			foreach (var conn in serializedEntity.data.connectionInputs)
 			{ // check if anything still connected so we can warn the user
 				if (IsConnected(conn))
 				{ // show warning
@@ -403,7 +401,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			}
 
 
-			foreach (var conn in serializedEntity.connectionOutputs)
+			foreach (var conn in serializedEntity.data.connectionOutputs)
 			{ // check if anything still connected so we can warn the user
 				if (IsConnected(conn))
 				{ // show warning
@@ -542,13 +540,13 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 			if (connected.connectionDirection == ConnectionPointDirection.Out)
 			{
-				newNode.connectionInputs[0].connectedToGUIDs.Add(connected.GUID);
-				connected.connection.connectedToGUIDs.Add(newNode.connectionInputs[0].GUID);
+				newNode.data.connectionInputs[0].connectedToGUIDs.Add(connected.GUID);
+				connected.connection.connectedToGUIDs.Add(newNode.data.connectionInputs[0].GUID);
 			}
 			else
 			{
-				newNode.connectionOutputs[0].connectedToGUIDs.Add(connected.GUID);
-				connected.connection.connectedToGUIDs.Add(newNode.connectionOutputs[0].GUID);
+				newNode.data.connectionOutputs[0].connectedToGUIDs.Add(connected.GUID);
+				connected.connection.connectedToGUIDs.Add(newNode.data.connectionOutputs[0].GUID);
 			}
 		}
 

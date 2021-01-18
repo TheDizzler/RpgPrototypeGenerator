@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 {
+	public interface ISerializedEntity
+	{
+		string GetGUID();
+		object GetData();
+	}
+
 	[System.Serializable]
-	public class SerializedNode<T>
+	public class SerializedNode<T> : ISerializedEntity
 	{
 		/// <summary>
 		/// A personal identifier for a node. Used in editor for deletion.
@@ -19,9 +24,6 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 		/// </summary>
 		public T data;
 
-		public List<Connection> connectionInputs;
-		public List<Connection> connectionOutputs;
-
 		//					//
 		// Editor variables	//
 		//					//
@@ -32,26 +34,14 @@ namespace AtomosZ.UniversalTools.NodeGraph.Schemas
 		public Vector2 position;
 
 
-		public string GetMainControlFlowInputGUID()
+		public string GetGUID()
 		{
-			return connectionInputs[0].GUID;
+			return GUID;
 		}
 
-		public string GetMainControlFlowOutputGUID()
+		public object GetData()
 		{
-			return connectionOutputs[0].GUID;
-		}
-		public Connection GetOutputConnectionByGUID(string linkedOutputGUID)
-		{
-			foreach (var conn in connectionOutputs)
-			{
-				if (conn.GUID == linkedOutputGUID)
-				{
-					return conn;
-				}
-			}
-
-			return null;
+			return data;
 		}
 	}
 }

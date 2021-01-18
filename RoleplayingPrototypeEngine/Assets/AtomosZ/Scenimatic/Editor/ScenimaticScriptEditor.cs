@@ -374,30 +374,31 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				GUID = System.Guid.NewGuid().ToString(),
 				position = windowPosition,
-				connectionInputs = new List<Connection>()
-				{
-					new Connection()
-					{
-						GUID = System.Guid.NewGuid().ToString(),
-						type = ConnectionType.ControlFlow,
-						variableName = Connection.ControlFlowInName,
-					}
-				},
-				connectionOutputs = new List<Connection>()
-				{
-					new Connection()
-					{
-						GUID = System.Guid.NewGuid().ToString(),
-						type = ConnectionType.ControlFlow,
-						variableName = Connection.ControlFlowOutName,
-					}
-				},
 				data = new ScenimaticBranch()
 				{
 					branchName = "New Branch",
+					connectionInputs = new List<Connection>()
+					{
+						new Connection()
+						{
+							GUID = System.Guid.NewGuid().ToString(),
+							type = ConnectionType.ControlFlow,
+							variableName = Connection.ControlFlowInName,
+						}
+					},
+					connectionOutputs = new List<Connection>()
+					{
+						new Connection()
+						{
+							GUID = System.Guid.NewGuid().ToString(),
+							type = ConnectionType.ControlFlow,
+							variableName = Connection.ControlFlowOutName,
+						}
+					},
+
 					events = new List<ScenimaticEvent>()
 					{
-						ScenimaticEvent.CreateDialogEvent("test", "image"),
+						ScenimaticEvent.CreateDialogEvent("", "no image"),
 					},
 				}
 			};

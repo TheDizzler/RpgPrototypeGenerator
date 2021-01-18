@@ -4,6 +4,7 @@ using AtomosZ.UniversalTools.NodeGraph;
 using AtomosZ.UniversalTools.NodeGraph.Schemas;
 using UnityEditor;
 using UnityEngine;
+using static AtomosZ.UniversalTools.NodeGraph.Gateway;
 
 namespace AtomosZ.UniversalEditorTools.NodeGraph
 {
@@ -21,7 +22,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 			connectionPoints = new List<ConnectionPoint>();
 
 			ConnectionPointDirection direction;
-			if (gatewayData.serializedNode.gatewayType == GatewayNode.GatewayType.Entrance)
+			if (gatewayData.serializedNode.data.gatewayType == GatewayType.Entrance)
 			{
 				isInputNode = true;
 				direction = ConnectionPointDirection.Out;
@@ -217,14 +218,14 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		/// <summary>
 		/// The serialized data.
 		/// </summary>
-		public GatewayNode serializedNode;
+		public GatewaySerializedNode serializedNode;
 
 
-		public ScriptGatewayNodeData(INodeGraph graph, GatewayNode serializedData) : base(graph)
+		public ScriptGatewayNodeData(INodeGraph graph, GatewaySerializedNode serializedData) : base(graph)
 		{
 			serializedNode = serializedData;
 			GUID = serializedData.GUID;
-			connections = serializedData.connections;
+			connections = serializedData.data.connections;
 			nodeStyle = new GraphEntityStyle();
 			nodeStyle.Init(new Vector2(250, 50), Color.cyan, Color.blue, Color.blue, Color.white);
 
@@ -279,7 +280,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 							warnings.Add(new ZoomWindowMessage()
 							{
 								messageType = ZoomWindowMessage.MessageType.Error,
-								msg = serializedNode.gatewayType == GatewayNode.GatewayType.Exit ?
+								msg = serializedNode.data.gatewayType == GatewayType.Exit ?
 									"ERROR: Script does not reach end node."
 									: "ERROR: Start node has no connection to output ControlFlow.",
 							});
@@ -289,7 +290,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 							warnings.Add(new ZoomWindowMessage()
 							{
 								messageType = ZoomWindowMessage.MessageType.Warning,
-								msg = serializedNode.gatewayType == GatewayNode.GatewayType.Exit ?
+								msg = serializedNode.data.gatewayType == GatewayType.Exit ?
 									"WARNING: Event End " + conn.variableName 
 										+ " has no input. It will be null or empty."
 									: "WARNING: Event Start " + conn.variableName + " has no output.",

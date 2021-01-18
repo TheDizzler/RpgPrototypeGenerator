@@ -9,7 +9,7 @@ using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.U2D;
 using static AtomosZ.Scenimatic.Schemas.ScenimaticEvent;
-
+using static AtomosZ.UniversalTools.NodeGraph.Gateway;
 
 namespace AtomosZ.Scenimatic.EditorTools
 {
@@ -42,8 +42,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 		private Queue<DeferredCommand> deferredCommandQueue;
 		private Vector2 scrollPos;
 		private GraphEntityData entityData;
-		private GatewayNode serializedGateway;
-		private ScenimaticSerializedNode serializedBranch = null;
+		private Gateway gateway = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
 		private GUILayoutOption[] inputLabelOptions = { GUILayout.MaxWidth(40), GUILayout.MinWidth(37), };
@@ -62,15 +61,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 			this.entityData = branchData;
 			if (branchData is EventBranchObjectData)
 			{
-				serializedGateway = null;
-				serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
+				gateway = null;
+				var serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
 				branch = serializedBranch.data;
 			}
 			else
 			{
-				serializedBranch = null;
 				branch = null;
-				serializedGateway = ((ScriptGatewayNodeData)branchData).serializedNode;
+				var serializedGateway = ((ScriptGatewayNodeData)branchData).serializedNode;
+				gateway = serializedGateway.data;
 			}
 			Repaint();
 		}
@@ -89,7 +88,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (Event.current.type == EventType.MouseDown)
 				GUI.FocusControl(null); // deselects textfield on a button click
 
-			if (serializedBranch != null)
+			if (branch != null)
 			{
 				BranchEventView();
 			}
@@ -118,16 +117,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				EditorGUILayout.BeginHorizontal();
 				{
-					if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
+					if (gateway.gatewayType == GatewayType.Entrance)
 					{
 						GUILayout.Label("Inputs:");
-						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.Out);
+						ResizableInputBlock(gateway.connections, ConnectionPointDirection.Out);
 						GUILayout.Label("These are passed into the event script from code.");
 					}
 					else
 					{
 						GUILayout.Label("Ouputs:");
-						ResizableInputBlock(serializedGateway.connections, ConnectionPointDirection.In);
+						ResizableInputBlock(gateway.connections, ConnectionPointDirection.In);
 						GUILayout.Label("These are passed from the event script to code.");
 					}
 				}
@@ -138,9 +137,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					int rowCount = -1;
-					for (int i = 0; i < serializedGateway.connections.Count; ++i)
+					for (int i = 0; i < gateway.connections.Count; ++i)
 					{
-						if (serializedGateway.connections[i].type != ConnectionType.ControlFlow)
+						if (gateway.connections[i].type != ConnectionType.ControlFlow)
 							++rowCount;
 						if (rowCount % 5 == 0)
 						{
@@ -148,15 +147,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 							EditorGUILayout.EndHorizontal();
 							EditorGUILayout.BeginHorizontal();
 						}
-						DrawInputBox(serializedGateway.connections[i]);
+						DrawInputBox(gateway.connections[i]);
 					}
 
 					GUI.backgroundColor = defaultColor;
 					if (GUILayout.Button("+"))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
-						CheckForDuplicateName(newConn, serializedGateway.connections);
-						if (serializedGateway.gatewayType == GatewayNode.GatewayType.Entrance)
+						CheckForDuplicateName(newConn, gateway.connections);
+						if (gateway.gatewayType == GatewayType.Entrance)
 							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 						else
 							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
@@ -221,12 +220,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					GUILayout.Label("Inputs:");
-					ResizableInputBlock(serializedBranch.connectionInputs, ConnectionPointDirection.In);
+					ResizableInputBlock(branch.connectionInputs, ConnectionPointDirection.In);
 
-					if (serializedBranch.connectionInputs.Count > 1)
+					if (branch.connectionInputs.Count > 1)
 						GUILayout.Label("Insert a variable into dialog text "
 							+ "by writing the variable name in curly braces. Ex: {"
-							+ serializedBranch.connectionInputs[1].variableName + "}.");
+							+ branch.connectionInputs[1].variableName + "}.");
 				}
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
@@ -235,9 +234,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					int rowCount = -1;
-					for (int i = 0; i < serializedBranch.connectionInputs.Count; ++i)
+					for (int i = 0; i < branch.connectionInputs.Count; ++i)
 					{
-						if (serializedBranch.connectionInputs[i].type != ConnectionType.ControlFlow)
+						if (branch.connectionInputs[i].type != ConnectionType.ControlFlow)
 							++rowCount;
 						if (rowCount % 5 == 0)
 						{
@@ -245,14 +244,14 @@ namespace AtomosZ.Scenimatic.EditorTools
 							EditorGUILayout.EndHorizontal();
 							EditorGUILayout.BeginHorizontal();
 						}
-						DrawInputBox(serializedBranch.connectionInputs[i]);
+						DrawInputBox(branch.connectionInputs[i]);
 					}
 
 					GUI.backgroundColor = defaultColor;
 					if (GUILayout.Button(new GUIContent("+", "Creates new Input")))
 					{
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
-						CheckForDuplicateName(newConn, serializedBranch.connectionInputs);
+						CheckForDuplicateName(newConn, branch.connectionInputs);
 						entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
 					}
 				}
@@ -449,13 +448,13 @@ namespace AtomosZ.Scenimatic.EditorTools
 										{
 											deferredCommandQueue.Enqueue(
 												new DeferredCommand(eventData,
-													serializedBranch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
+													branch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
 													DeferredCommandType.DeleteControlFlowOutputConnection));
 										}
 
 										// turn default Out ControlFlow back on if was ControlFlow Query
 										if (eventData.connections[0].type == ConnectionType.ControlFlow)
-											serializedBranch.connectionOutputs[0].hide = false;
+											branch.connectionOutputs[0].hide = false;
 									}
 								}
 
@@ -514,7 +513,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 				List<Connection> connections = new List<Connection>();
 				foreach (string guid in eventData.outputGUIDs)
 				{
-					Connection conn = serializedBranch.GetOutputConnectionByGUID(guid);
+					Connection conn = branch.GetOutputConnectionByGUID(guid);
 					if (conn == null)// this will be null the first time
 						return;
 					connections.Add(conn);
@@ -607,16 +606,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 							{
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(eventData,
-										serializedBranch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
+										branch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
 										DeferredCommandType.DeleteControlFlowOutputConnection));
 							}
 
 							if (eventData.connections[0].type == ConnectionType.ControlFlow)
-								serializedBranch.connectionOutputs[0].hide = false;
+								branch.connectionOutputs[0].hide = false;
 						}
 						else if (newConnType == ConnectionType.ControlFlow)
 						{   // check if this branch already has a control flow
-							if (serializedBranch.connectionOutputs[0].hide)
+							if (branch.connectionOutputs[0].hide)
 							{
 								// a popup would be better here, no?
 								Debug.LogWarning("Cannot have more than one ControlFlow Query in a branch.");
@@ -631,8 +630,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
 							}
 
-							nodeGraph.connectionPoints[serializedBranch.connectionOutputs[0].GUID].RemoveAllConnections();
-							serializedBranch.connectionOutputs[0].hide = true;
+							nodeGraph.connectionPoints[branch.connectionOutputs[0].GUID].RemoveAllConnections();
+							branch.connectionOutputs[0].hide = true;
 						}
 
 						nodeGraph.connectionPoints[eventData.connections[0].GUID].RemoveAllConnections();
@@ -761,7 +760,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 								"Could not find ConnectionPoint in ScenimaticBranch");
 
 						if (command.eventData.connections[0].type == ConnectionType.ControlFlow)
-							serializedBranch.connectionOutputs[0].hide = false; // just in case
+							branch.connectionOutputs[0].hide = false; // just in case
 					}
 
 					branch.events.Remove(command.eventData);
@@ -774,8 +773,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
 
 					var newConn = CreateNewConnection(ConnectionType.Int);
-					CheckForDuplicateName(newConn, serializedBranch != null
-						? serializedBranch.connectionOutputs : serializedGateway.connections);
+					CheckForDuplicateName(newConn, branch != null
+						? branch.connectionOutputs : gateway.connections);
 					entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
 
 					command.eventData.outputGUIDs = new List<string>();
@@ -795,7 +794,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					nodeGraph.RemoveConnectionPoint(command.connection);
 					entityData.RemoveConnectionPoint(
 						 command.connection, ConnectionPointDirection.Out);
-					serializedBranch.connectionOutputs.Remove(command.connection);
+					branch.connectionOutputs.Remove(command.connection);
 					command.eventData.outputGUIDs.Remove(command.connection.GUID);
 					command.eventData.connections.Remove(command.connection);
 					break;

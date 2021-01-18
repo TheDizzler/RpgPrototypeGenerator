@@ -27,9 +27,9 @@ namespace AtomosZ.UI.EditorTools
 			DrawDefaultInspector();
 
 			ScenimaticManager mngr = (ScenimaticManager)target;
-			if (mngr.eventStart != null)
+			if (mngr.scriptStart != null)
 			{
-				var conns = mngr.eventStart.connections;
+				var conns = mngr.scriptStart.data.connections;
 				if (inputParams == null)
 					inputParams = new object[conns.Count - 1];
 				for (int i = 1; i < conns.Count; ++i)

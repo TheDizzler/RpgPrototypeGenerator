@@ -27,16 +27,16 @@ namespace AtomosZ.Scenimatic
 		/// </summary>
 		public string eventFile;
 		[HideInInspector]
-		public GatewayNode eventStart;
+		public GatewaySerializedNode scriptStart;
 		[HideInInspector]
-		public GatewayNode eventEnd;
+		public GatewaySerializedNode scriptEnd;
 		/// <summary>
 		/// Set but never really used.
 		/// </summary>
 		public bool eventPrepared = false;
 		public PlayerInput playerInput = null;
 		//[System.NonSerialized] temporarily making serialized so can click to another object and not lose context in non-play mode
-		public ScenimaticSerializedNode currentBranch = null;
+		public ScenimaticBranch currentBranch = null;
 
 		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
 		private string eventPath;
@@ -50,7 +50,7 @@ namespace AtomosZ.Scenimatic
 		/// <summary>
 		/// The GUID of the INPUT CONNECTION POINT for the branch, NOT the GUID of the branch itself.
 		/// </summary>
-		private Dictionary<string, ScenimaticSerializedNode> guidBranches;
+		private Dictionary<string, ISerializedEntity> guidBranches;
 		private Dictionary<string, Connection> guidConnectionOutputs;
 		private Dictionary<string, Connection> guidConnectionInputs;
 		private string nextGUID;
@@ -137,23 +137,30 @@ namespace AtomosZ.Scenimatic
 			reader.Close();
 
 			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
-			eventStart = script.inputNode;
-			eventEnd = script.outputNode;
+			scriptStart = script.inputNode;
+			scriptEnd = script.outputNode;
 			// this is not ideal. It will force users to have their sprite atlas in a resource folder.
 			dialogPanel.spriteAtlas = Resources.Load<SpriteAtlas>(script.spriteAtlas);
 
-			guidBranches = new Dictionary<string, ScenimaticSerializedNode>();
+			guidBranches = new Dictionary<string, ISerializedEntity>();
 			guidConnectionOutputs = new Dictionary<string, Connection>();
 			guidConnectionInputs = new Dictionary<string, Connection>();
 
 			foreach (var branch in script.branches)
 			{
-				guidBranches.Add(branch.connectionInputs[0].GUID, branch);
-				foreach (var conn in branch.connectionOutputs)
+				guidBranches.Add(branch.data.GetMainControlFlowInputGUID(), branch);
+				foreach (var conn in branch.data.connectionOutputs)
 					guidConnectionOutputs.Add(conn.GUID, conn);
-				foreach (var conn in branch.connectionInputs)
+				foreach (var conn in branch.data.connectionInputs)
 					guidConnectionInputs.Add(conn.GUID, conn);
 			}
+
+			guidBranches.Add(scriptEnd.data.connections[0].GUID, scriptEnd);
+
+			foreach (var conn in scriptStart.data.connections)
+				guidConnectionOutputs.Add(conn.GUID, conn);
+			foreach (var conn in scriptEnd.data.connections)
+				guidConnectionInputs.Add(conn.GUID, conn);
 		}
 
 
@@ -169,15 +176,15 @@ namespace AtomosZ.Scenimatic
 			ClearPanels();
 			eventQueue.Clear();
 
-			if (eventStart.connections.Count - 1 != inputParams.Length)
+			if (scriptStart.data.connections.Count - 1 != inputParams.Length)
 			{
 				Debug.LogError("Invalid Scenimatic Event setup for event " + eventPath
 					+ ".\nInput parameter count " + inputParams.Length
-					+ " does not match expected count of " + eventStart.connections.Count);
+					+ " does not match expected count of " + scriptStart.data.connections.Count);
 			}
 
 			guidPassedVariables = new Dictionary<string, string>();
-			var conns = eventStart.connections;
+			var conns = scriptStart.data.connections;
 			for (int i = 1; i < conns.Count; ++i)
 			{
 				switch (conns[i].type)
@@ -208,7 +215,7 @@ namespace AtomosZ.Scenimatic
 				guidPassedVariables.Add(conns[i].GUID, inputParams[i - 1].ToString());
 			}
 
-			LoadBranch(eventStart.connections[0].connectedToGUIDs[0]);
+			LoadBranch(scriptStart.data.connections[0].connectedToGUIDs[0]);
 
 			if (Application.isPlaying)
 				playerInput.ActivateInput();
@@ -275,28 +282,35 @@ namespace AtomosZ.Scenimatic
 
 		private void LoadBranch(string guid)
 		{
-			currentBranch = guidBranches[guid];
-			
-			foreach (var evnt in currentBranch.data.events)
+			Debug.Log(guidBranches[guid].GetData().GetType());
+			currentBranch = guidBranches[guid].GetData() as ScenimaticBranch;
+			if (currentBranch != null)
 			{
-				var eventType = evnt.eventType;
-				switch (eventType)
+				foreach (var evnt in currentBranch.events)
 				{
-					case ScenimaticEvent.ScenimaticEventType.Dialog:
-						eventQueue.Enqueue(evnt);
-						break;
+					var eventType = evnt.eventType;
+					switch (eventType)
+					{
+						case ScenimaticEvent.ScenimaticEventType.Dialog:
+							eventQueue.Enqueue(evnt);
+							break;
 
-					case ScenimaticEvent.ScenimaticEventType.Query:
-						eventQueue.Enqueue(evnt);
-						break;
+						case ScenimaticEvent.ScenimaticEventType.Query:
+							eventQueue.Enqueue(evnt);
+							break;
 
-					default:
-						Debug.Log("Unknown event type: " + eventType);
-						break;
+						default:
+							Debug.Log("Unknown event type: " + eventType);
+							break;
+					}
 				}
-			}
 
-			NextEventInQueue();
+				NextEventInQueue();
+			}
+			else
+			{
+				Debug.Log("over!");
+			}
 		}
 	}
 }

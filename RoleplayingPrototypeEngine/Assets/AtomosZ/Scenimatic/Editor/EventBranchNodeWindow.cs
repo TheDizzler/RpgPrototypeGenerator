@@ -190,8 +190,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 		{
 			this.serializedNode = branchData;
 			GUID = branchData.GUID;
-			inputConnections = branchData.connectionInputs;
-			outputConnections = branchData.connectionOutputs;
+			inputConnections = branchData.data.connectionInputs;
+			outputConnections = branchData.data.connectionOutputs;
 			nodeStyle = ScenimaticScriptEditor.branchWindowStyle;
 
 			windowRect = new Rect(branchData.position, nodeStyle.size);
