@@ -54,6 +54,11 @@ namespace AtomosZ.UI.EditorTools
 								inputParams[i - 1] = "";
 							inputParams[i - 1] = EditorGUILayout.DelayedTextField((string)inputParams[i - 1]);
 							break;
+						case ConnectionType.Bool:
+							if (inputParams[i - 1] == null)
+								inputParams[i - 1] = false;
+							inputParams[i - 1] = EditorGUILayout.Toggle((bool)inputParams[i - 1]);
+							break;
 						default:
 							Debug.LogWarning(conn.type + " not yet implemented in DialogTester");
 							break;

@@ -23,6 +23,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			Int = 1,
 			Float = 2,
 			String = 3,
+			Bool = 4,
 		}
 
 		private enum SelectableQueryOutputConnectionType
@@ -30,6 +31,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			ControlFlow = 0,
 			Int = 1,
 			String = 3,
+			Bool = 4,
 		}
 
 
@@ -211,7 +213,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 					branch.events.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
 				}
 			}
-			
+
 			EditorGUILayout.EndHorizontal();
 
 			// inputs
@@ -310,6 +312,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 						break;
 					case ConnectionType.String:
 						GUI.backgroundColor = Color.magenta;
+						break;
+					case ConnectionType.Bool:
+						GUI.backgroundColor = Color.green;
 						break;
 				}
 

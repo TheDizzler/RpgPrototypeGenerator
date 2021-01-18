@@ -193,21 +193,28 @@ namespace AtomosZ.Scenimatic
 						if (!(inputParams[i - 1] is int))
 						{
 							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting int but received " + inputParams[i].GetType());
+								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
 						}
 						break;
 					case ConnectionType.Float:
 						if (!(inputParams[i - 1] is float))
 						{
 							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting float but received " + inputParams[i].GetType());
+								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
 						}
 						break;
 					case ConnectionType.String:
 						if (!(inputParams[i - 1] is string))
 						{
 							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting string but received " + inputParams[i].GetType());
+								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
+						}
+						break;
+					case ConnectionType.Bool:
+						if (!(inputParams[i - 1] is bool))
+						{
+							Debug.LogWarning("input param #" + i + " does not match event input." +
+								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
 						}
 						break;
 				}

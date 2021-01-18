@@ -571,46 +571,70 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogPanel: {fileID: 1900243803}
   queryPanel: {fileID: 146292898}
-  eventFile: StreamingAssets/Scenimatic/NewScenimatic.SceneJson
-  eventInput:
-    GUID: d24a6978-9fb5-4231-9998-1f0ccb0e350d
-    connections:
-    - GUID: d5c61830-e992-4a99-96a7-62def0edc27a
-      type: 0
-      variableName: ControlFlow-Out
-      connectedToGUIDs:
-      - 256ccb9f-32ed-4d2b-af45-55fe8d350321
-      hide: 0
-    - GUID: 1010b965-19e6-4176-9b20-3e39b99ca8ed
-      type: 1
-      variableName: IntA
-      connectedToGUIDs:
-      - a8461644-263d-468d-8084-2e562a1b5762
-      hide: 0
-    - GUID: 89ec96c0-56fe-4410-901c-7830c2752693
-      type: 2
-      variableName: floatB
-      connectedToGUIDs:
-      - 6bc9889c-3cb9-4a14-9c84-b26f1d1ab6e1
-      hide: 0
-    - GUID: f04e79cc-cf0a-443d-a94e-97214730ce9a
-      type: 3
-      variableName: stringC
-      connectedToGUIDs:
-      - 2520dca1-c46a-4bb3-ba52-9472557b57fb
-      - 19153745-8fc0-4804-b92c-116aab972a85
-      hide: 0
-    position: {x: -63.016144, y: -33.56537}
+  eventFile: StreamingAssets/Scenimatic/Brave New Scene.SceneJson
+  scriptStart:
+    GUID: dd8518d2-526c-4f55-8231-d08ac1219f00
+    data:
+      gatewayType: 0
+      connections:
+      - GUID: 107d41b7-076f-4f7e-944f-d3a4efa1f344
+        type: 0
+        variableName: ControlFlow-Out
+        connectedToGUIDs:
+        - d23fde22-656d-4300-a290-74808a7fb5d5
+        hide: 0
+      - GUID: 860b7f74-fd32-433e-a68c-d998f98a58d6
+        type: 1
+        variableName: tempName
+        connectedToGUIDs:
+        - c674efb7-d961-4744-86a3-875d48fbf717
+        hide: 0
+      - GUID: cffefffd-f3f0-450c-a4c0-e77f61b9c180
+        type: 3
+        variableName: tempName_1
+        connectedToGUIDs:
+        - 6c91787e-a87b-482b-9dfc-674f710220d1
+        - 3191e1d0-909e-4c77-8b28-c60e81515a55
+        hide: 0
+      - GUID: 0956a4fb-d9d7-4e26-b6bf-cd77a9b945d9
+        type: 1
+        variableName: tempName
+        connectedToGUIDs:
+        - 42874e85-5a35-4927-836a-2f8223a2f112
+        hide: 0
+    position: {x: -3.3000183, y: -3.2999878}
+  scriptEnd:
+    GUID: 500352ac-b610-42d8-8731-df2de8228471
+    data:
+      gatewayType: 1
+      connections:
+      - GUID: de3d86c8-2b87-45d0-991c-60f118e0dc20
+        type: 0
+        variableName: ControlFlow-In
+        connectedToGUIDs:
+        - ba177730-7778-41e2-bb23-84fb0440dbb8
+        - 25768daa-2927-4302-9668-a6e7b800aa78
+        hide: 0
+      - GUID: 42874e85-5a35-4927-836a-2f8223a2f112
+        type: 1
+        variableName: tempName
+        connectedToGUIDs:
+        - 0956a4fb-d9d7-4e26-b6bf-cd77a9b945d9
+        hide: 0
+      - GUID: 6c91787e-a87b-482b-9dfc-674f710220d1
+        type: 3
+        variableName: tempName
+        connectedToGUIDs:
+        - cffefffd-f3f0-450c-a4c0-e77f61b9c180
+        hide: 0
+    position: {x: 1193.6205, y: 232.88464}
   eventPrepared: 0
   playerInput: {fileID: 401368497}
   currentBranch:
-    GUID: 
-    data:
-      branchName: 
-      events: []
+    branchName: 
+    events: []
     connectionInputs: []
     connectionOutputs: []
-    position: {x: 0, y: 0}
 --- !u!114 &401368497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1896,8 +1920,7 @@ MonoBehaviour:
   missingPortrait: {fileID: 21300000, guid: 02a5a87238dbdaf4583745313e35f03a, type: 3}
   emptyPortrait: {fileID: -6657604301679923032, guid: f347ef518785e924782eaf15fec0cdbf,
     type: 3}
-  spriteAtlas: {fileID: 4343727234628468602, guid: 2ae8e611720b68345aecbdf75b6b0342,
-    type: 2}
+  spriteAtlas: {fileID: 0}
   timeBetweenChars: 0.1
 --- !u!1 &1907405532
 GameObject:
@@ -1934,7 +1957,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 261.3023, y: -40.11}
+  m_AnchoredPosition: {x: 261.3023, y: -40.109985}
   m_SizeDelta: {x: 482.6046, y: 40.22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1907405534

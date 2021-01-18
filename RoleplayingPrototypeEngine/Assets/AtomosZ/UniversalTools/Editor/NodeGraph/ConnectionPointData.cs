@@ -12,6 +12,7 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		private static ConnectionPointData intType = null;
 		private static ConnectionPointData floatType = null;
 		private static ConnectionPointData stringType = null;
+		private static ConnectionPointData boolType = null;
 
 		public ConnectionType type;
 		public ConnectionPointStyle connectionPointStyle;
@@ -32,6 +33,8 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 					return GetFloatTypeData();
 				case ConnectionType.String:
 					return GetStringTypeData();
+				case ConnectionType.Bool:
+					return GetBoolTypeData();
 				default:
 					throw new System.Exception("Unexpected ConnectionType " + type);
 			}
@@ -109,6 +112,32 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 
 			return floatType;
 		}
+
+
+		public static ConnectionPointData GetBoolTypeData()
+		{
+			if (boolType == null)
+			{
+				boolType = new ConnectionPointData()
+				{
+					type = ConnectionType.Bool,
+					connectionPointStyle = new ConnectionPointStyle()
+					{
+						unconnectedStyle = CreateStyle(ImageLinks.dataTypeUnconnected),
+						unconnectedHoverStyle = CreateStyle(ImageLinks.dataTypeUnconnectedHover),
+						connectedStyle = CreateStyle(ImageLinks.dataTypeConnected),
+						connectedHoverStyle = CreateStyle(ImageLinks.dataTypeConnectedHover),
+						connectionColor = Color.green,
+					},
+					wireThickness = 6,
+					allowsMultipleInputs = false,
+					allowsMultipleOutputs = true,
+				};
+			}
+
+			return boolType;
+		}
+
 
 		public static ConnectionPointData GetControlFlowTypeData()
 		{
