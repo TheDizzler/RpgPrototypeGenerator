@@ -144,8 +144,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 			refreshConnections.Add(connectionPoint);
 			if (connectionPoints.ContainsKey(connectionPoint.GUID))
 			{
-				Debug.Log("Reconstructing connection for " + connectionPoint.GUID);
-
 				foreach (var conn in connectionPoints[connectionPoint.GUID].connectedTo)
 				{
 					refreshConnections.Add(conn);
@@ -348,7 +346,7 @@ namespace AtomosZ.Scenimatic.EditorTools
 			{
 				type = connectedTo.connection.type,
 				GUID = System.Guid.NewGuid().ToString(),
-				variableName = "tempName",
+				variableName = connectedTo.connection.variableName,
 			};
 			
 			ScenimaticBranchEditor.CheckForDuplicateNameInConnections(newConn, graphEntity.GetConnections(direction));

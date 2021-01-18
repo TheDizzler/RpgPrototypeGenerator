@@ -227,8 +227,6 @@ namespace AtomosZ.UniversalEditorTools.NodeGraph
 		{
 			if (connectedTo.Contains(otherConnectionPoint))
 			{
-				Debug.LogWarning("Attempting to connect already connected connections."
-					+ "\nGUID: " + GUID + " other GUID: " + otherConnectionPoint.GUID);
 				return;
 			}
 
