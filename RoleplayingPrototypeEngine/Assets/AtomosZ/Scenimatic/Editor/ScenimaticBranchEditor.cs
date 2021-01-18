@@ -659,10 +659,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-
 		private void DialogEventEdit(ScenimaticEvent eventData)
 		{
-			eventData.text = EditorGUILayout.TextArea(eventData.text);
+			eventData.text = WithoutSelectAll(() => EditorGUILayout.TextArea(eventData.text));
 			if (eventData.sprite == null && nodeGraph.spriteAtlas != null)
 			{
 				eventData.sprite = nodeGraph.spriteAtlas.GetSprite(eventData.image);
@@ -840,6 +839,28 @@ namespace AtomosZ.Scenimatic.EditorTools
 				GUID = System.Guid.NewGuid().ToString(),
 				variableName = "tempName",
 			};
+		}
+
+
+		/// <summary>
+		/// Hack to prevent Unity from auto-select all on a field.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="guiCall"></param>
+		/// <returns></returns>
+		private T WithoutSelectAll<T>(System.Func<T> guiCall)
+		{
+			bool preventSelection = (Event.current.type == EventType.MouseDown);
+			Color oldCursorColor = GUI.skin.settings.cursorColor;
+			if (preventSelection)
+			{
+				GUI.skin.settings.cursorColor = new Color(0, 0, 0, 0);
+				T value = guiCall();
+				GUI.skin.settings.cursorColor = oldCursorColor;
+				return value;
+			}
+
+			return guiCall();
 		}
 
 
