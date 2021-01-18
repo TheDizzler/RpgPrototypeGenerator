@@ -156,15 +156,23 @@ namespace AtomosZ.Scenimatic.EditorTools
 				return;
 			}
 
-			ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
+			try
+			{
+				ScenimaticScript script = JsonUtility.FromJson<ScenimaticScript>(fileString);
 
-			scenimaticGraph = new ScenimaticScriptGraph();
-			if (window == null)
-				CreateWindows();
-			window.position = new Rect(script.savedScreenPos, script.savedScreenSize);
+				scenimaticGraph = new ScenimaticScriptGraph();
+				if (window == null)
+					CreateWindows();
+				window.position = new Rect(script.savedScreenPos, script.savedScreenSize);
 
-			scenimaticGraph.Initialize(script);
-
+				scenimaticGraph.Initialize(script);
+			}
+			catch (System.Exception e)
+			{
+				EditorPrefs.SetString(lastOpenScriptKey, "");
+				Debug.LogError("Error parsing JSON in " + pathToScript + ":\n" + e.Message);
+				return;
+			}
 
 
 			if (zoomer == null)
@@ -250,15 +258,18 @@ namespace AtomosZ.Scenimatic.EditorTools
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 
-				scenimaticGraph.spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField(
-					"SpriteAtlas", scenimaticGraph.spriteAtlas,
-					typeof(SpriteAtlas), false);
-				if (scenimaticGraph.spriteAtlas != null)
+				if (scenimaticGraph != null)
 				{
-					scenimaticGraph.script.spriteAtlas = scenimaticGraph.spriteAtlas.name;
+					scenimaticGraph.spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField(
+						"SpriteAtlas", scenimaticGraph.spriteAtlas,
+						typeof(SpriteAtlas), false);
+					if (scenimaticGraph.spriteAtlas != null)
+					{
+						scenimaticGraph.script.spriteAtlas = scenimaticGraph.spriteAtlas.name;
+					}
+					else
+						scenimaticGraph.script.spriteAtlas = "";
 				}
-				else
-					scenimaticGraph.script.spriteAtlas = "";
 			}
 			EditorGUILayout.EndVertical();
 
