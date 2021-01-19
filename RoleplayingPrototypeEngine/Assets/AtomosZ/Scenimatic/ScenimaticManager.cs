@@ -38,6 +38,8 @@ namespace AtomosZ.Scenimatic
 		//[System.NonSerialized] temporarily making serialized so can click to another object and not lose context in non-play mode
 		public ScenimaticBranch currentBranch = null;
 
+		public string[] testInputParams;
+
 		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
 		private string eventPath;
 
@@ -82,11 +84,12 @@ namespace AtomosZ.Scenimatic
 
 						int selectionIndex = queryPanel.GetSelectedIndex();
 						Debug.Log("Index: " + selectionIndex);
-						Debug.Log("OutputGUID: " + currentEvent.outputGUIDs[selectionIndex]);
-						string outConnGUID = currentEvent.outputGUIDs[selectionIndex];
-						var conn = guidConnectionOutputs[outConnGUID];
-						if (conn.type == ConnectionType.ControlFlow)
-						{
+						if (currentEvent.outputGUIDs.Count > 1)
+						{ // only a ControlFlow Query can have more than one outputGUID!
+							Debug.Log("OutputGUID: " + currentEvent.outputGUIDs[selectionIndex]);
+							string outConnGUID = currentEvent.outputGUIDs[selectionIndex];
+							var conn = guidConnectionOutputs[outConnGUID];
+
 							nextGUID = guidConnectionInputs[conn.connectedToGUIDs[0]].GUID;
 							Debug.Log(nextGUID);
 						}
@@ -171,7 +174,7 @@ namespace AtomosZ.Scenimatic
 		/// anyway, so...maybe it's not necessary?
 		/// </summary>
 		/// <param name="inputParams"></param>
-		public void StartEvent(object[] inputParams)
+		public void StartEvent(string[] inputParams)
 		{
 			ClearPanels();
 			eventQueue.Clear();
@@ -187,36 +190,10 @@ namespace AtomosZ.Scenimatic
 			var conns = scriptStart.data.connections;
 			for (int i = 1; i < conns.Count; ++i)
 			{
-				switch (conns[i].type)
+				if (!TestValidInputType(conns[i].type, inputParams[i - 1]))
 				{
-					case ConnectionType.Int:
-						if (!(inputParams[i - 1] is int))
-						{
-							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
-						}
-						break;
-					case ConnectionType.Float:
-						if (!(inputParams[i - 1] is float))
-						{
-							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
-						}
-						break;
-					case ConnectionType.String:
-						if (!(inputParams[i - 1] is string))
-						{
-							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
-						}
-						break;
-					case ConnectionType.Bool:
-						if (!(inputParams[i - 1] is bool))
-						{
-							Debug.LogWarning("input param #" + i + " does not match event input." +
-								" Event was expecting " + conns[i].type + " but received " + inputParams[i].GetType());
-						}
-						break;
+					Debug.LogWarning("input param #" + i + " does not match event input." +
+						" Event was expecting " + conns[i].type + ".");
 				}
 
 				guidPassedVariables.Add(conns[i].GUID, inputParams[i - 1].ToString());
@@ -229,7 +206,6 @@ namespace AtomosZ.Scenimatic
 			eventPrepared = true;
 		}
 
-
 		public int GetEventCount()
 		{
 			return eventQueue.Count;
@@ -241,11 +217,10 @@ namespace AtomosZ.Scenimatic
 			{ // load next branch
 				if (!currentBranch.connectionOutputs[0].hide)
 				{
-					if (currentBranch.connectionOutputs[0].connectedToGUIDs == null // change this an ExitNode check (note: implement ExitNodes)
+					if (currentBranch.connectionOutputs[0].connectedToGUIDs == null
 						|| currentBranch.connectionOutputs[0].connectedToGUIDs.Count == 0)
 					{
-						Debug.LogWarning("Came to an end ");
-						return;
+						throw new System.Exception("Scenimatic came to an ungraceful end!");
 					}
 
 					nextGUID = currentBranch.connectionOutputs[0].connectedToGUIDs[0];
@@ -293,12 +268,21 @@ namespace AtomosZ.Scenimatic
 			currentBranch = guidBranches[guid].GetData() as ScenimaticBranch;
 			if (currentBranch != null)
 			{
+				Dictionary<string, string> replaceWords = new Dictionary<string, string>();
+				for (int i = 1; i < currentBranch.connectionInputs.Count; ++i)
+				{
+					var conn = currentBranch.connectionInputs[i];
+					replaceWords.Add("{" + conn.variableName + "}", guidPassedVariables[conn.connectedToGUIDs[0]]);
+				}
+
 				foreach (var evnt in currentBranch.events)
 				{
 					var eventType = evnt.eventType;
 					switch (eventType)
 					{
 						case ScenimaticEvent.ScenimaticEventType.Dialog:
+							foreach (var replace in replaceWords)
+								evnt.text = evnt.text.Replace(replace.Key, replace.Value);
 							eventQueue.Enqueue(evnt);
 							break;
 
@@ -317,7 +301,24 @@ namespace AtomosZ.Scenimatic
 			else
 			{
 				Debug.Log("over!");
+				dialogPanel.Hide();
 			}
+		}
+
+
+		private bool TestValidInputType(ConnectionType type, string inputParam)
+		{
+			switch (type)
+			{
+				case ConnectionType.Int:
+					return int.TryParse(inputParam, out int intResult);
+				case ConnectionType.Float:
+					return float.TryParse(inputParam, out float floatResult);
+				case ConnectionType.Bool:
+					return bool.TryParse(inputParam, out bool boolResult);
+			}
+
+			return true;
 		}
 	}
 }

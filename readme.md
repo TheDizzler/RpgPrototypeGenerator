@@ -5,12 +5,12 @@
 
 
 #Functionality
+>- OutputNode for passing player choices to game (!Implemented in graph. Needs in-game implementation!)
 >- (consider) disallow events after a ControlFlow Query
 >- (consider) have inputs take the name of the connecting input
 >- (consider) change save/load/new buttons to menu
->- text checks if replacement text exists
+>- (Editor) text checks if replacement text exists
 >- updating InputNode inputs should refresh ScenimaticManager editor
->- OutputNode for passing player choices to game (!Implemented in graph. Needs in-game implementation!)
 >- query choices manipulatable at runtime
 >- ctrl-z undo
 >- ctrl-s/ctrl-a to save

@@ -10,9 +10,6 @@ namespace AtomosZ.UI.EditorTools
 	[CustomEditor(typeof(ScenimaticManager))]
 	public class DialogTester : Editor
 	{
-		public object[] inputParams;
-
-
 		void OnEnable()
 		{
 			if (!string.IsNullOrEmpty(((ScenimaticManager)target).eventFile))
@@ -30,8 +27,8 @@ namespace AtomosZ.UI.EditorTools
 			if (mngr.scriptStart != null)
 			{
 				var conns = mngr.scriptStart.data.connections;
-				if (inputParams == null)
-					inputParams = new object[conns.Count - 1];
+				if (mngr.testInputParams == null || mngr.testInputParams.Length != conns.Count - 1)
+					mngr.testInputParams = new string[conns.Count - 1];
 				for (int i = 1; i < conns.Count; ++i)
 				{
 					var conn = conns[i];
@@ -40,24 +37,24 @@ namespace AtomosZ.UI.EditorTools
 					switch (conn.type)
 					{
 						case ConnectionType.Int:
-							if (inputParams[i - 1] == null)
-								inputParams[i - 1] = 0;
-							inputParams[i - 1] = EditorGUILayout.DelayedIntField((int)inputParams[i - 1]);
+							if (mngr.testInputParams[i - 1] == null)
+								mngr.testInputParams[i - 1] = "0";
+							mngr.testInputParams[i - 1] = EditorGUILayout.DelayedIntField(int.Parse(mngr.testInputParams[i - 1])).ToString();
 							break;
 						case ConnectionType.Float:
-							if (inputParams[i - 1] == null)
-								inputParams[i - 1] = 0.0f;
-							inputParams[i - 1] = EditorGUILayout.DelayedFloatField((float)inputParams[i - 1]);
+							if (mngr.testInputParams[i - 1] == null)
+								mngr.testInputParams[i - 1] = "0.0";
+							mngr.testInputParams[i - 1] = EditorGUILayout.DelayedFloatField(float.Parse(mngr.testInputParams[i - 1])).ToString();
 							break;
 						case ConnectionType.String:
-							if (inputParams[i - 1] == null)
-								inputParams[i - 1] = "";
-							inputParams[i - 1] = EditorGUILayout.DelayedTextField((string)inputParams[i - 1]);
+							if (mngr.testInputParams[i - 1] == null)
+								mngr.testInputParams[i - 1] = "";
+							mngr.testInputParams[i - 1] = EditorGUILayout.DelayedTextField((string)mngr.testInputParams[i - 1]);
 							break;
 						case ConnectionType.Bool:
-							if (inputParams[i - 1] == null)
-								inputParams[i - 1] = false;
-							inputParams[i - 1] = EditorGUILayout.Toggle((bool)inputParams[i - 1]);
+							if (mngr.testInputParams[i - 1] == null)
+								mngr.testInputParams[i - 1] = "false";
+							mngr.testInputParams[i - 1] = EditorGUILayout.Toggle(bool.Parse(mngr.testInputParams[i - 1])).ToString();
 							break;
 						default:
 							Debug.LogWarning(conn.type + " not yet implemented in DialogTester");
@@ -88,14 +85,14 @@ namespace AtomosZ.UI.EditorTools
 						{
 							mngr.eventFile = path.Substring(index + 7);
 							mngr.LoadScenimatic(path);
-							mngr.StartEvent(inputParams);
+							mngr.StartEvent(mngr.testInputParams);
 						}
 					}
 				}
 				else
 				{
 					mngr.LoadScenimatic(Application.dataPath + "/" + path);
-					mngr.StartEvent(inputParams);
+					mngr.StartEvent(mngr.testInputParams);
 				}
 			}
 
