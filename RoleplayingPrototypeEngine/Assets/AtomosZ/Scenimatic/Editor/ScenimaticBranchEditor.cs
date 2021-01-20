@@ -546,7 +546,14 @@ namespace AtomosZ.Scenimatic.EditorTools
 				EditorGUILayout.BeginHorizontal();
 				{
 					GUILayout.Label("Choices:");
+					if (eventData.connections[0].type == ConnectionType.Bool)
+						GUI.enabled = false;
 					size = EditorGUILayout.DelayedIntField(size, GUILayout.MaxWidth(20));
+					if (eventData.connections[0].type == ConnectionType.Bool)
+					{
+						size = 2;
+						GUI.enabled = true;
+					}
 
 					if (size > 1 && size < MAX_QUERY_CHOICES && size != eventData.options.Count)
 					{
@@ -590,10 +597,35 @@ namespace AtomosZ.Scenimatic.EditorTools
 							EditorGUILayout.BeginHorizontal();
 						}
 
-						string newChoiceText = EditorGUILayout.DelayedTextField(eventData.options[i]);
-						if (newChoiceText != eventData.options[i])
+						string newChoiceText = "";
+						switch (eventData.connections[0].type)
 						{
-							eventData.options[i] = CheckForDuplicateNameInQueryList(newChoiceText, eventData.options);
+							case ConnectionType.String:
+								eventData.options[i] = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(eventData.options[i]));
+								break;
+							case ConnectionType.ControlFlow:
+								newChoiceText = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(eventData.options[i]));
+								break;
+							case ConnectionType.Int:
+								if (!int.TryParse(eventData.options[i], out int intResult))
+									intResult = 0;
+								newChoiceText = EditorGUILayout.DelayedIntField(intResult).ToString();
+								eventData.options[i] = newChoiceText;
+								break;
+							case ConnectionType.Float:
+								if (!float.TryParse(eventData.options[i], out float floatResult))
+									floatResult = 0;
+								newChoiceText = EditorGUILayout.DelayedFloatField(floatResult).ToString();
+								eventData.options[i] = newChoiceText;
+								break;
+							case ConnectionType.Bool:
+								if (!bool.TryParse(eventData.options[i], out bool boolResult))
+									boolResult = i == 0 ? false : true;
+								GUI.enabled = false;
+								newChoiceText = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(boolResult.ToString()));
+								eventData.options[i] = newChoiceText;
+								GUI.enabled = true;
+								break;
 						}
 
 
@@ -672,7 +704,9 @@ namespace AtomosZ.Scenimatic.EditorTools
 				if (originalConnType != ConnectionType.ControlFlow)
 				{
 					EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
-					eventData.connections[0].variableName = EditorGUILayout.DelayedTextField(eventData.connections[0].variableName);
+					string newName = WithoutSelectAll(
+						() => EditorGUILayout.DelayedTextField(
+							eventData.connections[0].variableName));
 					if (newName != eventData.connections[0].variableName)
 					{
 						eventData.connections[0].variableName = newName;
