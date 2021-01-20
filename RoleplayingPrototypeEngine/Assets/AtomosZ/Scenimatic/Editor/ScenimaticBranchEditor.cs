@@ -176,11 +176,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 		{
 			string suffix = "";
 			int next = 0;
-			foreach (var conn in connList)
+			for (int i = 0; i < connList.Count; ++i)
 			{
+				var conn = connList[i];
+				if (conn == newConn)
+					continue;
 				if (conn.variableName == newConn.variableName + suffix)
 				{
 					suffix = "_" + (++next);
+					i = -1;
 				}
 			}
 
@@ -189,13 +193,22 @@ namespace AtomosZ.Scenimatic.EditorTools
 			newConn.variableName += suffix;
 		}
 
-		private string CheckForDuplicateNameInQueryList(string newChoiceText, List<string> options)
+
+		private string CheckForDuplicateNameInQueryList(string newChoiceText, List<string> options, int oldIndex)
 		{
 			string suffix = "";
 			int next = 0;
-			foreach (string option in options)
-				if (option == newChoiceText)
+
+			for (int i = 0; i < options.Count; ++i)
+			{
+				if (i == oldIndex)
+					continue;
+				if (options[i] == newChoiceText + suffix)
+				{
 					suffix = "_" + (++next);
+					i = -1;
+				}
+			}
 
 			if (next > 9)
 				suffix += "_STAHP_NAME_YOUR_VARIABLES_YOU_GOON";
@@ -583,8 +596,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 							eventData.options[i] = CheckForDuplicateNameInQueryList(newChoiceText, eventData.options);
 						}
 
-						if (eventData.connections[0].type == ConnectionType.ControlFlow && eventData.connections.Count == eventData.options.Count)
+
+						if (eventData.connections[0].type == ConnectionType.ControlFlow
+							&& eventData.connections.Count == eventData.options.Count)
 						{
+							if (newChoiceText != eventData.options[i])
+							{
+								eventData.options[i] = CheckForDuplicateNameInQueryList(newChoiceText, eventData.options, i);
+							}
+
 							eventData.connections[i].variableName = newChoiceText;
 						}
 					}
@@ -653,6 +673,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 				{
 					EditorGUILayout.LabelField("Output Variable Name", GUILayout.Width(135));
 					eventData.connections[0].variableName = EditorGUILayout.DelayedTextField(eventData.connections[0].variableName);
+					if (newName != eventData.connections[0].variableName)
+					{
+						eventData.connections[0].variableName = newName;
+						CheckForDuplicateNameInConnections(eventData.connections[0], branch.connectionOutputs);
+					}
 				}
 			}
 			// !this Layout is purposefully left un-Ended! (it's ended after the function ends)
