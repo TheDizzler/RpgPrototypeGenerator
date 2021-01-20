@@ -1,5 +1,5 @@
 ##UI TODO
->- DialogPanel
+- DialogPanel
 	- [ ] opening/closing animations
 
 ##Scenimatic TODO
