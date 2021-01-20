@@ -8,20 +8,20 @@
 >- none known!
 
 #Functionality
->- delegates for opening/closing animations of dialog windows
->- check if changes made before auto-save (for my sanity - stop having to reload the json file every time I click over to notepad)
->- OutputNode for passing player choices to game (More or less solved. Just need to decide how the ouputs get sent to whatever called the ScenimaticManager)
->- (consider) disallow events after a ControlFlow Query
->- (consider) have inputs take the name of the connecting input
->- (consider) change save/load/new buttons to menu
->- (Editor) text checks if replacement text exists
->- updating InputNode inputs should refresh ScenimaticManager editor
->- query choices manipulatable at runtime
->- ctrl-z undo
->- ctrl-s/ctrl-a to save
->- graph entities that resize horizontally dynamically
->- multiple entity selection
->- Advanced features (non-dialog features):
+- delegates for opening/closing animations of dialog windows
+- check if changes made before auto-save (for my sanity - stop having to reload the json file every time I click over to notepad)
+- OutputNode for passing player choices to game (More or less solved. Just need to decide how the ouputs get sent to whatever called the ScenimaticManager)
+- (consider) disallow events after a ControlFlow Query
+- (consider) have inputs take the name of the connecting input
+- (consider) change save/load/new buttons to menu
+- (Editor) text checks if replacement text exists
+- updating InputNode inputs should refresh ScenimaticManager editor
+- query choices manipulatable at runtime
+- ctrl-z undo
+- ctrl-s/ctrl-a to save
+- graph entities that resize horizontally dynamically
+- multiple entity selection
+- Advanced features (non-dialog features):
 	- [ ] camera movement
 	- [ ] text input
 	- [ ] actor manipulation
