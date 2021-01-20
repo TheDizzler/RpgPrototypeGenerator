@@ -96,7 +96,6 @@ namespace AtomosZ.Scenimatic
 						else
 						{
 							string selected = queryPanel.GetSelectedItem();
-							Debug.Log("Selected: " + selected);
 							guidPassedVariables.Add(currentEvent.outputGUIDs[0], selected);
 						}
 
@@ -301,6 +300,14 @@ namespace AtomosZ.Scenimatic
 			else
 			{
 				Debug.Log("over!");
+				Gateway exit = scriptEnd.data;
+				string[] outputParams = new string[exit.connections.Count - 1];
+				for (int i = 0; i < outputParams.Length; ++i)
+				{
+					outputParams[i] = guidPassedVariables[exit.connections[i + 1].connectedToGUIDs[0]];
+					Debug.Log("OutputParam: " + outputParams[i]);
+				}
+
 				dialogPanel.Hide();
 			}
 		}

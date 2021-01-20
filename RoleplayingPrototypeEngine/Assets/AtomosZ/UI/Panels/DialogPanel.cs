@@ -53,11 +53,13 @@ namespace AtomosZ.UI
 		public void Show()
 		{
 			gameObject.SetActive(true);
+			// some sort of delegate here for opening animation?
 		}
 
 		public void Hide()
 		{
 			gameObject.SetActive(false);
+			// some sort of delegate here for closing animation?
 		}
 
 		public void NavigateUp() { }
