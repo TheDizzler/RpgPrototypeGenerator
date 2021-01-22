@@ -138,12 +138,12 @@ namespace AtomosZ.UI
 		}
 
 
-		public void Show()
+		public void Show(float timeToClose)
 		{
 			gameObject.SetActive(true);
 		}
 
-		public void Hide()
+		public void Hide(float timeToClose)
 		{
 			gameObject.SetActive(false);
 		}
@@ -162,7 +162,7 @@ namespace AtomosZ.UI
 		/// </summary>
 		public void Cancel()
 		{
-			Hide();
+			Hide(1);
 		}
 
 

@@ -65,8 +65,8 @@ namespace AtomosZ.Scenimatic
 		void Start()
 		{
 			playerInput.DeactivateInput();
-			dialogPanel.Hide();
-			queryPanel.Hide();
+			dialogPanel.Clear();
+			queryPanel.Clear();
 		}
 
 		/// <summary>
@@ -297,6 +297,7 @@ namespace AtomosZ.Scenimatic
 					}
 				}
 
+				dialogPanel.Show(.5f);
 				NextEventInQueue();
 			}
 			else
@@ -310,7 +311,7 @@ namespace AtomosZ.Scenimatic
 					Debug.Log("OutputParam: " + outputParams[i]);
 				}
 
-				dialogPanel.Hide();
+				dialogPanel.Hide(.5f);
 			}
 		}
 

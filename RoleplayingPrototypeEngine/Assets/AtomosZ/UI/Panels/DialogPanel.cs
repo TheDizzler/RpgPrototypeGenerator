@@ -2,11 +2,15 @@
 using TMPro;
 using Unity.EditorCoroutines.Editor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
 namespace AtomosZ.UI
 {
+	[System.Serializable]
+	public class PanelAnimation : UnityEvent<float> { }
+
 	/// <summary>
 	/// Duties of DialogPanel:
 	///		Display text & portrait of speaker (if any).
@@ -27,6 +31,11 @@ namespace AtomosZ.UI
 		public Sprite emptyPortrait;
 		public SpriteAtlas spriteAtlas;
 		public float timeBetweenChars = .1f;
+		public float panelHeight;
+
+		public PanelAnimation openEvent;
+		public PanelAnimation closeEvent;
+
 
 		private WaitForSecondsRealtime waitForChar;
 		private bool displayAll = false;
@@ -45,21 +54,75 @@ namespace AtomosZ.UI
 
 		public void Clear()
 		{
+			if (panelHeight <= 1)
+			{
+				panelHeight = GetComponent<RectTransform>().rect.height;
+			}
 			portrait.sprite = emptyPortrait;
 			textbox.text = "";
+			Hide(0);
+		}
+
+		public void BasicGrowOpen(float timeToOpen)
+		{
+			StartCoroutine(Open(timeToOpen));
+		}
+
+		public void BasicShrinkClose(float timeToClose)
+		{
+			if (timeToClose <= 0)
+			{
+				gameObject.SetActive(false);
+				GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
+			}
+			else
+				StartCoroutine(Close(timeToClose));
+
+		}
+
+
+		private IEnumerator Open(float time)
+		{
+			RectTransform rectTransform = GetComponent<RectTransform>();
+			float t = 0;
+			while (t < time)
+			{
+				yield return null;
+				t += Time.unscaledDeltaTime;
+				rectTransform.SetSizeWithCurrentAnchors(
+					RectTransform.Axis.Vertical, Mathf.Lerp(0, panelHeight, t / time));
+			}
+
+			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, panelHeight);
+		}
+
+		private IEnumerator Close(float time)
+		{
+			RectTransform rectTransform = GetComponent<RectTransform>();
+			float t = 0;
+			while (t < time)
+			{
+				yield return null;
+				t += Time.unscaledDeltaTime;
+				rectTransform.SetSizeWithCurrentAnchors(
+					RectTransform.Axis.Vertical, Mathf.Lerp(panelHeight, 0, t / time));
+			}
+
+			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
 			gameObject.SetActive(false);
 		}
 
-		public void Show()
+		public void Show(float timeToOpen)
 		{
 			gameObject.SetActive(true);
-			// some sort of delegate here for opening animation?
+			if (openEvent != null)
+				openEvent.Invoke(timeToOpen);
 		}
 
-		public void Hide()
+		public void Hide(float timeToClose)
 		{
-			gameObject.SetActive(false);
-			// some sort of delegate here for closing animation?
+			if (closeEvent != null)
+				closeEvent.Invoke(timeToClose);
 		}
 
 		public void NavigateUp() { }
@@ -92,7 +155,7 @@ namespace AtomosZ.UI
 		public void NextTextBlock(string image, string textBlock)
 		{
 			if (!gameObject.activeInHierarchy)
-				gameObject.SetActive(true);
+				Show(0);
 
 			if (typingCoroutine != null)
 			{

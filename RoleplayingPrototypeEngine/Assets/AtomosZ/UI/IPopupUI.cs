@@ -2,7 +2,7 @@
 {
 	public interface IPopupUI
 	{
-		void Show();
-		void Hide();
+		void Show(float timeToOpen);
+		void Hide(float timeToClose);
 	}
 }
