@@ -39,9 +39,11 @@ namespace AtomosZ.Scenimatic
 		public ScenimaticBranch currentBranch = null;
 
 		public string[] testInputParams;
+		[HideInInspector]
+		public string eventPath;
 
 		private Queue<ScenimaticEvent> eventQueue = new Queue<ScenimaticEvent>();
-		private string eventPath;
+		
 
 		/// <summary>
 		/// Variables that are passed by connection, using GUIDs of connection points.

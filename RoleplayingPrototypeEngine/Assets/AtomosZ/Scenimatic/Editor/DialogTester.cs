@@ -12,9 +12,11 @@ namespace AtomosZ.UI.EditorTools
 	{
 		void OnEnable()
 		{
-			if (!string.IsNullOrEmpty(((ScenimaticManager)target).eventFile))
+			ScenimaticManager mngr = (ScenimaticManager)target;
+			if (!string.IsNullOrEmpty(mngr.eventFile))
 			{
-				((ScenimaticManager)target).LoadScenimatic(Application.dataPath + "/" + ((ScenimaticManager)target).eventFile);
+				if (mngr.eventPath != Application.dataPath + "/" + ((ScenimaticManager)target).eventFile)
+					mngr.LoadScenimatic(Application.dataPath + "/" + ((ScenimaticManager)target).eventFile);
 			}
 		}
 
