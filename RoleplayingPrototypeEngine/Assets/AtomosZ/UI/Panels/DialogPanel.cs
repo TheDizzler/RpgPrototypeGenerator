@@ -30,8 +30,8 @@ namespace AtomosZ.UI
 		public float timeBetweenChars = .1f;
 		public float panelHeight;
 
-		public PanelAnimation openEvent;
-		public PanelAnimation closeEvent;
+		public PopupAnimation openEvent;
+		public PopupAnimation closeEvent;
 
 
 		private WaitForSecondsRealtime waitForChar;
@@ -54,15 +54,14 @@ namespace AtomosZ.UI
 			return GetComponent<RectTransform>();
 		}
 
+		/// <summary>
+		/// Clears text and sprite from panel and closes immediately.
+		/// </summary>
 		public void Clear()
 		{
-			if (panelHeight <= 1)
-			{
-				panelHeight = GetComponent<RectTransform>().rect.height;
-			}
 			portrait.sprite = emptyPortrait;
 			textbox.text = "";
-			Hide(0);
+			Hide(true);
 		}
 
 		public void BasicGrowOpen(float timeToOpen)
@@ -114,17 +113,16 @@ namespace AtomosZ.UI
 			gameObject.SetActive(false);
 		}
 
-		public void Show(float timeToOpen)
+		public void Show(bool skipAnimation = false)
 		{
 			gameObject.SetActive(true);
-			if (openEvent != null)
-				openEvent.Invoke(timeToOpen);
+			if (openEvent.type != PopupAnimationType.Off)
+				StartCoroutine(openEvent.RunAnimation(GetComponent<RectTransform>()));
 		}
 
-		public void Hide(float timeToClose)
+		public void Hide(bool skipAnimation = false)
 		{
-			if (closeEvent != null)
-				closeEvent.Invoke(timeToClose);
+			Debug.Log("Hide not implemented yet");
 		}
 
 		public void NavigateUp() { }
@@ -157,7 +155,7 @@ namespace AtomosZ.UI
 		public void NextTextBlock(string image, string textBlock)
 		{
 			if (!gameObject.activeInHierarchy)
-				Show(0);
+				Show(true);
 
 			if (typingCoroutine != null)
 			{

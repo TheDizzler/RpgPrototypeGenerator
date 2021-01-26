@@ -588,7 +588,6 @@ MonoBehaviour:
         variableName: tempName
         connectedToGUIDs:
         - c674efb7-d961-4744-86a3-875d48fbf717
-        - 42874e85-5a35-4927-836a-2f8223a2f112
         hide: 0
       - GUID: cffefffd-f3f0-450c-a4c0-e77f61b9c180
         type: 3
@@ -614,14 +613,14 @@ MonoBehaviour:
         type: 0
         variableName: ControlFlow-In
         connectedToGUIDs:
-        - ba177730-7778-41e2-bb23-84fb0440dbb8
         - 25768daa-2927-4302-9668-a6e7b800aa78
+        - ba177730-7778-41e2-bb23-84fb0440dbb8
         hide: 0
       - GUID: 42874e85-5a35-4927-836a-2f8223a2f112
         type: 1
         variableName: tempName
         connectedToGUIDs:
-        - 860b7f74-fd32-433e-a68c-d998f98a58d6
+        - caa3845c-68b9-412b-8763-98bd96597355
         hide: 0
       - GUID: 6c91787e-a87b-482b-9dfc-674f710220d1
         type: 3
@@ -635,7 +634,7 @@ MonoBehaviour:
         connectedToGUIDs:
         - fe1b1b1a-7d40-4b5c-b122-5f73c9a8b990
         hide: 0
-    position: {x: 1193.6205, y: 232.88464}
+    position: {x: 1195.9784, y: 237.60052}
   eventPrepared: 0
   playerInput: {fileID: 401368497}
   currentBranch:
@@ -647,6 +646,8 @@ MonoBehaviour:
   - 456
   - trijdsf
   - True
+  eventPath: C:/github/RPG/RoleplayingPrototypeEngine/Assets/StreamingAssets/Scenimatic/Brave
+    New Scene.SceneJson
 --- !u!114 &401368497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1830,7 +1831,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1900243799
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1935,6 +1936,37 @@ MonoBehaviour:
   spriteAtlas: {fileID: 4343727234628468602, guid: 2ae8e611720b68345aecbdf75b6b0342,
     type: 2}
   timeBetweenChars: 0.1
+  panelHeight: 291.59467
+  openEvent:
+    type: 1
+    startRect:
+      serializedVersion: 2
+      x: -949.7001
+      y: -145.79733
+      width: 1899.4001
+      height: 291.59467
+    finishRect:
+      serializedVersion: 2
+      x: -949.7001
+      y: -0.79733276
+      width: 1899.4001
+      height: 1.5946655
+    timeToFinish: 1.5
+  closeEvent:
+    type: 0
+    startRect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    finishRect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    timeToFinish: 1.5
 --- !u!1 &1907405532
 GameObject:
   m_ObjectHideFlags: 0

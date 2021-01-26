@@ -20,13 +20,21 @@ namespace AtomosZ.UI.Animations
 		public PopupAnimationType type = PopupAnimationType.Off;
 		public Rect startRect;
 		public Rect finishRect;
+		public float timeToFinish = 1.5f;
 
 
-		public void RunAnimation(RectTransform rectTransform, bool skipAnimation)
+		public IEnumerator RunAnimation(RectTransform rectTransform)
 		{
+			float t = 0;
+			while (t < timeToFinish)
+			{
+				yield return null;
+				t += Time.unscaledDeltaTime;
+				rectTransform.SetSizeWithCurrentAnchors(
+					RectTransform.Axis.Vertical, Mathf.Lerp(0, startRect.height, t / timeToFinish));
+			}
 
+			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, startRect.height);
 		}
-
-	
 	}
 }
