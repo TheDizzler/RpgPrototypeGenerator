@@ -117,6 +117,10 @@ namespace AtomosZ.UI
 				selectionChanged = true;
 		}
 
+		public RectTransform GetRect()
+		{
+			return GetComponent<RectTransform>();
+		}
 
 		public void Clear()
 		{
@@ -385,7 +389,7 @@ namespace AtomosZ.UI
 
 			scrollbar.numberOfSteps = maxColumnLength - maxViewportItems + 1;
 			stepValue = 1f / (scrollbar.numberOfSteps - 1);
-			
+
 			yield return null;
 			SetSelection(startSelectionIndex);
 		}

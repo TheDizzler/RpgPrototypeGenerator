@@ -52,6 +52,11 @@ namespace AtomosZ.UI
 		}
 
 
+		public RectTransform GetRect()
+		{
+			return GetComponent<RectTransform>();
+		}
+
 		public void Clear()
 		{
 			if (panelHeight <= 1)
