@@ -1,16 +1,13 @@
 ﻿using System.Collections;
+using AtomosZ.UI.Animations;
 using TMPro;
 using Unity.EditorCoroutines.Editor;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
 namespace AtomosZ.UI
 {
-	[System.Serializable]
-	public class PanelAnimation : UnityEvent<float> { }
-
 	/// <summary>
 	/// Duties of DialogPanel:
 	///		Display text & portrait of speaker (if any).
