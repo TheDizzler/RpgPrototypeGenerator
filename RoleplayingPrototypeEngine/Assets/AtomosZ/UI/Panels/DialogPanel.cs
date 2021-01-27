@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using AtomosZ.UI.Animations;
 using TMPro;
 using Unity.EditorCoroutines.Editor;
@@ -81,20 +82,9 @@ namespace AtomosZ.UI
 
 		}
 
-
-		private IEnumerator Open(float time)
+		public List<PopupAnimation> GetPopupAnimations()
 		{
-			RectTransform rectTransform = GetComponent<RectTransform>();
-			float t = 0;
-			while (t < time)
-			{
-				yield return null;
-				t += Time.unscaledDeltaTime;
-				rectTransform.SetSizeWithCurrentAnchors(
-					RectTransform.Axis.Vertical, Mathf.Lerp(0, panelHeight, t / time));
-			}
-
-			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, panelHeight);
+			return new List<PopupAnimation> { openEvent, closeEvent };
 		}
 
 		private IEnumerator Close(float time)
@@ -126,11 +116,8 @@ namespace AtomosZ.UI
 		}
 
 		public void NavigateUp() { }
-
 		public void NavigateDown() { }
-
 		public void NavigateRight() { }
-
 		public void NavigateLeft() { }
 
 		/// <summary>

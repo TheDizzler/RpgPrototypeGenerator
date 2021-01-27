@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using AtomosZ.UI.Animations;
 using TMPro;
 using Unity.EditorCoroutines.Editor;
 using UnityEngine;
@@ -120,6 +121,11 @@ namespace AtomosZ.UI
 		public RectTransform GetRect()
 		{
 			return GetComponent<RectTransform>();
+		}
+
+		public List<PopupAnimation> GetPopupAnimations()
+		{
+			return new List<PopupAnimation> {  };
 		}
 
 		public void Clear()
