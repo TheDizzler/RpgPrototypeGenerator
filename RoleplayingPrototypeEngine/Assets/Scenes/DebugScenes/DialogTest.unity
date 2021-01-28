@@ -1822,6 +1822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1900243799}
   - component: {fileID: 1900243803}
+  - component: {fileID: 1900243804}
   - component: {fileID: 1900243802}
   - component: {fileID: 1900243801}
   - component: {fileID: 1900243800}
@@ -1938,7 +1939,8 @@ MonoBehaviour:
   timeBetweenChars: 0.1
   panelHeight: 291.59467
   openEvent:
-    type: 1
+    type: 4
+    timeToFinish: 0.5
     startOffsets:
       left: 20
       top: 35
@@ -1952,20 +1954,34 @@ MonoBehaviour:
     startTransform:
       scale: {x: 0, y: 0, z: 1}
       position: {x: 0.2999878, y: -384.13998, z: 0}
-      rotation: {x: 0, y: 0, z: 0, w: 1}
+      rotation: {x: 0, y: 0, z: 0.7119648, w: 0.70221525}
     finishTransform:
       scale: {x: 1, y: 1, z: 1}
       position: {x: 0.2999878, y: -384.13998, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
-    timeToFinish: 0.5
     animationCurve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    animationRoutine:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1900243804}
+          m_MethodName: LaserGrow
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   closeEvent:
     type: 3
+    timeToFinish: 1.5
     startOffsets:
       left: 0
       top: 0
@@ -1984,7 +2000,6 @@ MonoBehaviour:
       scale: {x: 0, y: 0, z: 1}
       position: {x: 0.2999878, y: -384.13998, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
-    timeToFinish: 1.5
     animationCurve:
       serializedVersion: 2
       m_Curve:
@@ -2036,6 +2051,24 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    animationRoutine:
+      m_PersistentCalls:
+        m_Calls: []
+--- !u!114 &1900243804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900243798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9ce6f11682679d4aa344f46eec9850c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startScale: {x: 0, y: 0.1, z: 1}
+  stage1Scale: {x: 1, y: 0.1, z: 1}
+  finishScale: {x: 1, y: 1, z: 1}
 --- !u!1 &1907405532
 GameObject:
   m_ObjectHideFlags: 0

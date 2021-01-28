@@ -8,7 +8,6 @@ namespace AtomosZ.UI
 	{
 		void Show(bool skipAnimation = false);
 		void Hide(bool skipAnimation = false);
-		List<PopupAnimation> GetPopupAnimations();
 		RectTransform GetRect();
 	}
 }

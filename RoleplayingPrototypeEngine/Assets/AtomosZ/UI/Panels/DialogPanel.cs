@@ -36,12 +36,12 @@ namespace AtomosZ.UI
 
 		private RectTransform rectTransform;
 		private Coroutine animationCoroutine;
-		private WaitForSecondsRealtime waitForChar;
-		private bool displayAll = false;
 		private Coroutine typingCoroutine = null;
 #if UNITY_EDITOR
 		private EditorCoroutine editorCoroutine;
 #endif
+		private WaitForSecondsRealtime waitForChar;
+		private bool displayAll = false;
 
 
 		void Start()
@@ -68,15 +68,11 @@ namespace AtomosZ.UI
 		}
 
 
-		public void AnimationCompleteCallback()
+		public void AnimationCompleteCallback(bool opened)
 		{
-
+			Debug.Log("Animation completed. Just opened: " + opened);
 		}
 
-		public List<PopupAnimation> GetPopupAnimations()
-		{
-			return new List<PopupAnimation> { openEvent, closeEvent };
-		}
 
 		public void Show(bool skipAnimation = false)
 		{

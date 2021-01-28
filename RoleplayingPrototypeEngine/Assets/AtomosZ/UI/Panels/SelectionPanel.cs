@@ -123,10 +123,6 @@ namespace AtomosZ.UI
 			return GetComponent<RectTransform>();
 		}
 
-		public List<PopupAnimation> GetPopupAnimations()
-		{
-			return new List<PopupAnimation> {  };
-		}
 
 		public void Clear()
 		{

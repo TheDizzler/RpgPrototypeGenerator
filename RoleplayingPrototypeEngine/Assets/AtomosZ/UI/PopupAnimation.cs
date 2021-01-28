@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AtomosZ.UI.Animations
 {
@@ -7,8 +8,12 @@ namespace AtomosZ.UI.Animations
 	{
 		Off,
 		Linear,
+		/// <summary>
+		/// Not implemented.
+		/// </summary>
 		Quadratic,
 		CustomCurve,
+		CustomRoutine,
 		/// <summary>
 		/// Not recommended if supporting multiple aspect ratios.
 		/// </summary>
@@ -32,6 +37,10 @@ namespace AtomosZ.UI.Animations
 		public Quaternion rotation = Quaternion.identity;
 	}
 
+	[System.Serializable]
+	public class AnimationRoutine : UnityEvent<float, RectTransform> { }
+
+
 	/// <summary>
 	/// Animations for opening/closing a popup.
 	/// Float is time in seconds for animation to complete.
@@ -40,6 +49,8 @@ namespace AtomosZ.UI.Animations
 	public class PopupAnimation
 	{
 		public PopupAnimationType type = PopupAnimationType.Off;
+		public float timeToFinish = .5f;
+
 		/// <summary>
 		/// Not recommended.
 		/// Corner positions relative to anchors positions at start of animation.
@@ -53,9 +64,8 @@ namespace AtomosZ.UI.Animations
 
 		public AnimationTransform startTransform;
 		public AnimationTransform finishTransform;
-
-		public float timeToFinish = .5f;
 		public AnimationCurve animationCurve;
+		public AnimationRoutine animationRoutine;
 
 
 		public IEnumerator RunAnimation(IPopupUI popup)
@@ -71,6 +81,18 @@ namespace AtomosZ.UI.Animations
 			float time = 0;
 			switch (type)
 			{
+				case PopupAnimationType.CustomRoutine:
+					while (time < timeToFinish)
+					{
+						yield return null;
+						time += Time.unscaledDeltaTime;
+						float t = time / timeToFinish;
+						animationRoutine.Invoke(t, rectTrans);
+					}
+
+					animationRoutine.Invoke(1, rectTrans);
+					break;
+
 				case PopupAnimationType.Linear:
 					while (time < timeToFinish)
 					{
@@ -86,7 +108,15 @@ namespace AtomosZ.UI.Animations
 
 					rectTrans.localPosition = finishPos;
 					rectTrans.localRotation = finishRot;
-					rectTrans.sizeDelta = finishScale;
+					rectTrans.localScale = finishScale;
+					break;
+
+				case PopupAnimationType.Quadratic:
+					Debug.Log("not yet implemented");
+					yield return null;
+					rectTrans.localPosition = finishPos;
+					rectTrans.localRotation = finishRot;
+					rectTrans.localScale = finishScale;
 					break;
 
 				case PopupAnimationType.CustomCurve:
@@ -94,17 +124,17 @@ namespace AtomosZ.UI.Animations
 					{
 						yield return null;
 						time += Time.unscaledDeltaTime;
-						float t = time / timeToFinish;
+						float t = animationCurve.Evaluate(time / timeToFinish);
 						rectTrans.localPosition =
-							Vector3.Lerp(startPos, finishPos, animationCurve.Evaluate(t));
+							Vector3.Lerp(startPos, finishPos, t);
 						rectTrans.localRotation =
-							Quaternion.Lerp(startRot, finishRot, animationCurve.Evaluate(t));
-						rectTrans.localScale = Vector3.Lerp(startScale, finishScale, animationCurve.Evaluate(t));
+							Quaternion.Lerp(startRot, finishRot, t);
+						rectTrans.localScale = Vector3.Lerp(startScale, finishScale, t);
 					}
 
 					rectTrans.localPosition = finishPos;
 					rectTrans.localRotation = finishRot;
-					rectTrans.sizeDelta = finishScale;
+					rectTrans.localScale = finishScale;
 					break;
 			}
 		}

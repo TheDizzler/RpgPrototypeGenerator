@@ -7,7 +7,6 @@ namespace AtomosZ.UI.EditorTools
 	[CustomPropertyDrawer(typeof(AnimationTransform))]
 	public class AnimationTransformDrawer : PropertyDrawer
 	{
-		private const float quaternionFieldSpace = 30;
 		private IPanelUI panel;
 		
 
@@ -64,7 +63,6 @@ namespace AtomosZ.UI.EditorTools
 				new GUIContent("Rot", "Quaternion Rotation"), rotVect);
 			quatProp.quaternionValue 
 				= new Quaternion(rotVect.x, rotVect.y, rotVect.z, rotVect.w);
-
 
 			EditorGUI.indentLevel = indent;
 		}

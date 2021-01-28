@@ -9,7 +9,7 @@ namespace AtomosZ.UI.EditorTools
 	{
 		public const float padding = 5;
 
-		private Color eventRectColor = new Color(.25f, .25f, .25f, .125f);
+		private Color eventRectColor = new Color(.25f, .25f, .25f, .06f);
 		private Color animationStartColumnColor = new Color(0.1f, 0.1f, 1, .5f);
 		private Color animationFinishColumnColor = new Color(1f, 0.1f, .1f, .5f);
 		private bool visible = true;
@@ -29,6 +29,15 @@ namespace AtomosZ.UI.EditorTools
 					case PopupAnimationType.Quadratic:
 						height += EditorGUIUtility.singleLineHeight * 5 + padding;
 						break;
+					case PopupAnimationType.CustomRoutine:
+						int listSize = property.FindPropertyRelative("animationRoutine")
+							.FindPropertyRelative("m_PersistentCalls.m_Calls").arraySize;
+						// base size of the property field
+						height += EditorGUIUtility.singleLineHeight * 5.5f; 
+						for (int i = 1; i < listSize; ++i)
+							// each delegate function call after the first adds this amount
+							height += EditorGUIUtility.singleLineHeight * 2.61f;
+						break;
 					case PopupAnimationType.CustomCurve:
 						height += EditorGUIUtility.singleLineHeight * 6 + padding;
 						break;
@@ -43,7 +52,6 @@ namespace AtomosZ.UI.EditorTools
 			if (panel == null && property.serializedObject != null)
 			{
 				panel = (IPanelUI)property.serializedObject.targetObject;
-				var animations = panel.GetPopupAnimations();
 			}
 
 			Rect rect = new Rect(position.x, position.y,
@@ -79,12 +87,16 @@ namespace AtomosZ.UI.EditorTools
 						DrawLerpControls(rect, property);
 						break;
 
+					case PopupAnimationType.CustomRoutine:
+						EditorGUI.PropertyField(rect, property.FindPropertyRelative("animationRoutine"), GUIContent.none);
+						break;
+
 					case PopupAnimationType.CustomCurve:
-						EditorGUIUtility.labelWidth = 102;
 						EditorGUI.PropertyField(rect, property.FindPropertyRelative("animationCurve"), GUIContent.none);
 						rect.y += EditorGUIUtility.singleLineHeight;
 						DrawLerpControls(rect, property);
 						break;
+
 					case PopupAnimationType.Anchors:
 						DrawAnchorLerpControls(rect, property);
 						break;
