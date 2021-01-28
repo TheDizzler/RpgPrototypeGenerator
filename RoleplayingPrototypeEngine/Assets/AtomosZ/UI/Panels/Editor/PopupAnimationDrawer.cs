@@ -7,9 +7,14 @@ namespace AtomosZ.UI.EditorTools
 	[CustomPropertyDrawer(typeof(PopupAnimation))]
 	public class PopupAnimationDrawer : PropertyDrawer
 	{
+		public const float padding = 5;
+
+		private Color eventRectColor = new Color(.25f, .25f, .25f, .125f);
+		private Color animationStartColumnColor = new Color(0.1f, 0.1f, 1, .5f);
+		private Color animationFinishColumnColor = new Color(1f, 0.1f, .1f, .5f);
 		private bool visible = true;
 		private IPanelUI panel;
-
+		private GUIStyle centerTextStyling;
 
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -18,8 +23,16 @@ namespace AtomosZ.UI.EditorTools
 			if (visible)
 			{
 				height += EditorGUIUtility.singleLineHeight;
-				if ((PopupAnimationType)property.FindPropertyRelative("type").enumValueIndex != PopupAnimationType.Off)
-					height += EditorGUIUtility.singleLineHeight * 3/* + EditorGUIUtility.standardVerticalSpacing * 2*/;
+				switch ((PopupAnimationType)property.FindPropertyRelative("type").enumValueIndex)
+				{
+					case PopupAnimationType.Linear:
+					case PopupAnimationType.Quadratic:
+						height += EditorGUIUtility.singleLineHeight * 5 + padding;
+						break;
+					case PopupAnimationType.CustomCurve:
+						height += EditorGUIUtility.singleLineHeight * 6 + padding;
+						break;
+				}
 			}
 			return height;
 		}
@@ -30,6 +43,7 @@ namespace AtomosZ.UI.EditorTools
 			if (panel == null && property.serializedObject != null)
 			{
 				panel = (IPanelUI)property.serializedObject.targetObject;
+				var animations = panel.GetPopupAnimations();
 			}
 
 			Rect rect = new Rect(position.x, position.y,
@@ -37,55 +51,117 @@ namespace AtomosZ.UI.EditorTools
 			visible = EditorGUI.BeginFoldoutHeaderGroup(rect, visible, label);
 			if (visible)
 			{
+				EditorGUI.DrawRect(position, eventRectColor);
+
 				var indent = EditorGUI.indentLevel;
-				EditorGUI.indentLevel = 1;
+				EditorGUI.indentLevel = 0;
 
 				rect.y += EditorGUIUtility.singleLineHeight;
-				EditorGUI.PropertyField(rect, property.FindPropertyRelative("type"));
+				rect.width *= .5f;
+				rect.width -= padding * 2;
+				rect.x += padding;
+				EditorGUI.PropertyField(rect, property.FindPropertyRelative("type"), GUIContent.none);
+				rect.x += rect.width + padding * 2;
+				EditorGUIUtility.labelWidth = 82;
+				EditorGUI.PropertyField(rect, property.FindPropertyRelative("timeToFinish"));
 
+				rect.width += padding * 2;
+				rect.width *= 2;
+				rect.x = position.x;
+				rect.y += EditorGUIUtility.singleLineHeight;
 				switch ((PopupAnimationType)property.FindPropertyRelative("type").enumValueIndex)
 				{
 					case PopupAnimationType.Off:
 						break;
+
 					case PopupAnimationType.Linear:
 					case PopupAnimationType.Quadratic:
-						EditorGUI.DrawRect(position, new Color(.25f, .25f, .25f, .125f));
+						DrawLerpControls(rect, property);
+						break;
 
+					case PopupAnimationType.CustomCurve:
+						EditorGUIUtility.labelWidth = 102;
+						EditorGUI.PropertyField(rect, property.FindPropertyRelative("animationCurve"), GUIContent.none);
 						rect.y += EditorGUIUtility.singleLineHeight;
-						rect.width *= .5f;
-						var startRect = property.FindPropertyRelative("startRect");
-						if (GUI.Button(rect, "Set Current to Start"))
-						{
-							startRect.rectValue = panel.GetRect().rect;
-						}
-
-						rect.y += EditorGUIUtility.singleLineHeight;
-						rect.height = EditorGUIUtility.singleLineHeight * 2;
-
-						EditorGUI.PropertyField(rect, startRect, GUIContent.none);
-
-						rect.y -= EditorGUIUtility.singleLineHeight;
-
-
-						rect.x += rect.width;
-						rect.height = EditorGUIUtility.singleLineHeight;
-						var finishRect = property.FindPropertyRelative("finishRect");
-						if (GUI.Button(rect, "Set Current to End"))
-						{
-							finishRect.rectValue = panel.GetRect().rect;
-						}
-
-						rect.y += EditorGUIUtility.singleLineHeight;
-						EditorGUI.PropertyField(rect, finishRect, GUIContent.none);
-
-						// Set indent back to what it was
-						EditorGUI.indentLevel = indent;
+						DrawLerpControls(rect, property);
+						break;
+					case PopupAnimationType.Anchors:
+						DrawAnchorLerpControls(rect, property);
 						break;
 				}
-			}
-			//EditorGUI.EndProperty();
 
+				// Set indent back to what it was
+				EditorGUI.indentLevel = indent;
+			}
 			EditorGUI.EndFoldoutHeaderGroup();
+		}
+
+
+		private void DrawLerpControls(Rect rect, SerializedProperty property)
+		{
+			Rect leftColumn = rect;
+			leftColumn.width *= .5f;
+			leftColumn.height = EditorGUIUtility.singleLineHeight * 5 + padding;
+
+			Rect rightColumn = leftColumn;
+			rightColumn.x += leftColumn.width;
+
+			EditorGUI.DrawRect(leftColumn, animationStartColumnColor);
+			EditorGUI.DrawRect(rightColumn, animationFinishColumnColor);
+
+			leftColumn.height = EditorGUIUtility.singleLineHeight;
+			rightColumn.height = EditorGUIUtility.singleLineHeight;
+
+			if (centerTextStyling == null)
+			{
+				centerTextStyling = new GUIStyle();
+				centerTextStyling.alignment = TextAnchor.MiddleCenter;
+			}
+
+			EditorGUI.LabelField(leftColumn, "Animation Start", centerTextStyling);
+			EditorGUI.LabelField(rightColumn, "Animation End", centerTextStyling);
+
+			leftColumn.y += EditorGUIUtility.singleLineHeight;
+			var startOffsets = property.FindPropertyRelative("startTransform");
+			EditorGUI.PropertyField(leftColumn, startOffsets, GUIContent.none);
+
+			rightColumn.y += EditorGUIUtility.singleLineHeight;
+			var finishOffsets = property.FindPropertyRelative("finishTransform");
+			EditorGUI.PropertyField(rightColumn, finishOffsets, GUIContent.none);
+		}
+
+
+		private void DrawAnchorLerpControls(Rect rect, SerializedProperty property)
+		{
+			Rect leftColumn = rect;
+			leftColumn.width *= .5f;
+			leftColumn.height = EditorGUIUtility.singleLineHeight * 4 + padding;
+
+			Rect rightColumn = leftColumn;
+			rightColumn.x += leftColumn.width;
+
+			EditorGUI.DrawRect(leftColumn, animationStartColumnColor);
+			EditorGUI.DrawRect(rightColumn, animationFinishColumnColor);
+
+			leftColumn.height = EditorGUIUtility.singleLineHeight;
+			rightColumn.height = EditorGUIUtility.singleLineHeight;
+
+			if (centerTextStyling == null)
+			{
+				centerTextStyling = new GUIStyle();
+				centerTextStyling.alignment = TextAnchor.MiddleCenter;
+			}
+
+			EditorGUI.LabelField(leftColumn, "Animation Start", centerTextStyling);
+			EditorGUI.LabelField(rightColumn, "Animation End", centerTextStyling);
+
+			leftColumn.y += EditorGUIUtility.singleLineHeight;
+			var startOffsets = property.FindPropertyRelative("startOffsets");
+			EditorGUI.PropertyField(leftColumn, startOffsets, GUIContent.none);
+
+			rightColumn.y += EditorGUIUtility.singleLineHeight;
+			var finishOffsets = property.FindPropertyRelative("finishOffsets");
+			EditorGUI.PropertyField(rightColumn, finishOffsets, GUIContent.none);
 		}
 	}
 }

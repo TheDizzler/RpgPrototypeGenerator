@@ -34,10 +34,10 @@ namespace AtomosZ.UI
 		public PopupAnimation openEvent;
 		public PopupAnimation closeEvent;
 
-
+		private RectTransform rectTransform;
+		private Coroutine animationCoroutine;
 		private WaitForSecondsRealtime waitForChar;
 		private bool displayAll = false;
-
 		private Coroutine typingCoroutine = null;
 #if UNITY_EDITOR
 		private EditorCoroutine editorCoroutine;
@@ -52,7 +52,9 @@ namespace AtomosZ.UI
 
 		public RectTransform GetRect()
 		{
-			return GetComponent<RectTransform>();
+			if (rectTransform == null)
+				rectTransform = GetComponent<RectTransform>();
+			return rectTransform;
 		}
 
 		/// <summary>
@@ -65,20 +67,9 @@ namespace AtomosZ.UI
 			Hide(true);
 		}
 
-		public void BasicGrowOpen(float timeToOpen)
-		{
-			StartCoroutine(Open(timeToOpen));
-		}
 
-		public void BasicShrinkClose(float timeToClose)
+		public void AnimationCompleteCallback()
 		{
-			if (timeToClose <= 0)
-			{
-				gameObject.SetActive(false);
-				GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
-			}
-			else
-				StartCoroutine(Close(timeToClose));
 
 		}
 
@@ -87,32 +78,31 @@ namespace AtomosZ.UI
 			return new List<PopupAnimation> { openEvent, closeEvent };
 		}
 
-		private IEnumerator Close(float time)
-		{
-			RectTransform rectTransform = GetComponent<RectTransform>();
-			float t = 0;
-			while (t < time)
-			{
-				yield return null;
-				t += Time.unscaledDeltaTime;
-				rectTransform.SetSizeWithCurrentAnchors(
-					RectTransform.Axis.Vertical, Mathf.Lerp(panelHeight, 0, t / time));
-			}
-
-			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
-			gameObject.SetActive(false);
-		}
-
 		public void Show(bool skipAnimation = false)
 		{
 			gameObject.SetActive(true);
-			if (openEvent.type != PopupAnimationType.Off)
-				StartCoroutine(openEvent.RunAnimation(GetComponent<RectTransform>()));
+			if (skipAnimation)
+			{
+				openEvent.Complete(this);
+				return;
+			}
+
+			if (animationCoroutine != null)
+				StopCoroutine(animationCoroutine);
+			animationCoroutine = StartCoroutine(openEvent.RunAnimation(this));
 		}
 
 		public void Hide(bool skipAnimation = false)
 		{
-			Debug.Log("Hide not implemented yet");
+			if (skipAnimation)
+			{
+				closeEvent.Complete(this);
+				return;
+			}
+
+			if (animationCoroutine != null)
+				StopCoroutine(animationCoroutine);
+			animationCoroutine = StartCoroutine(closeEvent.RunAnimation(this));
 		}
 
 		public void NavigateUp() { }

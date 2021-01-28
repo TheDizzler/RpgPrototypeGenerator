@@ -1839,7 +1839,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900243798}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1939,34 +1939,103 @@ MonoBehaviour:
   panelHeight: 291.59467
   openEvent:
     type: 1
-    startRect:
+    startOffsets:
+      left: 20
+      top: 35
+      right: 25
+      bottom: 5
+    finishOffsets:
+      left: 0
+      top: -0
+      right: -0
+      bottom: 0
+    startTransform:
+      scale: {x: 0, y: 0, z: 1}
+      position: {x: 0.2999878, y: -384.13998, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+    finishTransform:
+      scale: {x: 1, y: 1, z: 1}
+      position: {x: 0.2999878, y: -384.13998, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+    timeToFinish: 0.5
+    animationCurve:
       serializedVersion: 2
-      x: -949.7001
-      y: -145.79733
-      width: 1899.4001
-      height: 291.59467
-    finishRect:
-      serializedVersion: 2
-      x: -949.7001
-      y: -0.79733276
-      width: 1899.4001
-      height: 1.5946655
-    timeToFinish: 1.5
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   closeEvent:
-    type: 0
-    startRect:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
-    finishRect:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+    type: 3
+    startOffsets:
+      left: 0
+      top: 0
+      right: 0
+      bottom: 0
+    finishOffsets:
+      left: 0
+      top: 0
+      right: 0
+      bottom: 0
+    startTransform:
+      scale: {x: 1, y: 1, z: 1}
+      position: {x: 0.2999878, y: -384.13998, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+    finishTransform:
+      scale: {x: 0, y: 0, z: 1}
+      position: {x: 0.2999878, y: -384.13998, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
     timeToFinish: 1.5
+    animationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.40490052
+        value: 0.45244563
+        inSlope: 1.121784
+        outSlope: 1.121784
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.4602783
+        value: 0.7963185
+        inSlope: 1.2230858
+        outSlope: 1.2230858
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.7397351
+        value: 0.5493478
+        inSlope: 0.20323537
+        outSlope: 0.20323537
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
 --- !u!1 &1907405532
 GameObject:
   m_ObjectHideFlags: 0

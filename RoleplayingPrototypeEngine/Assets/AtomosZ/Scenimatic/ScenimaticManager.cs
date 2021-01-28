@@ -265,7 +265,6 @@ namespace AtomosZ.Scenimatic
 
 		private void LoadBranch(string guid)
 		{
-			Debug.Log(guidBranches[guid].GetData().GetType());
 			currentBranch = guidBranches[guid].GetData() as ScenimaticBranch;
 			if (currentBranch != null)
 			{
@@ -297,7 +296,7 @@ namespace AtomosZ.Scenimatic
 					}
 				}
 
-				dialogPanel.Show(.5f);
+				dialogPanel.Show();
 				NextEventInQueue();
 			}
 			else
@@ -311,7 +310,7 @@ namespace AtomosZ.Scenimatic
 					Debug.Log("OutputParam: " + outputParams[i]);
 				}
 
-				dialogPanel.Hide(.5f);
+				dialogPanel.Hide();
 			}
 		}
 
