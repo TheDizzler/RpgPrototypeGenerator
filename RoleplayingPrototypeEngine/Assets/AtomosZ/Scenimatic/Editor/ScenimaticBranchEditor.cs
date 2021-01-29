@@ -83,13 +83,15 @@ namespace AtomosZ.Scenimatic.EditorTools
 			if (branchData is EventBranchObjectData)
 			{
 				gateway = null;
-				var serializedBranch = (ScenimaticSerializedNode)((EventBranchObjectData)branchData).serializedNode;
+				var serializedBranch = (ScenimaticSerializedNode)
+					((EventBranchObjectData)branchData).serializedNode;
 				branch = serializedBranch.data;
 			}
 			else
 			{
 				branch = null;
-				var serializedGateway = ((ScriptGatewayNodeData)branchData).serializedNode;
+				var serializedGateway =
+					((ScriptGatewayNodeData)branchData).serializedNode;
 				gateway = serializedGateway.data;
 			}
 			Repaint();
@@ -177,9 +179,11 @@ namespace AtomosZ.Scenimatic.EditorTools
 						Connection newConn = CreateNewConnection(ConnectionType.Int);
 						CheckForDuplicateNameInConnections(newConn, gateway.connections);
 						if (gateway.gatewayType == GatewayType.Entrance)
-							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.Out);
+							entityData.AddNewConnectionPoint(
+								newConn, ConnectionPointDirection.Out);
 						else
-							entityData.AddNewConnectionPoint(newConn, ConnectionPointDirection.In);
+							entityData.AddNewConnectionPoint(
+								newConn, ConnectionPointDirection.In);
 					}
 				}
 				GUILayout.FlexibleSpace();
@@ -191,7 +195,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		public static void CheckForDuplicateNameInConnections(Connection newConn, List<Connection> connList)
+		public static void CheckForDuplicateNameInConnections(
+			Connection newConn, List<Connection> connList)
 		{
 			string suffix = "";
 			int next = 0;
@@ -213,7 +218,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private string CheckForDuplicateNameInQueryList(string newChoiceText, List<string> options, int oldIndex)
+		private string CheckForDuplicateNameInQueryList(
+			string newChoiceText, List<string> options, int oldIndex)
 		{
 			string suffix = "";
 			int next = 0;
@@ -241,8 +247,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 				branch.branchName = GUILayout.TextField(branch.branchName);
 				GUILayout.FlexibleSpace();
 				if (GUILayout.Button("Add Event"))
-				{
-					branch.events.Add(ScenimaticEvent.CreateEmpytEvent()); // add empty event
+				{ // add empty event
+					branch.events.Add(ScenimaticEvent.CreateEmpytEvent());
 				}
 			}
 
@@ -306,7 +312,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 		}
 
 
-		private void ResizableInputBlock(List<Connection> connections, ConnectionPointDirection direction)
+		private void ResizableInputBlock(
+			List<Connection> connections, ConnectionPointDirection direction)
 		{
 			int size = EditorGUILayout.DelayedIntField(
 				connections.Count - 1, GUILayout.MaxWidth(30));
@@ -354,8 +361,10 @@ namespace AtomosZ.Scenimatic.EditorTools
 				{
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Type:");
-					SelectableInputConnectionType type = (SelectableInputConnectionType)conn.type;
-					ConnectionType newType = (ConnectionType)EditorGUILayout.EnumPopup(type, inputFieldOptions);
+					SelectableInputConnectionType type =
+						(SelectableInputConnectionType)conn.type;
+					ConnectionType newType = (ConnectionType)
+						EditorGUILayout.EnumPopup(type, inputFieldOptions);
 					if (newType != conn.type)
 					{
 						if (ChangeConnectionTypeWarning(conn, newType))
@@ -368,7 +377,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 					EditorGUILayout.BeginHorizontal();
 					GUILayout.Label("Name:");
-					conn.variableName = EditorGUILayout.TextField(conn.variableName, inputFieldOptions);
+					conn.variableName = EditorGUILayout.TextField(
+						conn.variableName, inputFieldOptions);
 					EditorGUILayout.EndHorizontal();
 
 					if (Event.current.type == EventType.ContextClick
@@ -451,7 +461,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						if (branch.events.IndexOf(eventData) != 0)
 							deferredCommandQueue.Enqueue(
-								new DeferredCommand(eventData, DeferredCommandType.MoveUp));
+								new DeferredCommand(
+									eventData, DeferredCommandType.MoveUp));
 					}
 
 					if (GUILayout.Button(downArrow,
@@ -459,7 +470,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 					{
 						if (branch.events.IndexOf(eventData) != branch.events.Count - 1)
 							deferredCommandQueue.Enqueue(
-								new DeferredCommand(eventData, DeferredCommandType.MoveDown));
+								new DeferredCommand(
+									eventData, DeferredCommandType.MoveDown));
 					}
 				}
 				EditorGUILayout.EndVertical();
@@ -486,7 +498,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 										for (int i = eventData.outputGUIDs.Count - 1; i >= 0; --i)
 										{
 											deferredCommandQueue.Enqueue(
-												new DeferredCommand(eventData,
+												new DeferredCommand(
+													eventData,
 													branch.GetOutputConnectionByGUID(eventData.outputGUIDs[i]),
 													DeferredCommandType.DeleteControlFlowOutputConnection));
 										}
@@ -504,7 +517,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 								eventData = CreateQueryEvent(new List<string>() { "A", "B" });
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(
-										eventData, DeferredCommandType.CreateOutputConnection));
+										eventData,
+										DeferredCommandType.CreateOutputConnection));
 								break;
 
 							default:
@@ -588,7 +602,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 							{ // add new output
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(
-										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
+										eventData,
+										DeferredCommandType.CreateControlFlowOutputConnection));
 							}
 						}
 						while (size < eventData.options.Count)
@@ -622,10 +637,12 @@ namespace AtomosZ.Scenimatic.EditorTools
 						switch (eventData.connections[0].type)
 						{
 							case ConnectionType.String:
-								eventData.options[i] = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(eventData.options[i]));
+								eventData.options[i] = WithoutSelectAll(
+									() => EditorGUILayout.DelayedTextField(eventData.options[i]));
 								break;
 							case ConnectionType.ControlFlow:
-								newChoiceText = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(eventData.options[i]));
+								newChoiceText = WithoutSelectAll(
+									() => EditorGUILayout.DelayedTextField(eventData.options[i]));
 								break;
 							case ConnectionType.Int:
 								if (!int.TryParse(eventData.options[i], out int intResult))
@@ -643,7 +660,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 								if (!bool.TryParse(eventData.options[i], out bool boolResult))
 									boolResult = i == 0 ? false : true;
 								GUI.enabled = false;
-								newChoiceText = WithoutSelectAll(() => EditorGUILayout.DelayedTextField(boolResult.ToString()));
+								newChoiceText = WithoutSelectAll(
+									() => EditorGUILayout.DelayedTextField(boolResult.ToString()));
 								eventData.options[i] = newChoiceText;
 								GUI.enabled = true;
 								break;
@@ -655,7 +673,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 						{
 							if (newChoiceText != eventData.options[i])
 							{
-								eventData.options[i] = CheckForDuplicateNameInQueryList(newChoiceText, eventData.options, i);
+								eventData.options[i] =
+									CheckForDuplicateNameInQueryList(newChoiceText, eventData.options, i);
 							}
 
 							eventData.connections[i].variableName = newChoiceText;
@@ -705,7 +724,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 							{
 								deferredCommandQueue.Enqueue(
 									new DeferredCommand(
-										eventData, DeferredCommandType.CreateControlFlowOutputConnection));
+										eventData,
+										DeferredCommandType.CreateControlFlowOutputConnection));
 							}
 
 							nodeGraph.connectionPoints[branch.connectionOutputs[0].GUID].RemoveAllConnections();
@@ -731,7 +751,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 					if (newName != eventData.connections[0].variableName)
 					{
 						eventData.connections[0].variableName = newName;
-						CheckForDuplicateNameInConnections(eventData.connections[0], branch.connectionOutputs);
+						CheckForDuplicateNameInConnections(
+							eventData.connections[0], branch.connectionOutputs);
 					}
 				}
 			}
@@ -763,7 +784,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 						return;
 					}
 
-					nodeGraph.spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path.Substring(path.IndexOf(@"Assets/")));
+					nodeGraph.spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(
+						path.Substring(path.IndexOf(@"Assets/")));
 				}
 
 				if (nodeGraph.spriteAtlas.GetPackables().Contains(newSprite))
@@ -782,10 +804,13 @@ namespace AtomosZ.Scenimatic.EditorTools
 						"Yes", "No"))
 					{
 						eventData.image = newSprite.name;
-						SpriteAtlasExtensions.Add(nodeGraph.spriteAtlas, new Object[] { eventData.sprite });
+						SpriteAtlasExtensions.Add(
+							nodeGraph.spriteAtlas, new Object[] { eventData.sprite });
 
-						AssetDatabase.SaveAssets(); // unfortunately these don't seem to have the desired effect
-						AssetDatabase.Refresh(); // that is, an automatic push of the "Pack Preview" button
+						// unfortunately the following lines don't seem to have the desired effect
+						// that is, an automatic push of the "Pack Preview" button
+						AssetDatabase.SaveAssets();
+						AssetDatabase.Refresh();
 					}
 				}
 			}
@@ -798,7 +823,8 @@ namespace AtomosZ.Scenimatic.EditorTools
 
 		private void DeleteEvent(ScenimaticEvent eventData)
 		{
-			deferredCommandQueue.Enqueue(new DeferredCommand(eventData, DeferredCommandType.DeleteEvent));
+			deferredCommandQueue.Enqueue(new DeferredCommand(
+				eventData, DeferredCommandType.DeleteEvent));
 		}
 
 
@@ -851,11 +877,6 @@ namespace AtomosZ.Scenimatic.EditorTools
 					break;
 
 				case DeferredCommandType.CreateOutputConnection:
-					if (command.eventData.outputGUIDs != null && command.eventData.outputGUIDs.Count > 1)
-						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
-					if (command.eventData.connections != null && command.eventData.connections.Count > 1)
-						throw new System.Exception("Didn't clean up before changing output types!"); // this is reminder to myself and can be removed after testing
-
 					var newConn = CreateNewConnection(ConnectionType.Int);
 					CheckForDuplicateNameInConnections(newConn, branch != null
 						? branch.connectionOutputs : gateway.connections);
@@ -967,19 +988,22 @@ namespace AtomosZ.Scenimatic.EditorTools
 			public Connection connection;
 
 
-			public DeferredCommand(ScenimaticEvent eventData, DeferredCommandType commandType)
+			public DeferredCommand(ScenimaticEvent eventData,
+				DeferredCommandType commandType)
 			{
 				this.eventData = eventData;
 				this.commandType = commandType;
 			}
 
-			public DeferredCommand(Connection connection, DeferredCommandType commandType)
+			public DeferredCommand(Connection connection,
+				DeferredCommandType commandType)
 			{
 				this.connection = connection;
 				this.commandType = commandType;
 			}
 
-			public DeferredCommand(ScenimaticEvent eventData, Connection connection, DeferredCommandType commandType)
+			public DeferredCommand(ScenimaticEvent eventData,
+				Connection connection, DeferredCommandType commandType)
 			{
 				this.eventData = eventData;
 				this.connection = connection;
