@@ -8,7 +8,6 @@
 >- none known!
 
 #Functionality
-- delegates for opening/closing animations of dialog windows
 - check if changes made before auto-save (for my sanity - stop having to reload the json file every time I click over to notepad)
 - OutputNode for passing player choices to game (More or less solved. Just need to decide how the ouputs get sent to whatever called the ScenimaticManager)
 - (consider) disallow events after a ControlFlow Query
@@ -28,6 +27,7 @@
 	- [ ] special effects?
 
 ##Done
+>- ~delegates for opening/closing animations of dialog windows~
 >- ~add booleans as Input/Output connections~
 >- ~duplicate variable name checks~
 >- ~Save As function (change to drop down menu?)~

@@ -47,14 +47,33 @@ namespace AtomosZ.Scenimatic.EditorTools
 		private Gateway gateway = null;
 		private ScenimaticBranch branch = null;
 		private GUIStyle rectStyle;
-		private GUILayoutOption[] inputLabelOptions = { GUILayout.MaxWidth(40), GUILayout.MinWidth(37), };
-		private GUILayoutOption[] inputFieldOptions = { GUILayout.MaxWidth(60), GUILayout.MinWidth(40), };
-
+		private GUILayoutOption[] inputLabelOptions
+			= { GUILayout.MaxWidth(40), GUILayout.MinWidth(37), };
+		private GUILayoutOption[] inputFieldOptions
+			= { GUILayout.MaxWidth(60), GUILayout.MinWidth(40), };
+		private GUIContent upArrow;
+		private GUIContent downArrow;
 
 
 		private void OnEnable()
 		{
 			window = this;
+			var image = EditorGUIUtility.FindTexture(ImageLinks.arrowUp);
+			if (image == null)
+			{
+				Debug.LogWarning("Unable to find image at " + ImageLinks.arrowUp);
+				upArrow = new GUIContent("^", "Move this event up");
+			}
+			else
+				upArrow = new GUIContent(image, "Move this event up");
+			image = EditorGUIUtility.FindTexture(ImageLinks.arrowDown);
+			if (image == null)
+			{
+				Debug.LogWarning("Unable to find image at " + ImageLinks.arrowDown);
+				downArrow = new GUIContent("v", "Move this event down");
+			}
+			else
+				downArrow = new GUIContent(image);
 		}
 
 
@@ -427,14 +446,16 @@ namespace AtomosZ.Scenimatic.EditorTools
 				// move up/down buttons
 				EditorGUILayout.BeginVertical(GUILayout.Width(10));
 				{
-					if (GUILayout.Button(new GUIContent("^", "Move this event up"))) // replace with image
+					if (GUILayout.Button(upArrow,
+						GUILayout.Width(20), GUILayout.Height(20)))
 					{
 						if (branch.events.IndexOf(eventData) != 0)
 							deferredCommandQueue.Enqueue(
 								new DeferredCommand(eventData, DeferredCommandType.MoveUp));
 					}
 
-					if (GUILayout.Button(new GUIContent("v", "Move this event down"))) // replace with image
+					if (GUILayout.Button(downArrow,
+						GUILayout.Width(20), GUILayout.Height(20)))
 					{
 						if (branch.events.IndexOf(eventData) != branch.events.Count - 1)
 							deferredCommandQueue.Enqueue(

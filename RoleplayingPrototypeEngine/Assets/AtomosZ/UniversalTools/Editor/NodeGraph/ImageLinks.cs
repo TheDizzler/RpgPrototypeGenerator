@@ -3,6 +3,8 @@
 	public static class ImageLinks
 	{
 		public static string ImageFolder = "Assets/AtomosZ/UniversalTools/Editor/NodeGraph/Images/";
+		public static string arrowUp = ImageFolder + "Arrow Up.png";
+		public static string arrowDown = ImageFolder + "Arrow Down.png";
 		public static string exclamation = ImageFolder + "Exclamation.png";
 		public static string brokenConnection = ImageFolder + "Node Broken Branch.png";
 		public static string dataTypeConnected = ImageFolder + "ConnectionPoint DataType connected.png";
