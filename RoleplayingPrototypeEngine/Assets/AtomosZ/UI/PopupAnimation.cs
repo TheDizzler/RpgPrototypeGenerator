@@ -67,8 +67,13 @@ namespace AtomosZ.UI.Animations
 		public AnimationCurve animationCurve;
 		public AnimationRoutine animationRoutine;
 
-
-		public IEnumerator RunAnimation(IPopupUI popup)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="popup"></param>
+		/// <param name="OnCompletedCallback">Optional callback, may be null</param>
+		/// <returns></returns>
+		public IEnumerator RunAnimation(IPopupUI popup, System.Action OnCompletedCallback)
 		{
 			RectTransform rectTrans = popup.GetRect();
 			Vector3 startPos = startTransform.position;
@@ -137,6 +142,9 @@ namespace AtomosZ.UI.Animations
 					rectTrans.localScale = finishScale;
 					break;
 			}
+
+			if (OnCompletedCallback != null)
+				OnCompletedCallback.Invoke();
 		}
 
 		public void Complete(IPopupUI popup)

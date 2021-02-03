@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using AtomosZ.UI.Animations;
 using TMPro;
 using Unity.EditorCoroutines.Editor;
@@ -42,6 +41,7 @@ namespace AtomosZ.UI
 #endif
 		private WaitForSecondsRealtime waitForChar;
 		private bool displayAll = false;
+		private bool destroyOnAnimationCompleted = false;
 
 
 		void Start()
@@ -68,9 +68,18 @@ namespace AtomosZ.UI
 		}
 
 
-		public void AnimationCompleteCallback(bool opened)
+		public void OnOpenAnimationCompleteCallback()
 		{
-			Debug.Log("Animation completed. Just opened: " + opened);
+			Debug.Log("Open Animation completed.");
+		}
+
+		public void OnCloseAnimationCompleteCallback()
+		{
+			Debug.Log("Close Animation completed.");
+			if (destroyOnAnimationCompleted)
+				Destroy(gameObject);
+			else
+				gameObject.SetActive(false);
 		}
 
 
@@ -80,12 +89,14 @@ namespace AtomosZ.UI
 			if (skipAnimation)
 			{
 				openEvent.Complete(this);
+				OnOpenAnimationCompleteCallback();
 				return;
 			}
 
 			if (animationCoroutine != null)
 				StopCoroutine(animationCoroutine);
-			animationCoroutine = StartCoroutine(openEvent.RunAnimation(this));
+			animationCoroutine = StartCoroutine(
+				openEvent.RunAnimation(this, OnOpenAnimationCompleteCallback));
 		}
 
 		public void Hide(bool skipAnimation = false)
@@ -93,13 +104,33 @@ namespace AtomosZ.UI
 			if (skipAnimation)
 			{
 				closeEvent.Complete(this);
+				OnCloseAnimationCompleteCallback();
 				return;
 			}
 
 			if (animationCoroutine != null)
 				StopCoroutine(animationCoroutine);
-			animationCoroutine = StartCoroutine(closeEvent.RunAnimation(this));
+			animationCoroutine = StartCoroutine(
+				closeEvent.RunAnimation(this, OnCloseAnimationCompleteCallback));
 		}
+
+
+		public void Destroy(bool waitForCloseAnimationToFinish = true)
+		{
+			if (animationCoroutine != null)
+			{
+				if (waitForCloseAnimationToFinish)
+					destroyOnAnimationCompleted = true;
+				else
+				{
+					StopCoroutine(animationCoroutine);
+					Destroy(gameObject);
+				}
+			}
+			else
+				Destroy(gameObject);
+		}
+
 
 		public void NavigateUp() { }
 		public void NavigateDown() { }

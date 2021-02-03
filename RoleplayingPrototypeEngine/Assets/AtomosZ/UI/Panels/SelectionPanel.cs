@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using AtomosZ.UI.Animations;
 using TMPro;
@@ -42,6 +43,9 @@ namespace AtomosZ.UI
 			" May need adjusting after the scrollbar disappears.")]
 		public float rightPadding = 20;
 
+		public PopupAnimation openEvent;
+		public PopupAnimation closeEvent;
+
 		[SerializeField]
 		private GameObject contentColumnPrefab = null;
 		[SerializeField]
@@ -72,8 +76,8 @@ namespace AtomosZ.UI
 		private float stepValue;
 		private bool selectionChanged = false;
 		private Vector3 itemSize;
-
-
+		private bool destroyOnAnimationCompleted;
+		private Coroutine animationCoroutine;
 
 		public int GetSelectedIndex()
 		{
@@ -143,15 +147,66 @@ namespace AtomosZ.UI
 			selectedRow = -1;
 		}
 
+		public void OnOpenAnimationCompleteCallback()
+		{
+			Debug.Log("Open Animation completed.");
+		}
+
+		public void OnCloseAnimationCompleteCallback()
+		{
+			Debug.Log("Close Animation completed.");
+			if (destroyOnAnimationCompleted)
+				Destroy(gameObject);
+			else
+				gameObject.SetActive(false);
+		}
 
 		public void Show(bool skipAnimation = false)
 		{
 			gameObject.SetActive(true);
+			if (skipAnimation)
+			{
+				openEvent.Complete(this);
+				OnOpenAnimationCompleteCallback();
+				return;
+			}
+
+			if (animationCoroutine != null)
+				StopCoroutine(animationCoroutine);
+			animationCoroutine = StartCoroutine(
+				openEvent.RunAnimation(this, OnOpenAnimationCompleteCallback));
 		}
 
 		public void Hide(bool skipAnimation = false)
 		{
-			gameObject.SetActive(false);
+			if (skipAnimation)
+			{
+				closeEvent.Complete(this);
+				OnCloseAnimationCompleteCallback();
+				return;
+			}
+
+			if (animationCoroutine != null)
+				StopCoroutine(animationCoroutine);
+			animationCoroutine = StartCoroutine(
+				closeEvent.RunAnimation(this, OnCloseAnimationCompleteCallback));
+		}
+
+
+		public void Destroy(bool waitForCloseAnimationToFinish = true)
+		{
+			if (animationCoroutine != null)
+			{
+				if (waitForCloseAnimationToFinish)
+					destroyOnAnimationCompleted = true;
+				else
+				{
+					StopCoroutine(animationCoroutine);
+					Destroy(gameObject);
+				}
+			}
+			else
+				Destroy(gameObject);
 		}
 
 		/// <summary>
