@@ -1,4 +1,4 @@
-﻿namespace AtomosZ.RPG.Battle.Actors.Commands
+﻿namespace AtomosZ.RPG.Actors.Battle
 {
 	public enum CommandState
 	{

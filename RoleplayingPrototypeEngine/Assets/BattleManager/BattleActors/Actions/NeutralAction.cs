@@ -1,8 +1,9 @@
 ﻿using AtomosZ.ActorStateMachine.Actions;
+using AtomosZ.RPG.BattleManagerUtils;
 using AtomosZ.RPG.Characters;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.Actors.Actions
+namespace AtomosZ.RPG.Actors.Battle
 {
 	/// <summary>
 	/// Does nothing but wait for ABP to charge or for command input.

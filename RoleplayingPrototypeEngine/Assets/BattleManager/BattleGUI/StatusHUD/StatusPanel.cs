@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.Battle.Actors;
+using AtomosZ.RPG.Actors.Battle;
 using AtomosZ.RPG.Characters;
 using TMPro;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Battle
 {
 	/// <summary>
 	/// StatusPanel View-Controller.

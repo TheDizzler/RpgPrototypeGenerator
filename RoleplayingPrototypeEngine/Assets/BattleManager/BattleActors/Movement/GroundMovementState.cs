@@ -1,7 +1,8 @@
 ﻿using AtomosZ.ActorStateMachine.Movement;
+using AtomosZ.RPG.Actors.Battle;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.Actors.Movement
+namespace AtomosZ.RPG.Actors.Movement
 {
 	public class GroundMovementState : MovementState<BattleActor>
 	{
@@ -27,7 +28,5 @@ namespace AtomosZ.RPG.Battle.Actors.Movement
 		{
 			Debug.Log("Exiting GroundMovement");
 		}
-
-
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using AtomosZ.ActorStateMachine.Controllers;
 
-namespace AtomosZ.RPG.Battle.Actors.Controllers
+namespace AtomosZ.RPG.Actors.Controllers.Battle
 {
 	/// <summary>
 	/// Virtual controller for controlling logic of a BattleActor (AI Behaviour Tree, player input, etc.).

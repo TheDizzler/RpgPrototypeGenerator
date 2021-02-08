@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using AtomosZ.RPG.Battle.Actors;
-using AtomosZ.RPG.Battle.Actors.Commands;
-using AtomosZ.RPG.Battle.Tactical.Controllers;
-using AtomosZ.RPG.UI.Panels;
-using TMPro;
+﻿using AtomosZ.RPG.Actors.Battle;
+using AtomosZ.RPG.Actors.Controllers.Battle;
+using AtomosZ.UI;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Panels
 {
 	/// <summary>
 	/// Each Player has their own (1) CommandPanel that is shared amongst their BattleActors.
 	/// </summary>
+	[System.Obsolete("I like the idea of having a Player owned command panel" +
+		" but this needs to be changed to the new Panel system")]
 	public class ActiveCommandPanel : CommandPanel
 	{
 		[SerializeField] private Vector2 screenPosition = Vector2.zero;
@@ -26,10 +25,9 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
 		public void SetPanelToController(PlayerTacticalController player)
 		{
 			owningPlayer = player;
-			base.SetPanelToController(player);
 		}
 
-		public void OpenPanelFor(BattleActor actor)
+		public void DisplayCommandsFor(BattleActor actor)
 		{
 			battleActor = actor;
 			base.OpenPanel(actor.GetRegularCommands(), screenPosition);
@@ -42,8 +40,7 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
 		/// <returns></returns>
 		public CommandData ClosePanelAndSetActorAction()
 		{
-			
-			CommandData selectedCommand = (CommandData)GetSelected(); 
+			CommandData selectedCommand = (CommandData)GetSelected();
 			base.ClosePanel();
 
 			battleActor.TrySetCommandState(selectedCommand);

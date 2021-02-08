@@ -1,8 +1,8 @@
-﻿using AtomosZ.ActorStateMachine.Actions;
-using AtomosZ.RPG.UI.Panels;
+﻿using AtomosZ.RPG.UI.Panels;
 
 namespace AtomosZ.RPG.UI.Controllers
 {
+	[System.Obsolete("I think we can ditch this now")]
 	public interface IUIController
 	{
 		/// <summary>

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.Battle.Actors;
 using AtomosZ.RPG.Characters;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Battle
 {
 	public class BattleBar : MonoBehaviour
 	{

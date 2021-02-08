@@ -1,11 +1,13 @@
-﻿using AtomosZ.RPG.Battle.Actors;
-using AtomosZ.RPG.Battle.Actors.Commands;
+﻿using AtomosZ.RPG.Actors.Battle;
 using AtomosZ.RPG.Characters;
 using TMPro;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.UI
 {
+	/// <summary>
+	/// @TODO: Change this to use new Panel system.
+	/// </summary>
 	public class InfoPanel : MonoBehaviour
 	{
 		[SerializeField] private TextMeshProUGUI basicCostText = null;
@@ -14,7 +16,7 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
 
 		public void SetDetails(CommandData state)
 		{
-			string displayText = ""; 
+			string displayText = "";
 			displayText += ActorStat.battleStatTMPIcons[ActorStatType.STAM] + " " + state.stamCost;
 			displayText += ActorStat.battleStatTMPIcons[ActorStatType.ABP] + " " + state.abpCost;
 			basicCostText.text = displayText;

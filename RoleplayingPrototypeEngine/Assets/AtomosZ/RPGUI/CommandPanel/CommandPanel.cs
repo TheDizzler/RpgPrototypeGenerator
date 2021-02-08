@@ -9,6 +9,7 @@ namespace AtomosZ.RPG.UI.Panels
 	/// <summary>
 	/// A generic Panel UI with selectable items, ex: Item list, Action list, Magic list.
 	/// </summary>
+	[System.Obsolete("Replace with SelectionPanel")]
 	public class CommandPanel : MonoBehaviour
 	{
 		public Vector2 panelMargin = new Vector2(20, 30);
@@ -159,7 +160,7 @@ namespace AtomosZ.RPG.UI.Panels
 		}
 	}
 
-
+	[System.Obsolete("No longer necessary with SelectionPanel")]
 	public class ListItem
 	{
 		/// <summary>
@@ -172,6 +173,7 @@ namespace AtomosZ.RPG.UI.Panels
 	/// A ListItem that opens a submenu when selected.
 	/// ListItem.name becomes the header for the new menu.
 	/// </summary>
+	[System.Obsolete("No longer necessary with SelectionPanel")]
 	public class ListItemContainer : ListItem
 	{
 		public List<ListItem> items;
@@ -201,8 +203,8 @@ namespace AtomosZ.RPG.UI.Panels
 		}
 	}
 
-
-	public class ChooseTargetListItem : ListItem
+	[System.Obsolete("No longer necessary with SelectionPanel")]
+	public class ChooseTargetListItem_Obsolete : ListItem
 	{
 		/// <summary>
 		/// Is this ability used primarily as an attack? If true, starts selecting enemies first.

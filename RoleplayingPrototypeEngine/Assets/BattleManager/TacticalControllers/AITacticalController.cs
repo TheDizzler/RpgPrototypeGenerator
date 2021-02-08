@@ -1,13 +1,12 @@
-﻿using AtomosZ.ActorStateMachine.Actions;
-using AtomosZ.RPG.Battle.Actors;
+﻿using AtomosZ.RPG.Actors.Battle;
 
-namespace AtomosZ.RPG.Battle.Tactical.Controllers
+namespace AtomosZ.RPG.Actors.Controllers.Battle
 {
 	public class AITacticalController : ITacticalController
 	{
 		public override void ABPFull(BattleActor battleActor)
 		{
-			
+
 		}
 	}
 }

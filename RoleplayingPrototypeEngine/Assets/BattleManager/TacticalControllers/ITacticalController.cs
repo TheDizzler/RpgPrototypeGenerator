@@ -1,8 +1,7 @@
-﻿using AtomosZ.ActorStateMachine.Actions;
-using AtomosZ.RPG.Battle.Actors;
+﻿using AtomosZ.RPG.Actors.Battle;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle
+namespace AtomosZ.RPG.Actors.Controllers
 {
 	/// <summary>
 	/// Virtual Controller for controlling a battle scene.

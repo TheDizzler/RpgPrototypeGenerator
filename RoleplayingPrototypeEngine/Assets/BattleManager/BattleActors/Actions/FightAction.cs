@@ -1,9 +1,8 @@
 ﻿using AtomosZ.ActorStateMachine.Actions;
-using AtomosZ.RPG.Battle.Actors.Actions;
-using AtomosZ.RPG.Battle.BattleManagerUtils;
+using AtomosZ.RPG.BattleManagerUtils;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.Actors
+namespace AtomosZ.RPG.Actors.Battle
 {
 	public class FightAction : ActionState<BattleActor>, ICommandAction
 	{

@@ -1,12 +1,12 @@
 ﻿using AtomosZ.ActorStateMachine;
 using AtomosZ.ActorStateMachine.Actors;
-using AtomosZ.RPG.Battle.BattleManagerUtils;
-using AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas;
-using AtomosZ.RPG.Battle.Tactical.Controllers;
+using AtomosZ.RPG.Actors.Controllers.Battle;
+using AtomosZ.RPG.BattleManagerUtils;
+using AtomosZ.RPG.UI.Panels;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AtomosZ.RPG.Battle.Actors.Controllers
+namespace AtomosZ.RPG.Actors.Battle.Controllers
 {
 	/// <summary>
 	/// Controller used for directly controlling an actor.

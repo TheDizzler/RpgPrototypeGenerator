@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Battle
 {
 	[CreateAssetMenu(menuName = "GUI/BattleBarStyleObject")]
 	public class BattleBarStyle : ScriptableObject

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.Battle.Actors;
+using AtomosZ.RPG.Actors.Battle;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Battle
 {
 	public class BattleStatusHUD : MonoBehaviour
 	{

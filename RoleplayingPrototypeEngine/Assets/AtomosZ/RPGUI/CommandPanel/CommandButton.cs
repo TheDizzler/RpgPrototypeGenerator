@@ -1,9 +1,9 @@
 ﻿using System;
-using AtomosZ.RPG.Battle.Actors.Commands;
+using AtomosZ.RPG.Actors.Battle;
 using TMPro;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas
+namespace AtomosZ.RPG.UI.Panels
 {
 	[Obsolete]
 	public class CommandButton : MonoBehaviour

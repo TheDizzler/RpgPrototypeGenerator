@@ -1,6 +1,4 @@
-﻿using AtomosZ.RPG.Battle.BattleManagerUtils;
-
-namespace AtomosZ.RPG.Battle.Actors.Actions
+﻿namespace AtomosZ.RPG.Actors.Battle
 {
 	public enum CommandActionPhase
 	{

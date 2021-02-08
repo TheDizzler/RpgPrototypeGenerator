@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using AtomosZ.UI.Animations;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AtomosZ.UI
 {
@@ -8,7 +6,7 @@ namespace AtomosZ.UI
 	{
 		void Show(bool skipAnimation = false);
 		void Hide(bool skipAnimation = false);
-		void Destroy(bool waitForCloseAnimationToFinish = true);
+		void DestroyPanel();
 		RectTransform GetRect();
 	}
 }

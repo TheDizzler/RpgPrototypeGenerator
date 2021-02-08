@@ -1,7 +1,7 @@
 ﻿using AtomosZ.ActorStateMachine.Actions;
 using AtomosZ.RPG.UI.Panels;
 
-namespace AtomosZ.RPG.Battle.Actors.Commands
+namespace AtomosZ.RPG.Actors.Battle
 {
 	public class CommandData : ListItem
 	{

@@ -261,14 +261,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db78037ad35943d438095c63356475a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cpPrefab: {fileID: 5312654753413235928, guid: 3ace43d39f349264c81478a776830129,
-    type: 3}
+  minDistForSelectionChange: 0.1
   battleCanvas: {fileID: 810804431}
   battleStatus: {fileID: 810804433}
   npcPanel: {fileID: 810804432}
   attackResultOverlay: {fileID: 292675621}
-  commandPanelHolder: {fileID: 810804430}
-  commandPanelPrefab: {fileID: 1588662282886263750, guid: 04aee6d38f1059946a86d300d0e1f3c4,
+  selectionPanelPrefab: {fileID: 2114536265620577052, guid: 5f509ef111acc5241be60bd8439bb6a7,
+    type: 3}
+  pointerPrefab: {fileID: 5103921053372409504, guid: 8d760abde3023f248b0e5074fa44ec3b,
     type: 3}
 --- !u!114 &210591261
 MonoBehaviour:
@@ -842,12 +842,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d014695532d1f344b93bb4c4c2ba02dd, type: 3}
---- !u!1 &810804430 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6750935731768451373, guid: d014695532d1f344b93bb4c4c2ba02dd,
-    type: 3}
-  m_PrefabInstance: {fileID: 810804429}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &810804431 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6750935731657244999, guid: d014695532d1f344b93bb4c4c2ba02dd,

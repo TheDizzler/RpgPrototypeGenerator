@@ -1,15 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using AtomosZ.ActorStateMachine;
-using AtomosZ.RPG.Battle.Actors;
-using AtomosZ.RPG.Battle.Actors.Actions;
-using AtomosZ.RPG.Battle.BattleManagerUtils.BattleCanvas;
-using AtomosZ.RPG.Battle.Tactical.Controllers;
+using AtomosZ.RPG.Actors.Battle;
+using AtomosZ.RPG.Actors.Controllers.Battle;
 using AtomosZ.RPG.Characters;
+using AtomosZ.RPG.UI.Battle;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Random = UnityEngine.Random;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils
+namespace AtomosZ.RPG.BattleManagerUtils
 {
 	public class BattleAction
 	{
@@ -48,6 +49,9 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils
 
 		public BattleTimer battleTimer;
 		public BattleHUD battleHUD;
+		/// <summary>
+		/// List of queued actions in order that they were set.
+		/// </summary>
 		public LinkedList<BattleAction> battleActions = new LinkedList<BattleAction>();
 
 		/// <summary>
@@ -241,6 +245,14 @@ namespace AtomosZ.RPG.Battle.BattleManagerUtils
 			battleActions.AddLast(new BattleAction(battleActor, target, actionState));
 		}
 
+		/// <summary>
+		/// Returns array of length two of a List of BattleActors.
+		/// First list is all enemyCharacters.
+		/// Second list is all playerCharacters.
+		/// @Changing this to two dictionaries so can look up by object instead of index
+		/// would be safer.
+		/// </summary>
+		/// <returns></returns>
 		public List<BattleActor>[] GetAllTargets()
 		{
 			List<BattleActor>[] actors = new List<BattleActor>[2];

@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AtomosZ.ActorStateMachine.Actions;
 using AtomosZ.ActorStateMachine.Actors;
 using AtomosZ.ActorStateMachine.Animation;
 using AtomosZ.ActorStateMachine.Movement;
-using AtomosZ.RPG.Battle.Actors.Actions;
-using AtomosZ.RPG.Battle.Actors.Commands;
-using AtomosZ.RPG.Battle.Actors.Movement;
-using AtomosZ.RPG.Battle.BattleManagerUtils;
+using AtomosZ.RPG.Actors.Controllers;
+using AtomosZ.RPG.Actors.Movement;
+using AtomosZ.RPG.BattleManagerUtils;
 using AtomosZ.RPG.Characters;
 using AtomosZ.RPG.UI.Panels;
+using AtomosZ.UI;
 using UnityEngine;
-using static AtomosZ.RPG.Battle.BattleManagerUtils.ActionContest;
-using static AtomosZ.RPG.Battle.BattleTimer;
+using static AtomosZ.RPG.Actors.Battle.ActionContest;
+using static AtomosZ.RPG.BattleManagerUtils.BattleTimer;
 
-namespace AtomosZ.RPG.Battle.Actors
+namespace AtomosZ.RPG.Actors.Battle
 {
 	public class BattleActor : Actor<BattleActor, RPGActorData>
 	{
 		public override float movementSpeed { get; }
 		public BattleActor currentTarget = null;
 
+		[SerializeField]
+		private GameObject battleCommandHolder = null;
 		private ITacticalController tacticalController;
 		private BattleManager battleManager;
 		private CommandState commandState;
@@ -31,12 +32,19 @@ namespace AtomosZ.RPG.Battle.Actors
 		/// </summary>
 		private List<CommandData> regularCommands = new List<CommandData>();
 		private bool ignoreNextPause;
-
+		private List<ISelectionItem> commandList;
 
 		void OnEnable()
 		{
 			battleManager = GameObject.FindGameObjectWithTag(Tags.BattleManager).GetComponent<BattleManager>();
 			BattleTimer.OnBattleTimePaused += OnBattleTimePause;
+
+			commandList = new List<ISelectionItem>();
+			BattleActorCommand[] commands = battleCommandHolder.GetComponents<BattleActorCommand>();
+			foreach (var command in commands)
+			{
+				commandList.Add(command.GetCommand());
+			}
 		}
 
 		void OnDestroy()
@@ -112,6 +120,11 @@ namespace AtomosZ.RPG.Battle.Actors
 			tacticalController = tactCntrl;
 		}
 
+		public ITacticalController GetTacticalController()
+		{
+			return tacticalController;
+		}
+
 		public List<ActorStat> GetBattleBars()
 		{
 			return statList;
@@ -123,6 +136,10 @@ namespace AtomosZ.RPG.Battle.Actors
 			return battleStats[statType];
 		}
 
+		public List<ISelectionItem> GetBattleCommandList()
+		{
+			return commandList;
+		}
 
 		public ListItemContainer GetRegularCommands()
 		{
@@ -179,7 +196,6 @@ namespace AtomosZ.RPG.Battle.Actors
 
 		protected override void UpdateActor()
 		{
-
 			inputQueue.Clear();
 		}
 

@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle
+namespace AtomosZ.RPG.UI.Battle
 {
 	public class NPCPanel : MonoBehaviour
 	{

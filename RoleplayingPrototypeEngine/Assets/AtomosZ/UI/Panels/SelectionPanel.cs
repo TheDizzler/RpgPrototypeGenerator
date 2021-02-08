@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using AtomosZ.UI.Animations;
 using TMPro;
@@ -64,6 +63,7 @@ namespace AtomosZ.UI
 		private Scrollbar scrollbar = null;
 
 		private List<List<TextMeshProUGUI>> selectionList;
+		private Coroutine animationCoroutine;
 		private Coroutine resizeCoroutine;
 #if UNITY_EDITOR
 		private EditorCoroutine editorResizeCoroutine;
@@ -77,7 +77,7 @@ namespace AtomosZ.UI
 		private bool selectionChanged = false;
 		private Vector3 itemSize;
 		private bool destroyOnAnimationCompleted;
-		private Coroutine animationCoroutine;
+
 
 		public int GetSelectedIndex()
 		{
@@ -149,12 +149,11 @@ namespace AtomosZ.UI
 
 		public void OnOpenAnimationCompleteCallback()
 		{
-			Debug.Log("Open Animation completed.");
+			// do nothing
 		}
 
 		public void OnCloseAnimationCompleteCallback()
 		{
-			Debug.Log("Close Animation completed.");
 			if (destroyOnAnimationCompleted)
 				Destroy(gameObject);
 			else
@@ -193,18 +192,13 @@ namespace AtomosZ.UI
 		}
 
 
-		public void Destroy(bool waitForCloseAnimationToFinish = true)
+		/// <summary>
+		/// If animation playing, waits for it to complete before destroying.
+		/// </summary>
+		public void DestroyPanel()
 		{
 			if (animationCoroutine != null)
-			{
-				if (waitForCloseAnimationToFinish)
-					destroyOnAnimationCompleted = true;
-				else
-				{
-					StopCoroutine(animationCoroutine);
-					Destroy(gameObject);
-				}
-			}
+				destroyOnAnimationCompleted = true;
 			else
 				Destroy(gameObject);
 		}
@@ -298,7 +292,8 @@ namespace AtomosZ.UI
 		public void SetOptionList(List<string> newOptions, string headerText, int startSelectionIndex = 0)
 		{
 			SetOptionList(newOptions, startSelectionIndex);
-			SetHeader(headerText);
+			if (!string.IsNullOrEmpty(headerText))
+				SetHeader(headerText);
 		}
 
 

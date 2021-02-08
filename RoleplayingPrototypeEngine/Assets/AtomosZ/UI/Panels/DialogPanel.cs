@@ -70,12 +70,11 @@ namespace AtomosZ.UI
 
 		public void OnOpenAnimationCompleteCallback()
 		{
-			Debug.Log("Open Animation completed.");
+			// do nothing
 		}
 
 		public void OnCloseAnimationCompleteCallback()
 		{
-			Debug.Log("Close Animation completed.");
 			if (destroyOnAnimationCompleted)
 				Destroy(gameObject);
 			else
@@ -114,19 +113,13 @@ namespace AtomosZ.UI
 				closeEvent.RunAnimation(this, OnCloseAnimationCompleteCallback));
 		}
 
-
-		public void Destroy(bool waitForCloseAnimationToFinish = true)
+		/// <summary>
+		/// If animation playing, waits for it to complete before destroying.
+		/// </summary>
+		public void DestroyPanel()
 		{
 			if (animationCoroutine != null)
-			{
-				if (waitForCloseAnimationToFinish)
-					destroyOnAnimationCompleted = true;
-				else
-				{
-					StopCoroutine(animationCoroutine);
-					Destroy(gameObject);
-				}
-			}
+				destroyOnAnimationCompleted = true;
 			else
 				Destroy(gameObject);
 		}

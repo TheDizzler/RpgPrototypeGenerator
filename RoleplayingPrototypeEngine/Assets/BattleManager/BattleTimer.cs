@@ -1,8 +1,7 @@
 ﻿using System;
-using AtomosZ.RPG.Battle.BattleManagerUtils;
 using UnityEngine;
 
-namespace AtomosZ.RPG.Battle
+namespace AtomosZ.RPG.BattleManagerUtils
 {
 	public class BattleTimer : MonoBehaviour
 	{

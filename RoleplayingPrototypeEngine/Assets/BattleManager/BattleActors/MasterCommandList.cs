@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AtomosZ.RPG.Battle.Actors.Commands
+namespace AtomosZ.RPG.Actors.Battle
 {
 	/// <summary>
 	/// List of all available combat commands.

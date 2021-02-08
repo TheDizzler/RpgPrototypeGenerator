@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.Battle.Actors;
+using AtomosZ.RPG.BattleManagerUtils;
 
-namespace AtomosZ.RPG.Battle.BattleManagerUtils
+namespace AtomosZ.RPG.Actors.Battle
 {
 	public class ActionContest
 	{
