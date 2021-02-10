@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace AtomosZ.UniversalEditorTools.SpriteTools
@@ -16,12 +17,15 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 		private Vector2 scrollPosition;
 		private string filter;
 		private bool isLoop = true;
+		private AnimatorController animatorController;
 
 
 		[MenuItem("Tools/CreateAnimations")]
 		public static void CreateAnimations()
 		{
-			GetWindow(typeof(AnimationsFromSpriteSheet)).Show();
+			var window = GetWindow(typeof(AnimationsFromSpriteSheet));
+			window.titleContent = new GUIContent("Animation Finder");
+			window.Show();
 		}
 
 		public static void DrawHorizontalUILine(Color color, int thickness = 2, int padding = 10)
@@ -41,32 +45,47 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 			GUILayout.BeginHorizontal();
 			{
 				GUILayout.Label("Sheet to find animations:", EditorStyles.boldLabel);
-
-				spritesheet = (Texture2D)EditorGUILayout.ObjectField(spritesheet, typeof(Texture2D), false/*, GUILayout.Width(220)*/);
+				spritesheet = (Texture2D)EditorGUILayout.ObjectField(spritesheet, typeof(Texture2D), false);
 			}
 			GUILayout.EndHorizontal();
 
-			GUILayout.BeginHorizontal();
+			if (GUILayout.Button("Refresh"))
 			{
-				GUILayout.Label("Frame Rate: ");
-				frameRate = EditorGUILayout.DelayedIntField(frameRate);
-				isLoop = EditorGUILayout.ToggleLeft("Loop", isLoop);
-			}
-			GUILayout.EndHorizontal();
-
-			string search = EditorGUILayout.DelayedTextField("Filter: ", filter);
-			if (search != filter)
-			{
-				filter = search;
-			}
-
-			GUILayout.Space(25f);
-
-			if (EditorGUI.EndChangeCheck())
 				animations = null;
+			}
 
 			if (spritesheet != null)
 			{
+				GUILayout.BeginHorizontal(EditorStyles.helpBox);
+				{
+					EditorGUILayout.LabelField("Animator Controller", GUILayout.Width(115));
+					animatorController = (AnimatorController)EditorGUILayout.ObjectField(
+						animatorController, typeof(AnimatorController), false);
+				}
+				GUILayout.EndHorizontal();
+
+				GUILayout.BeginHorizontal();
+				{
+					GUILayout.Label("Frame Rate: ");
+					frameRate = EditorGUILayout.DelayedIntField(frameRate);
+					if (frameRate < 1)
+						frameRate = 1;
+					isLoop = EditorGUILayout.ToggleLeft("Loop", isLoop);
+				}
+				GUILayout.EndHorizontal();
+
+				string search = EditorGUILayout.DelayedTextField("Filter: ", filter);
+				if (search != filter)
+				{
+					filter = search;
+				}
+
+				GUILayout.Space(25f);
+
+				if (EditorGUI.EndChangeCheck())
+					animations = null;
+
+
 				if (animations == null)
 					if (!ScrapeForAnimations())
 					{
@@ -88,9 +107,9 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 					string fullpath = EditorUtility.SaveFolderPanel(
 						"Select Folder to save animations",
 						Application.dataPath + "/../" + lastSavedFolderPath, "");
-					if (fullpath.Length != 0)
+					if (fullpath.Length != 0 && AnimatorControllerIsValid(fullpath))
 					{
-						string folderPath = fullpath.Substring(fullpath.LastIndexOf("Assets"));
+						string folderPath = fullpath.Substring(fullpath.IndexOf("Assets"));
 
 						foreach (AnimationCreationData animData in animations)
 						{
@@ -115,7 +134,8 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 							{
 								if (create)
 									++amtToCreate;
-								else --amtToCreate;
+								else
+									--amtToCreate;
 								animData.create = create;
 							}
 
@@ -130,7 +150,6 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 					}
 				}
 				GUILayout.EndScrollView();
-
 			}
 		}
 
@@ -152,10 +171,29 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 			string path = EditorUtility.SaveFilePanelInProject(
 						"Create New Animation", animData.name, "anim",
 						"Where to save animation?", lastSavedFolderPath);
-			if (path.Length != 0)
+			if (path.Length != 0 && AnimatorControllerIsValid(path))
 			{
 				CreateAnimation(path, animData);
 			}
+		}
+
+
+		private bool AnimatorControllerIsValid(string filepath)
+		{
+			if (animatorController == null)
+			{
+				Debug.Log(filepath);
+				string folderPath = filepath.Substring(filepath.IndexOf("Assets"));
+				Debug.Log(folderPath);
+				animatorController = new AnimatorController();
+				AssetDatabase.CreateAsset(animatorController, folderPath + "/" + spritesheet.name + "Animator.controller");
+				animatorController.AddLayer("Base Layer");
+				animatorController.name = "what a name";
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh();
+			}
+
+			return true;
 		}
 
 
@@ -201,7 +239,13 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 			}
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
+
+			animatorController.AddMotion(clip);
+
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
 		}
+
 
 
 		private bool ScrapeForAnimations()
@@ -209,7 +253,7 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 			amtToCreate = 0;
 			string path = AssetDatabase.GetAssetPath(spritesheet);
 
-			UnityEngine.Object[] spriteObjs = AssetDatabase.LoadAllAssetsAtPath(path);
+			Object[] spriteObjs = AssetDatabase.LoadAllAssetsAtPath(path);
 
 			animations = new List<AnimationCreationData>();
 			Dictionary<string, AnimationCreationData> lookup = new Dictionary<string, AnimationCreationData>();

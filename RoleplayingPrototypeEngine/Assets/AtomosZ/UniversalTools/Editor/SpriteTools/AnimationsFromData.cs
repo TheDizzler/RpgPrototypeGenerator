@@ -24,7 +24,9 @@ namespace AtomosZ.UniversalEditorTools.SpriteTools
 		[MenuItem("Tools/CreateAnimationsFromData")]
 		public static void CreateAnimations()
 		{
-			GetWindow(typeof(AnimationsFromData)).Show();
+			var window = GetWindow(typeof(AnimationsFromData));
+			window.titleContent = new GUIContent("Animation Creator");
+			window.Show();
 		}
 
 		void OnGUI()
