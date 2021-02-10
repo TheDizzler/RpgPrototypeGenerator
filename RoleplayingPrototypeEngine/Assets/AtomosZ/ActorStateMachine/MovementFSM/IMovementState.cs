@@ -2,7 +2,7 @@
 
 namespace AtomosZ.ActorStateMachine.Movement
 {
-	public abstract class MovementState<TActor> : IFSMState<MovementStateType>
+	public abstract class MovementState<TActor> : IActorActionFSMState<MovementStateType>
 		where TActor : BaseActor
 	{
 		public MovementStateType movementStateType { get; private set; }

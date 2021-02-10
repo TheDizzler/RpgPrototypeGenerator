@@ -17,12 +17,12 @@ namespace AtomosZ.RPG.UI.Panels
 		[SerializeField] private InfoPanel infoPanel = null;
 #pragma warning restore 0414
 
-		private PlayerTacticalController owningPlayer;
+		private PlayerBattleController owningPlayer;
 		private BattleActor battleActor;
 
 
 
-		public void SetPanelToController(PlayerTacticalController player)
+		public void SetPanelToController(PlayerBattleController player)
 		{
 			owningPlayer = player;
 		}

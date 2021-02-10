@@ -22,7 +22,7 @@ namespace AtomosZ.RPG.Actors.Battle
 
 		[SerializeField]
 		private GameObject battleCommandHolder = null;
-		private ITacticalController tacticalController;
+		private IBattleController tacticalController;
 		private BattleManager battleManager;
 		private CommandState commandState;
 		private List<ActorStat> statList;
@@ -30,9 +30,11 @@ namespace AtomosZ.RPG.Actors.Battle
 		/// <summary>
 		/// Commands that are selectable upon ABP full.
 		/// </summary>
+		[System.Obsolete]
 		private List<CommandData> regularCommands = new List<CommandData>();
 		private bool ignoreNextPause;
 		private List<ISelectionItem> commandList;
+
 
 		void OnEnable()
 		{
@@ -69,6 +71,8 @@ namespace AtomosZ.RPG.Actors.Battle
 			statList = new List<ActorStat>();
 			statList.AddRange(battleStats.Values);
 
+
+			// @TODO add BattleActorCommands to battleCommandHolder
 			foreach (string commandName in data.commands)
 			{
 				if (string.IsNullOrEmpty(commandName))
@@ -82,7 +86,7 @@ namespace AtomosZ.RPG.Actors.Battle
 
 			actionFSM = new ActionFSM<BattleActor>(this, actorAnimator);
 			actionFSM.AddState(ActionType.Stand, new NeutralAction(this));
-			actionFSM.AddState(ActionType.Fight, new FightAction(this));
+			actionFSM.AddState(ActionType.Fight, new FightCommandAction(this));
 
 			actorAnimator = GetComponent<ActorAnimator>();
 			actorAnimator.SetAnimatorController(data);
@@ -115,12 +119,12 @@ namespace AtomosZ.RPG.Actors.Battle
 										 sprite.bounds.size.z / transform.lossyScale.z);
 		}
 
-		public void SetTacticalController(ITacticalController tactCntrl)
+		public void SetTacticalController(IBattleController tactCntrl)
 		{
 			tacticalController = tactCntrl;
 		}
 
-		public ITacticalController GetTacticalController()
+		public IBattleController GetTacticalController()
 		{
 			return tacticalController;
 		}

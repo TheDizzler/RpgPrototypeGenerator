@@ -2,7 +2,7 @@
 
 namespace AtomosZ.ActorStateMachine.Actions
 {
-	public abstract class ActionState<TActor> : IFSMState<ActionType>
+	public abstract class ActionState<TActor> : IActorActionFSMState<ActionType>
 		where TActor : BaseActor
 	{
 		public ActionType actionType { get; private set; }
@@ -12,7 +12,7 @@ namespace AtomosZ.ActorStateMachine.Actions
 		protected ActionState(TActor owner, ActionType actionType)
 		{
 			this.actionType = actionType;
-			this.actor = owner;
+			actor = owner;
 		}
 
 		public abstract void OnEnter();

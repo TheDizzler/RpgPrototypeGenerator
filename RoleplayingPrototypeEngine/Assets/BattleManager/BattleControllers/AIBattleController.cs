@@ -2,7 +2,7 @@
 
 namespace AtomosZ.RPG.Actors.Controllers.Battle
 {
-	public class AITacticalController : ITacticalController
+	public class AIBattleController : IBattleController
 	{
 		public override void ABPFull(BattleActor battleActor)
 		{

@@ -42,7 +42,7 @@ namespace AtomosZ.RPG.BattleManagerUtils
 		public RPGActorData[] pcData;
 		public RPGActorData impData;
 		public GameObject battleActorPrefab;
-		public AITacticalController aiTacticalController;
+		public AIBattleController aiTacticalController;
 
 		public Transform playerActorParent;
 		public Transform enemyActorParent;
@@ -69,6 +69,9 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			new Vector2(7, -1),
 			new Vector2(7, -2),
 		};
+
+		private List<PlayerBattleController> playerControllers =
+			new List<PlayerBattleController>();
 
 
 		void Awake()
@@ -127,7 +130,7 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			  //Debug.Log("Don't need no stinking Keyboard&Mouse");
 				player2 = newPlayer.GetComponent<Player>();
 				foreach (var enemy in enemyCharacters)
-					enemy.SetTacticalController(player2.GetComponent<PlayerTacticalController>());
+					enemy.SetTacticalController(player2.GetComponent<PlayerBattleController>());
 				return;
 			}
 
@@ -136,7 +139,8 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			//player.AddControllableActors(playerActors);
 			if (playerCharacters != null)
 			{
-				PlayerTacticalController ptc = newPlayer.GetComponent<PlayerTacticalController>();
+				PlayerBattleController ptc = newPlayer.GetComponent<PlayerBattleController>();
+				playerControllers.Add(ptc);
 				foreach (var pc in playerCharacters)
 					pc.SetTacticalController(ptc);
 			}
@@ -152,7 +156,11 @@ namespace AtomosZ.RPG.BattleManagerUtils
 				playerCharacters[i] = playerActor.GetComponent<BattleActor>();
 				playerCharacters[i].InjectData(pcData[i]);
 				if (player != null)
-					playerCharacters[i].SetTacticalController(player.GetComponent<PlayerTacticalController>());
+				{
+					var ptc = player.GetComponent<PlayerBattleController>();
+					playerControllers.Add(ptc);
+					playerCharacters[i].SetTacticalController(ptc);
+				}
 			}
 
 			SpawnMonsters();
@@ -163,30 +171,30 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			battleHUD.AddActorsToStatusBar(new List<BattleActor>(playerCharacters));
 		}
 
+
 		private void SpawnMonsters()
 		{
 			enemyCharacters = new List<BattleActor>();
-			//for (int i = 0; i < 6; ++i)
-			//{
-			//	GameObject imp = Instantiate(battleActorPrefab, enemyActorParent);
-			//	imp.transform.position = new Vector2(-5 + Random.Range(-2, 2), Random.Range(-4, 1.75f));
-			//	BattleActor impBA = imp.GetComponent<BattleActor>();
-			//	impBA.InjectData(impData);
-			//	impBA.SetTacticalController(aiTacticalController);
-			//	enemyCharacters.Add(impBA);
-			//}
+			for (int i = 0; i < 6; ++i)
+			{
+				GameObject imp = Instantiate(battleActorPrefab, enemyActorParent);
+				imp.transform.position = new Vector2(-5 + Random.Range(-2, 2), Random.Range(-4, 1.75f));
+				BattleActor impBA = imp.GetComponent<BattleActor>();
+				impBA.InjectData(impData);
+				impBA.SetTacticalController(aiTacticalController);
+				enemyCharacters.Add(impBA);
+			}
 
-			GameObject enemyFaris = Instantiate(battleActorPrefab, enemyActorParent);
-			enemyFaris.transform.position = new Vector2(-5, -1);
-			BattleActor farisBA = enemyFaris.GetComponent<BattleActor>();
-			farisBA.InjectData(pcData[0]);
-			if (player2 != null)
-				farisBA.SetTacticalController(player2.GetComponent<PlayerTacticalController>());
-			else
-				farisBA.SetTacticalController(aiTacticalController);
-			enemyCharacters.Add(farisBA);
+			//GameObject enemyFaris = Instantiate(battleActorPrefab, enemyActorParent);
+			//enemyFaris.transform.position = new Vector2(-5, -1);
+			//BattleActor farisBA = enemyFaris.GetComponent<BattleActor>();
+			//farisBA.InjectData(pcData[0]);
+			//if (player2 != null)
+			//	farisBA.SetTacticalController(player2.GetComponent<PlayerTacticalController>());
+			//else
+			//	farisBA.SetTacticalController(aiTacticalController);
+			//enemyCharacters.Add(farisBA);
 		}
-
 
 
 		public void OnPlayerLeft(PlayerInput newPlayer)
@@ -220,7 +228,7 @@ namespace AtomosZ.RPG.BattleManagerUtils
 									throw new System.Exception("New target needs to be selected!");
 								}
 
-								battleTimer.PauseRequest(BattleTimer.PauseRequestType.ActionContest);
+								battleTimer.PauseRequest(BattleTimer.PauseRequestType.ActionContest, null);
 								actionContest = battleAction.action.ExecuteAction(battleAction.target);
 								battleActions.Remove(nextActionNode);
 								break;
@@ -233,14 +241,22 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			}
 			else if (actionContest != null)
 			{
-				if (actionContest.OnUpdate())
+				if (actionContest.OnUpdate()) // this is always false....
 				{
 					actionContest = null;
 				}
 			}
 		}
 
-		public void NewBattleAction(BattleActor battleActor, BattleActor target, ICommandAction actionState)
+
+		public void AddBattleAction(ChooseTargetSelectionItem selected, GameObject currentCommandTarget)
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public void NewBattleAction(
+			BattleActor battleActor, BattleActor target, ICommandAction actionState)
 		{
 			battleActions.AddLast(new BattleAction(battleActor, target, actionState));
 		}
@@ -263,23 +279,22 @@ namespace AtomosZ.RPG.BattleManagerUtils
 		}
 
 
-		public void PauseRequested(BattleTimer.PauseRequestType pauseReason, PlayerTacticalController controller)
+		public void ToggleInputAllPlayers(bool enableInput)
 		{
-			battleTimer.PauseRequest(pauseReason);
+			foreach (var player in playerControllers)
+				player.ToggleInput(enableInput);
 		}
 
 
-		//public void OpenActorCommandPanel(PlayerTacticalController playerTacticalController, BattleActor battleActor)
-		//{
-		//	battleTimer.PauseRequest(BattleTimer.PauseRequestType.ChooseCommand);
-		//	battleHUD.OpenCommandPanelFor(playerTacticalController, battleActor);
-		//	selectingCommands.AddLast(playerTacticalController);
-		//}
+		public void PauseRequested(BattleTimer.PauseRequestType pauseReason,
+			PlayerBattleController controller)
+		{
+			battleTimer.PauseRequest(pauseReason, controller);
+		}
 
-		//public void OpenCommand(PlayerTacticalController ptc)
-		//{
-		//	battleHUD.OpenTestPanel();
-		//	selectingCommands.AddLast(ptc);
-		//}
+		public void Unpause(PlayerBattleController controller)
+		{
+			battleTimer.PauseRequest(BattleTimer.PauseRequestType.Unpause, controller);
+		}
 	}
 }

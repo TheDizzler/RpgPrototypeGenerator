@@ -16,5 +16,6 @@
 	{
 		CommandActionPhase GetCommandActionPhase();
 		ActionContest ExecuteAction(BattleActor target);
+		void FinalizeAction();
 	}
 }

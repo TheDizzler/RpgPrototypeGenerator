@@ -182,7 +182,7 @@ MonoBehaviour:
   enemyActorParent: {fileID: 1092915192}
   battleTimer: {fileID: 210591261}
   battleHUD: {fileID: 210591260}
-  isActiveCommand: 1
+  isActiveCommand: 0
 --- !u!114 &210591259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,6 +282,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 326cf05462e376146ad4074bc702cd13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timerDisplay: {fileID: 1993672741}
+  pauseDisplay: {fileID: 810804430}
 --- !u!114 &210591262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -842,6 +844,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d014695532d1f344b93bb4c4c2ba02dd, type: 3}
+--- !u!1 &810804430 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2886890227277322695, guid: d014695532d1f344b93bb4c4c2ba02dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 810804429}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &810804431 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6750935731657244999, guid: d014695532d1f344b93bb4c4c2ba02dd,
@@ -1017,3 +1025,15 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1993672741 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4960875327795416219, guid: d014695532d1f344b93bb4c4c2ba02dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 810804429}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

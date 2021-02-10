@@ -8,7 +8,7 @@ namespace AtomosZ.RPG.Actors.Controllers.Battle
 	/// this is where it would be done.
 	/// </summary>
 	public abstract class IBattleActorController<TTacticalController> : IActorController
-		where TTacticalController : ITacticalController
+		where TTacticalController : IBattleController
 	{
 		protected TTacticalController tacticalController;
 

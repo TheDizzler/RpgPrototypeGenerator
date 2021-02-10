@@ -29,16 +29,16 @@ namespace AtomosZ.RPG.Actors.Battle
 #pragma warning restore 0414
 		private BattleActor initiator;
 		private BattleActor target;
-		private FightAction action;
+		private ICommandAction action;
 		private AttackResult attackResult;
 		private string damageResult;
 
 
-		public ActionContest(BattleActor initiator, BattleActor target, FightAction fa)
+		public ActionContest(BattleActor initiator, BattleActor target, ICommandAction commandAction)
 		{
 			this.initiator = initiator;
 			this.target = target;
-			action = fa;
+			action = commandAction;
 
 			attackResult = PerformContestCalculation();
 			target.TrySetAnimationState(ActorStateMachine.Actions.ActionAnimationState.Guard);

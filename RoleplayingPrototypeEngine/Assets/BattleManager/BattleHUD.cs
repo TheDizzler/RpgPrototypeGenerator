@@ -25,14 +25,14 @@ namespace AtomosZ.RPG.UI.Battle
 		[SerializeField] private GameObject selectionPanelPrefab = null;
 		[SerializeField] private GameObject pointerPrefab = null;
 
-		private Dictionary<PlayerTacticalController, SelectionPanel> selectionPanels
-			= new Dictionary<PlayerTacticalController, SelectionPanel>();
+		private Dictionary<PlayerBattleController, SelectionPanel> selectionPanels
+			= new Dictionary<PlayerBattleController, SelectionPanel>();
 		/// <summary>
 		/// List of pointers (by controller, player or AI) used to target something on the battlefield,
 		/// ex: an enemy with an attack, an ally with a buff, and area to center an AoE.
 		/// </summary>
-		private Dictionary<ITacticalController, GameObject> targetPointers
-			= new Dictionary<ITacticalController, GameObject>();
+		private Dictionary<IBattleController, GameObject> targetPointers
+			= new Dictionary<IBattleController, GameObject>();
 		private Vector3 pointerOffset = new Vector3(-.25f, 0, -1);
 
 
@@ -84,7 +84,7 @@ namespace AtomosZ.RPG.UI.Battle
 		/// <param name="playerController"></param>
 		/// <param name="target"></param>
 		/// <returns></returns>
-		public GameObject SetPointerTarget(PlayerTacticalController playerController, GameObject target)
+		public GameObject SetPointerTarget(PlayerBattleController playerController, GameObject target)
 		{
 			var pointer = targetPointers[playerController];
 			pointer.SetActive(true);

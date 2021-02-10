@@ -11,7 +11,7 @@ namespace AtomosZ.RPG.Actors.Battle.Controllers
 	/// <summary>
 	/// Controller used for directly controlling an actor.
 	/// </summary>
-	public class PlayerBattleActorController : IBattleActorController<PlayerTacticalController>
+	public class PlayerBattleActorController : IBattleActorController<PlayerBattleController>
 	{
 		private Player player;
 		private PlayerInput playerInput;

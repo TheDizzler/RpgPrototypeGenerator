@@ -1,4 +1,5 @@
-﻿using AtomosZ.RPG.Actors.Battle;
+﻿using System.Collections.Generic;
+using AtomosZ.RPG.Actors.Battle;
 using AtomosZ.UI;
 using UnityEngine;
 using UnityEngine.Events;
@@ -30,6 +31,23 @@ namespace AtomosZ.RPG.UI.Battle
 		public ISelectionType GetSelectionType()
 		{
 			return ISelectionType.ItemSelected;
+		}
+	}
+
+	public class ChooseTargetsSeletionItem<T> : ISelectionItem
+		where T : List<GameObject>
+	{
+		public T targetList;
+
+
+		public string GetName()
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public ISelectionType GetSelectionType()
+		{
+			throw new System.NotImplementedException();
 		}
 	}
 }

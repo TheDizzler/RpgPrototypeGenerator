@@ -7,7 +7,7 @@ namespace AtomosZ.RPG.Actors.Controllers
 	/// Virtual Controller for controlling a battle scene.
 	/// 
 	/// </summary>
-	public abstract class ITacticalController : MonoBehaviour
+	public abstract class IBattleController : MonoBehaviour
 	{
 		/// <summary>
 		/// Opens Command UI if player, runs behaviour tree if AI.

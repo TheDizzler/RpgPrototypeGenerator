@@ -14,7 +14,7 @@ namespace AtomosZ.RPG.Actors.Controllers.Battle
 	/// <summary>
 	/// Player controller in a battle scene. No possesion of Actors is permitted.
 	/// </summary>
-	public class PlayerTacticalController : ITacticalController
+	public class PlayerBattleController : IBattleController
 	{
 		public InputActionAsset tacticalInput;
 		/// <summary>
@@ -36,6 +36,7 @@ namespace AtomosZ.RPG.Actors.Controllers.Battle
 		/// </summary>
 		private BattleActor currentBattleActor;
 		private CommandSelectFSM commandFSM;
+		private bool isInputEnabled = false;
 
 
 		void Start()
@@ -55,6 +56,10 @@ namespace AtomosZ.RPG.Actors.Controllers.Battle
 				throw new System.Exception("f");
 		}
 
+		public void ToggleInput(bool enable)
+		{
+			isInputEnabled = enable;
+		}
 
 		public void OnPause(InputValue value)
 		{
@@ -96,7 +101,8 @@ namespace AtomosZ.RPG.Actors.Controllers.Battle
 
 		void Update()
 		{
-			commandFSM.UpdateState(uiInputQueue);
+			if (isInputEnabled)
+				commandFSM.UpdateState(uiInputQueue);
 			uiInputQueue.Clear();
 		}
 

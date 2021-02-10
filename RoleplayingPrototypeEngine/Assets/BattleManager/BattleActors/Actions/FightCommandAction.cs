@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace AtomosZ.RPG.Actors.Battle
 {
-	public class FightAction : ActionState<BattleActor>, ICommandAction
+	public class FightCommandAction : ActionState<BattleActor>, ICommandAction
 	{
 		private float timeStarted;
 		private CommandActionPhase phase;
 		private ActionContest actionContest;
 
 
-		public FightAction(BattleActor owner)
+		public FightCommandAction(BattleActor owner)
 			: base(owner, ActionType.Fight) { }
 
 

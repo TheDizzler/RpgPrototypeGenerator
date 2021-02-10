@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using AtomosZ.RPG.Actors.Controllers.Battle;
+using TMPro;
 using UnityEngine;
 
 namespace AtomosZ.RPG.BattleManagerUtils
@@ -15,19 +19,16 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			ChooseCommand,
 			/// <summary>
 			/// User requested game to be paused, ex: + on joycon, Esc on keyboard, start on PS controller.
-			/// Should be a Hard Pause 
-			/// (i.e. not only BattleTime stops but all animations and currently running animations)
-			/// Probably best just to handle through Unity.Time.
+			/// This is a Hard Pause using Time.timeScale = 0.
+			/// Should probably block user input to except for the user that requested the pause.
 			/// </summary>
 			GamePause,
 			/// <summary>
 			/// An input controller was disconnected.
-			/// Should be a Hard Pause 
-			/// (i.e. not only BattleTime stops but all animations and currently running animations)
-			/// Probably best just to handle through Unity.Time.
+			/// This is a Hard Pause using Time.timeScale = 0.
+			/// @TODO: block user input except for pause button from user who paused.
 			/// </summary>
 			ControllerLost,
-
 			/// <summary>
 			/// Unpause request if ActiveTime disabled.
 			/// </summary>
@@ -51,9 +52,15 @@ namespace AtomosZ.RPG.BattleManagerUtils
 		public static bool isRunning { get; private set; }
 		public static Action<PauseRequestType> OnBattleTimePaused;
 
+		public TextMeshProUGUI timerDisplay;
+		public GameObject pauseDisplay;
+
 		private bool unpauseThisUpdate;
 		private bool pauseThisUpdate;
 		private PauseRequestType reasonForPause = PauseRequestType.NotPaused;
+		private Dictionary<PlayerBattleController, PauseRequestType> playersRequestedPause
+			= new Dictionary<PlayerBattleController, PauseRequestType>();
+		private PlayerBattleController hardPauseRequestedBy;
 
 
 		public static bool isPaused
@@ -67,6 +74,16 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			battleTime = 0;
 			sceneTime = 0;
 			isRunning = false;
+			StartCoroutine(WaitToStart());
+		}
+
+		private IEnumerator WaitToStart()
+		{
+			yield return null;
+			yield return null;
+			yield return null;
+			isRunning = true;
+			GetComponent<BattleManager>().ToggleInputAllPlayers(true);
 		}
 
 		void Update()
@@ -74,6 +91,8 @@ namespace AtomosZ.RPG.BattleManagerUtils
 			if (isRunning)
 			{
 				battleTime += Time.deltaTime;
+				var time = TimeSpan.FromSeconds(battleTime);
+				timerDisplay.SetText(time.ToString("mm':'ss'.'fff"));
 			}
 
 			sceneTime += Time.deltaTime;
@@ -88,7 +107,8 @@ namespace AtomosZ.RPG.BattleManagerUtils
 				OnBattleTimePaused(reasonForPause);
 				if (unpauseThisUpdate)
 				{
-					throw new System.Exception("Pause and unpause requested on same update!");
+					throw new System.Exception("Pause and unpause requested on same update!" +
+						"If this is multiplayer this can probably default to paused?");
 				}
 			}
 			else if (unpauseThisUpdate)
@@ -105,40 +125,73 @@ namespace AtomosZ.RPG.BattleManagerUtils
 		/// </summary>
 		/// <param name="reason"></param>
 		/// <returns></returns>
-		public bool PauseRequest(PauseRequestType reason)
+		public bool PauseRequest(PauseRequestType reason, PlayerBattleController controller)
 		{
 			switch (reason)
 			{
+				case PauseRequestType.Unpause:
+					if (!playersRequestedPause.Remove(controller))
+					{
+						Debug.LogError("Player did not request pause");
+					}
+					else if (playersRequestedPause.Count == 0)
+					{
+						unpauseThisUpdate = true;
+					}
+					break;
+
 				case PauseRequestType.ChooseCommand:
 					if (!BattleManager.instance.isActiveCommand)
 					{
 						pauseThisUpdate = true;
 						reasonForPause = reason;
+						playersRequestedPause.Add(controller, reason);
 					}
 					break;
+
 				case PauseRequestType.ControllerLost:
 					pauseThisUpdate = true;
 					reasonForPause = reason;
 					throw new System.Exception("Need pop-up to handle controller disconnect!");
+
 				case PauseRequestType.GamePause:
-					if (isRunning)
+					if (Time.timeScale == 0)
+					{
+						if (hardPauseRequestedBy == controller)
+						{
+							GetComponent<BattleManager>().ToggleInputAllPlayers(true);
+							pauseDisplay.SetActive(false);
+							Time.timeScale = 1;
+							hardPauseRequestedBy = null;
+						}
+					}
+					else
+					{
+						GetComponent<BattleManager>().ToggleInputAllPlayers(false);
+						hardPauseRequestedBy = controller;
+						pauseDisplay.SetActive(true);
+						Time.timeScale = 0;
+					}
+
+					break;
+
+				case PauseRequestType.FinishedCommandInput:
+					if (reasonForPause != PauseRequestType.ActionContest)
+					{
+						if (!isPaused)
+						{
+							unpauseThisUpdate = true;
+							reasonForPause = reason;
+						}
+					}
+					break;
+
+				case PauseRequestType.ActionContest:
+					if (!isPaused)
 					{
 						pauseThisUpdate = true;
 						reasonForPause = reason;
 					}
-					else
-						unpauseThisUpdate = true;
-					break;
-				case PauseRequestType.FinishedCommandInput:
-					if (reasonForPause != PauseRequestType.ActionContest)
-					{
-						unpauseThisUpdate = true;
-						reasonForPause = reason;
-					}
-					break;
-				case PauseRequestType.ActionContest:
-					pauseThisUpdate = true;
-					reasonForPause = reason;
 					break;
 			}
 

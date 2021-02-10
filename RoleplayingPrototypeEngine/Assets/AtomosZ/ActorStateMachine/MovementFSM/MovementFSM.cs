@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace AtomosZ.ActorStateMachine.Movement
 {
-	public class MovementFSM<TActor> : FiniteStateMachine<MovementStateType, MovementState<TActor>, TActor>
+	public class MovementFSM<TActor> 
+		: ActorActionFiniteStateMachine<MovementStateType, MovementState<TActor>, TActor>
 		where TActor : BaseActor
 	{
 		public MovementFSM(TActor actor, ActorAnimator actorAnimator) : base(actor, actorAnimator) { }

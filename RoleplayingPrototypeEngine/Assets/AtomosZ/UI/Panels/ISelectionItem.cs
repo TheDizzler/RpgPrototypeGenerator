@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using AtomosZ.RPG.Actors.Battle;
-using UnityEngine;
 
 namespace AtomosZ.UI
 {

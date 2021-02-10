@@ -264,4 +264,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46953019d9c184a40b44e95e32c9fb83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spellList: []
+  owner: {fileID: 0}
+  spellList:
+  - effectArea: 1
+    targets: 1
+    name: Lit
+  - effectArea: 4
+    targets: 1
+    name: Fire
+  - effectArea: 1
+    targets: 2
+    name: Heal

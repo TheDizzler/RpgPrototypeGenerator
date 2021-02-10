@@ -9,10 +9,7 @@ namespace AtomosZ.RPG.Actors.Movement
 		public GroundMovementState(BattleActor owner)
 			: base(owner, MovementStateType.GroundMovement) { }
 
-		public override void OnEnter()
-		{
-			Debug.Log("Starting GroundMovement");
-		}
+		public override void OnEnter() { }
 
 		public override bool IsBlockingCommandInput()
 		{

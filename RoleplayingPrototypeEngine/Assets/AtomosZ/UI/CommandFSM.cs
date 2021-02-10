@@ -35,6 +35,7 @@ namespace AtomosZ.RPG.UI
 
 		public void OnEnter()
 		{
+			commandData.battleManager.PauseRequested(BattleTimer.PauseRequestType.Unpause, commandData.playerController);
 			commandData.ClearPanels();
 			commandData.HidePointer();
 		}
@@ -190,7 +191,7 @@ namespace AtomosZ.RPG.UI
 			= new Dictionary<CommandPhase, ICommandSelectState>();
 
 
-		public CommandSelectFSM(PlayerTacticalController controller)
+		public CommandSelectFSM(PlayerBattleController controller)
 		{
 			data.commandStack = new Stack<EventSelectionPanel>();
 			data.playerController = controller;
@@ -229,7 +230,7 @@ namespace AtomosZ.RPG.UI
 	public struct CommandSelectData
 	{
 		public Stack<EventSelectionPanel> commandStack;
-		public PlayerTacticalController playerController;
+		public PlayerBattleController playerController;
 		public BattleManager battleManager;
 		public BattleHUD battleHUD;
 		public GameObject currentCommandTarget;
@@ -358,6 +359,8 @@ namespace AtomosZ.RPG.UI
 			if (selected == null)
 				Debug.LogError("Fark");
 			Debug.Log(selected.name);
+
+			battleManager.AddBattleAction(selected, currentCommandTarget);
 			selected.onTargetSelect.Invoke(currentCommandTarget);
 		}
 	}
